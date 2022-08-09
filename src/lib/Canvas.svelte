@@ -1,5 +1,5 @@
 <script>
-// @ts-nocheck
+	// @ts-nocheck
 
 	import Endpoint from './Endpoint.svelte';
 	import Links from './Links.svelte';
@@ -10,18 +10,17 @@
 	export let data;
 
 	let canvas;
-	let source;
+	let connecting;
 	let marker;
 
 	const MARKER = 'marker';
 
-	let dots = [];
 	let left = 0;
 	let top = 0;
 
 	function handler(p, e) {
 		e.stopPropagation();
-		e.preventDefault();
+		// e.preventDefault();
 		left = p.clientX - canvas.offsetLeft;
 		top = p.clientY - canvas.offsetTop;
 	}
@@ -37,20 +36,22 @@
 				// track only 1 pointer at a time
 				if (pointerTracker.currentPointers.length === 1) return false;
 
-				marker = Endpoint;
+				connecting = true;
 				handler(pointer, event);
 
 				return true;
 			},
 			move(previousPointers, changedPointers, event) {
-				console.log('moving', node.id);
-
 				handler(pointerTracker.currentPointers[0], event);
-				// show link
-				// 				data.links = [...data.links, link]
+
+				// Prevent duplicate links
+				const check = data.links.find((el) => el.source.id == node.id && el.target.id == MARKER);
+				if (check == undefined) data.links = [...data.links, link]; // add latest link
+				else data.links = data.links; // simply refresh Svelte UI <Links />
 			},
 			end(pointer, event, cancelled) {
 				marker = null;
+				connecting = false;
 
 				// remove temp link
 				data.links = data.links
@@ -58,7 +59,7 @@
 					.filter((r) => r);
 			},
 			avoidPointerEvents: true,
-			eventListenerOptions: { capture: true }
+			eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
 		});
 
 		return {
@@ -85,15 +86,13 @@
 >
 	<div class="text-black font-bold">Directive is available within the slot as a slot prop</div>
 
-	{#if marker}
-		<div id={MARKER}>
-			<svelte:component this={marker} {left} {top} />
-		</div>
+	{#if connecting}
+		<Endpoint {marker} {left} {top} id={MARKER} />
 	{/if}
 
 	{#if canvas}
 		<slot directive={foo} />
 	{/if}
-	<!-- 	{left?.toFixed(0)}, {top?.toFixed(0)} -->
+
 	<Links links={data.links} />
 </div>

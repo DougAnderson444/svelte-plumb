@@ -24,20 +24,21 @@
 
 	let mounted;
 
+	let sourceX, sourceY, targetX, targetY;
+
 	onMount(() => {
 		mounted = true;
 	});
 
 	function genPath(link) {
-		console.log({ link });
 		let sourceEl = document.getElementById(link.source.id);
 		let targetEl = document.getElementById(link.target.id);
 
 		// centered
-		let sourceX = sourceEl?.offsetLeft + sourceEl.offsetWidth / 2;
-		let sourceY = sourceEl?.offsetTop + sourceEl.offsetHeight / 2;
-		let targetX = targetEl?.offsetLeft + targetEl.offsetWidth / 2;
-		let targetY = targetEl?.offsetTop + targetEl.offsetHeight / 2;
+		sourceX = sourceEl?.offsetLeft + sourceEl.offsetWidth / 2;
+		sourceY = sourceEl?.offsetTop + sourceEl.offsetHeight / 2;
+		targetX = targetEl?.offsetLeft + targetEl.offsetWidth / 2;
+		targetY = targetEl?.offsetTop + targetEl.offsetHeight / 2;
 
 		let d = generateXcurve({
 			source: [sourceX, sourceY],
@@ -71,13 +72,12 @@
 								>
 							</textPath>
 							<textPath xlink:href="#link_{i}" startOffset={arrowStartOffset} fill={arrowColor}
-								>{link?.opts?.arrow ? '➤' : ''}</textPath
+								>{link?.opts ? (link?.opts?.arrow ? '➤' : '') : '➤'}</textPath
 							>
 						</text>
 					</g>
 				{/if}
 			{/each}
-			// draw an s curve svg with arrow marker mid genPath
 		</svg>
 	</div>
 {/if}

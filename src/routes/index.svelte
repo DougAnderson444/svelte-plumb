@@ -11,12 +11,12 @@
 
 	let data = {
 		nodes: [
-			{ id: 1, type: 'emojii', value: '🐱' },
-			{ id: 2, type: 'emojii', value: '🦄' },
-			{ id: 3, type: 'emojii', value: '🐐' },
-			{ id: 4, type: 'description', value: 'GOAT' },
-			{ id: 5, type: 'description', value: 'Cat' },
-			{ id: 6, type: 'description', value: 'Unicorn' }
+			{ id: 1, type: types.emojii, value: '🐱' },
+			{ id: 2, type: types.emojii, value: '🦄' },
+			{ id: 3, type: types.emojii, value: '🐐' },
+			{ id: 4, type: types.description, value: 'GOAT' },
+			{ id: 5, type: types.description, value: 'Cat' },
+			{ id: 6, type: types.description, value: 'Unicorn' }
 		],
 		links: []
 	};
@@ -34,7 +34,7 @@
 		{#each [...Object.entries(types)] as [type, desc]}
 			<div class="flex flex-col border rounded-lg m-4 p-4">
 				{#each data.nodes.filter((t) => t.type == type) as node (node.id)}
-					<div class="block m-2 cursor-pointer" use:directive>
+					<div class="block m-2 cursor-pointer select-none" use:directive>
 						{node.value}
 					</div>
 				{/each}
