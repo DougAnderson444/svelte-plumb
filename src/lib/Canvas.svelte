@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
 	import Endpoint from './Endpoint.svelte';
 	import Links from './Links.svelte';
 

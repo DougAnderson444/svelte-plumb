@@ -10,7 +10,7 @@ Experimental Work In Progress. Going for the simplest svg drawing API _ever_.
 </Canvas>
 ```
 
-# Repo DEMO
+# REPO Demo
 
 `npm run dev`
 
