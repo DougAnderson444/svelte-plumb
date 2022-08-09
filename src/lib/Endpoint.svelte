@@ -16,7 +16,7 @@
 <div
 	bind:this={marker}
 	{id}
-	class="absolute rounded-full h-16 w-16 bg-green-500 shadow-xl z-20 select-none"
+	class="absolute rounded-full h-16 w-16 bg-green-500 shadow-xl z-20 select-none opacity-50"
 	style="left:{x}px; top:{y}px;"
 	bind:offsetWidth
 	bind:offsetHeight
