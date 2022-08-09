@@ -1,6 +1,13 @@
 <script>
 	// @ts-nocheck
 
+	// Data update Event options:
+	/**
+	 * 1. dispatch even to Parent
+	 * 2. dispatch event to node via directive
+	 * 3. bind the data through a prop
+	 */
+
 	import Endpoint from './Endpoint.svelte';
 	import Links from './Links.svelte';
 
@@ -19,6 +26,9 @@
 	let left = 0;
 	let top = 0;
 
+	// get data nodes value from matching node.id
+	const getNodeValue = (search) => data.nodes.find((el) => el.id == search).value;
+
 	function handler(p, e) {
 		e.stopPropagation();
 		// e.preventDefault();
@@ -26,7 +36,7 @@
 		top = p.clientY - canvas.offsetTop;
 	}
 
-	function foo(node, bar) {
+	function connectable(node, bar) {
 		if (!node.id) node.id = nanoid();
 
 		if (!node.dataset['dropzone']) {
@@ -34,7 +44,17 @@
 		}
 
 		// link from node to marker
-		const link = { source: { id: node.id }, target: { id: MARKER } };
+		const link = {
+			id: node.id + '-to-',
+			source: { id: node.id },
+			target: { id: MARKER },
+			opts: {
+				label: {
+					enabled: true,
+					value: `${getNodeValue(node.id)} to `
+				}
+			}
+		};
 
 		let pointerTracker = new PointerTracker(node, {
 			start(pointer, event) {
@@ -75,7 +95,20 @@
 				if (!zone || !zone?.id) return;
 
 				// get dropzone target id
-				data.links = [...data.links, { source: { id: node.id }, target: { id: zone.id } }]; // add latest link
+				data.links = [
+					...data.links,
+					{
+						id: node.id + '-to-' + zone.id,
+						source: { id: node.id },
+						target: { id: zone.id },
+						opts: {
+							label: {
+								enabled: true,
+								value: `${getNodeValue(node.id)} to ${getNodeValue(zone.id)}`
+							}
+						}
+					}
+				]; // add latest link
 			},
 			avoidPointerEvents: true,
 			eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
@@ -93,16 +126,10 @@
 	}
 </script>
 
-<div class="my-2 p-2 bg-blue-100 rounded-lg w-fit">
-	<a href="https://twitter.com/DougAnderson444" class="font-bold m-2 underline"
-		>by @DougAnderson444</a
-	>
-</div>
-
 <div
 	data-dropzone="true"
 	bind:this={canvas}
-	class="relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100 m-4 p-4"
+	class="relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4 p-4 z-50"
 >
 	<div class="text-black font-bold">Directive is available within the slot as a slot prop</div>
 
@@ -111,7 +138,7 @@
 	{/if}
 
 	{#if canvas}
-		<slot directive={foo} />
+		<slot {connectable} />
 	{/if}
 
 	<Links links={data.links} />
