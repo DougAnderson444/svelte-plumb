@@ -49,6 +49,12 @@
 	}
 </script>
 
+<svelte:window
+	on:resize={(e) => {
+		links = links;
+	}}
+/>
+
 {#if mounted}
 	<div class="svg-container">
 		<svg>
@@ -57,22 +63,24 @@
 					<g stroke={groupStrokeColor} stroke-opacity={groupStrokeOpacity}>
 						<path
 							d={genPath(link)}
-							id="link_{i}"
+							id={link.id}
 							stroke-width={strokeWidth}
 							stroke={strokeColor}
 							fill="none"
 							stroke-linecap="round"
-							marker-mid="url(#triangle)"
 							stroke-opacity={strokeOpacity}
 						/>
 						<text>
-							<textPath xlink:href="#link_{i}" startOffset={textStartOffset}>
+							<textPath xlink:href="#{link.id}" startOffset={textStartOffset}>
 								<tspan fill="black"
 									>{link?.opts?.label?.enabled ? link?.opts?.label?.value : ''}</tspan
 								>
 							</textPath>
-							<textPath xlink:href="#link_{i}" startOffset={arrowStartOffset} fill={arrowColor}
-								>{link?.opts ? (link?.opts?.arrow ? '➤' : '') : '➤'}</textPath
+							<textPath
+								xlink:href="#{link.id}"
+								startOffset={arrowStartOffset}
+								fill={arrowColor}
+								opacity={strokeOpacity * 1.3}>➤</textPath
 							>
 						</text>
 					</g>
