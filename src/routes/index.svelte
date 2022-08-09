@@ -29,12 +29,27 @@
 	/>
 </svelte:head>
 
-<Canvas bind:data let:directive>
-	<div class="flex flex-row">
+<div class="my-2 p-2 bg-blue-100 rounded-lg w-fit">
+	by <a href="https://twitter.com/DougAnderson444" class="font-bold m-2 underline"
+		>@DougAnderson444</a
+	>
+	<a href="https://twitter.com/DougAnderson444" class="font-bold m-2 underline"
+		>https://github.com/DougAnderson444/svelte-plumb</a
+	>
+</div>
+
+Match the picture to the words:
+
+<Canvas bind:data let:connectable>
+	<div class="flex flex-row justify-around ">
 		{#each [...Object.entries(types)] as [type, desc]}
 			<div class="flex flex-col border rounded-lg m-4 p-4">
 				{#each data.nodes.filter((t) => t.type == type) as node (node.id)}
-					<div class="block m-2 cursor-pointer select-none" use:directive>
+					<div
+						class="block m-2 cursor-pointer select-none"
+						use:connectable
+						id={node?.id ? node?.id : null}
+					>
 						{node.value}
 					</div>
 				{/each}
