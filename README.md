@@ -2,6 +2,8 @@
 
 Experimental Work In Progress. Going for the simplest svg drawing API _ever_.
 
+![Demo](static/thumb.png)
+
 ## Problem
 
 Most javascript diagram libraries use SVGs for non-line / connectors. This is silly, we have HTML for that. This library explores making js diagramming a bit more simple to program and use as a library.
