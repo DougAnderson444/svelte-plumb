@@ -17,7 +17,7 @@ const config = {
 		},
 		paths: {
 			// change below to your repo name
-			base: process.env.NODE_ENV === 'production' ? '/svelte-plumb' : ''
+			base: '/svelte-plumb' //  process.env.NODE_ENV == 'production' ? '/svelte-plumb' : ''
 		}
 	}
 };

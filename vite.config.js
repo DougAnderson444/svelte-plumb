@@ -8,6 +8,12 @@ const config = {
 		alias: {
 			'@douganderson444/svelte-plumb': path.resolve('src/lib')
 		}
+	},
+	server: {
+		fs: {
+			// https://github.com/vitejs/vite/issues/5689
+			allow: ['.']
+		}
 	}
 };
 
