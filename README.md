@@ -12,11 +12,13 @@ Also, frameworks like js-plumb are a bit complex to use, the setup is a bit much
 
 ## Solution: One Parent Component + One Action directive
 
-The bare minimum is a framework Component wrapper (in this case, Svelte) because
+The bare minimum is a framework Component wrapper (in this case, Svelte) because:
 
-1. the SVG lines need to be drawn relative to common, fixed coords
-2. you need a Parent component to be able to use helper components (like the "Connecting..." HTML div, which is also written in Svelte). Without a Parent component (for instance, if you chose to use actio directives exclusively), you wouldn't be able to use Svelte's slick API ad life would be hard.
-3. the wrapper needs to be positioned: relative for child to be position: absolute. Need a parent component for this too... if it didn't exist, well, you'd have to make an HTML version of it. So why not use the component framework and kee life simply and easy.
+1. SVG lines need to be drawn relative to common, fixed coords (ie. the Parent)
+2. We need a Parent component to be able to use helper components (like the "Connecting..." HTML div, which is also written in Svelte). Without a Parent component (for instance, if you chose to [use action directives](https://svelte.dev/docs#template-syntax-element-directives-use-action) exclusively), you wouldn't be able to use Svelte's slick API, and life would be hard.
+3. In order to have `position: absolute` SVGs, we need a Parent to be `positioned: relative`. Need a parent component for this too... if it didn't exist, well, you'd have to make an HTML version of it. So why not use the component framework and kee life simply and easy.
+
+QED, as my high school math teacher would say.
 
 ```svelte
 <Canvas bind:data let:connectable>
@@ -25,6 +27,8 @@ The bare minimum is a framework Component wrapper (in this case, Svelte) because
 	<div use:connectable>Svelte action directive now applied to this HTMLElement</div>
 </Canvas>
 ```
+
+So, anything within the Canvas component with a `use:connectable` action directive will be connectable. The SVG lines will be drawn relative to the Canvas component, and away you go. Everything else is done behind the scenes by Svelte.
 
 # REPO Demo
 
