@@ -14,6 +14,7 @@
 	let marker;
 
 	const MARKER = 'marker';
+	const DROPZONE = 'dropzone';
 
 	let left = 0;
 	let top = 0;
@@ -27,6 +28,10 @@
 
 	function foo(node, bar) {
 		if (!node.id) node.id = nanoid();
+
+		if (!node.dataset['dropzone']) {
+			node.dataset.dropzone = true;
+		}
 
 		// link from node to marker
 		const link = { source: { id: node.id }, target: { id: MARKER } };
@@ -49,14 +54,28 @@
 				if (check == undefined) data.links = [...data.links, link]; // add latest link
 				else data.links = data.links; // simply refresh Svelte UI <Links />
 			},
-			end(pointer, event, cancelled) {
-				marker = null;
+			end: (pointer, event, cancelled) => {
+				marker.style.display = 'none'; // so elementFromPoint gets what is underneath instead
+
+				// marker = null;
 				connecting = false;
+
+				// get closest dropzone target
+				let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
+
+				let zone = drop.closest(`[data-dropzone]`);
+
+				console.log({ zone });
 
 				// remove temp link
 				data.links = data.links
 					.map((el) => (el.source.id == node.id && el.target.id == MARKER ? null : el))
 					.filter((r) => r);
+
+				if (!zone || !zone?.id) return;
+
+				// get dropzone target id
+				data.links = [...data.links, { source: { id: node.id }, target: { id: zone.id } }]; // add latest link
 			},
 			avoidPointerEvents: true,
 			eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
@@ -81,13 +100,14 @@
 </div>
 
 <div
+	data-dropzone="true"
 	bind:this={canvas}
 	class="relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100 m-4 p-4"
 >
 	<div class="text-black font-bold">Directive is available within the slot as a slot prop</div>
 
 	{#if connecting}
-		<Endpoint {marker} {left} {top} id={MARKER} />
+		<Endpoint bind:marker {left} {top} id={MARKER} />
 	{/if}
 
 	{#if canvas}
