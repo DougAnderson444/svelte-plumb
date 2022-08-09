@@ -19,12 +19,10 @@ The bare minimum is a framework Component wrapper (in this case, Svelte) because
 3. the wrapper needs to be positioned: relative for child to be position: absolute. Need a parent component for this too... if it didn't exist, well, you'd have to make an HTML version of it. So why not use the component framework and kee life simply and easy.
 
 ```svelte
-<Canvas let:connectable>
+<Canvas bind:data let:connectable>
 	<div use:connectable>Svelte action directive now applied to this HTMLElement</div>
 
-	<div use:connectable on:connect={handleConnect}>
-		Svelte action directive now applied to this HTMLElement
-	</div>
+	<div use:connectable>Svelte action directive now applied to this HTMLElement</div>
 </Canvas>
 ```
 
@@ -40,3 +38,5 @@ https://svelte.dev/repl/cf05fb3c64674978a717ce1f861a82c0?version=3.49.0
 
 [https://demo.jsplumbtoolkit.com/flowchart-builder/](https://demo.jsplumbtoolkit.com/flowchart-builder/)
 [https://github.com/bpmn-io/diagram-js](https://github.com/bpmn-io/diagram-js)
+
+CSS by [https://tailwindcss.com/](https://tailwindcss.com/)
