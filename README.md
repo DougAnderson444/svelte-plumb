@@ -1,18 +1,12 @@
 # Svelte Plumb
 
-Going for the simplest svg drawing API ever.
+Experimental Work In Progress. Going for the simplest svg drawing API _ever_.
 
-```gfm
+```svelte
 <Canvas let:connectable>
+	<div use:connectable>Svelte action directive now applied to this HTMLElement</div>
 
-    <div use:connectable>
-        Svelte action directive now applied to this HTMLElement
-    </div>
-
-    <div use:connectable>
-        Svelte action directive now applied to this HTMLElement
-    </div>
-
+	<div use:connectable>Svelte action directive now applied to this HTMLElement</div>
 </Canvas>
 ```
 
