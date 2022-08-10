@@ -27,7 +27,15 @@
 	let top = 0;
 
 	// get data nodes value from matching node.id
-	const getNodeValue = (search) => data.nodes.find((el) => el.id == search).value;
+	const getNodeValue = (sourceID, targetID = false) => {
+		const match = data.nodes.find((el) => el.id == sourceID);
+		if (!match || !match.value) return '';
+		if (!targetID) return match.value + ' to';
+
+		const match2 = data.nodes.find((el) => el.id == targetID);
+		if (!match2) return match.value;
+		return `${match.value} to ${match2.value}`;
+	};
 
 	function handler(p, e) {
 		e.stopPropagation();
@@ -44,17 +52,7 @@
 		}
 
 		// link from node to marker
-		const link = {
-			id: node.id + '-to-',
-			source: { id: node.id },
-			target: { id: MARKER },
-			opts: {
-				label: {
-					enabled: true,
-					value: `${getNodeValue(node.id)} to `
-				}
-			}
-		};
+		let link;
 
 		let pointerTracker = new PointerTracker(node, {
 			start(pointer, event) {
@@ -69,6 +67,20 @@
 			move(previousPointers, changedPointers, event) {
 				handler(pointerTracker.currentPointers[0], event);
 
+				link = {
+					id: node.id + '-to-',
+					source: { id: node.id },
+					target: { id: MARKER },
+					opts: {
+						label: {
+							enabled: true,
+							value: getNodeValue(node.id)
+						}
+					}
+				};
+
+				console.log({ link });
+
 				// Prevent duplicate links
 				const check = data.links.find((el) => el.source.id == node.id && el.target.id == MARKER);
 				if (check == undefined) data.links = [...data.links, link]; // add latest link
@@ -82,10 +94,7 @@
 
 				// get closest dropzone target
 				let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
-
 				let zone = drop.closest(`[data-dropzone]`);
-
-				console.log({ zone });
 
 				// remove temp link
 				data.links = data.links
@@ -104,7 +113,7 @@
 						opts: {
 							label: {
 								enabled: true,
-								value: `${getNodeValue(node.id)} to ${getNodeValue(zone.id)}`
+								value: getNodeValue(node.id, zone.id)
 							}
 						}
 					}
@@ -127,7 +136,6 @@
 </script>
 
 <div
-	data-dropzone="true"
 	bind:this={canvas}
 	class="relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4 p-4 z-50"
 >
@@ -141,5 +149,5 @@
 		<slot {connectable} />
 	{/if}
 
-	<Links links={data.links} />
+	<Links links={data.links} {canvas} />
 </div>
