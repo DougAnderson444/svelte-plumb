@@ -1,7 +1,9 @@
 <script>
 	// @ts-nocheck
 
-	import { Canvas, Point } from '@douganderson444/svelte-plumb';
+	import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
+
+	import Skew from '$lib/Skew.svelte';
 
 	import { quintOut } from 'svelte/easing';
 	import { crossfade } from 'svelte/transition';
@@ -71,19 +73,32 @@ Match the picture to the words:
 		{/each}
 	</div>
 	<div class="flex flex-row flex-wrap border rounded-lg m-4 p-4 justify-between bg-neutral-50">
-		<div class="relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100">
+		<div class="inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100">
 			Can we also have an external endpoint?
-			<Point position={'right'} {connectable} />
+			<EndPoint position={'right'} {connectable} />
+			<EndPoint position={'left'} {connectable} />
 		</div>
 		<div class="relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-red-300">
-			No, libraries cannot do that.
-			<Point position={'left'} {connectable} />
+			No, libraries cannot do that. Just kidding.
+			<EndPoint position={'left'} {connectable} />
 		</div>
-		<div class="relative inline-flex m-2 ml-auto p-4 border rounded-lg  w-1/3 bg-green-300">
-			Yes, pass the connectable directive to the component.
-			<Point position={'left'} {connectable} />
+		<div class="relative flex-0 m-2 ml-auto p-4 border rounded-lg  w-1/3 bg-green-300">
+			Yes, pass the connectable directive to the component. They can even be <Skew>custom</Skew>,
+			like this one.
+			<EndPoint position={'left'} {connectable}>
+				<div
+					class="h-4 w-4 bg-green-500 rounded-full border-4 border-black hover:ring hover:ring-green-800"
+				/>
+			</EndPoint>
 		</div>
 	</div>
+
+	<!-- Optional -->
+	<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
+	<div
+		slot="marker"
+		class="h-16 w-16 p-8 rounded-full bg-pink-500 shadow-xl opacity-50 select-none border-[2em]"
+	/>
 </Canvas>
 
 <!-- Control Panel for Links -->
