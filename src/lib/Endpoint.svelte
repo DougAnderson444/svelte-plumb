@@ -1,30 +1,62 @@
 <script>
 	// @ts-nocheck
+	import { onMount } from 'svelte';
 
-	export let marker;
-	export let id;
-	export let left;
-	export let top;
+	export let position = 'right';
+	export let connectable;
+	export let zoneSize = 2;
 
-	let offsetWidth;
-	let offsetHeight;
+	let dot;
+	let offsetHeight, offsetWidth, parentHeight;
 
-	$: x = left - offsetWidth / 2;
-	$: y = top - offsetHeight / 2;
+	let highlight;
+
+	$: if (dot) {
+		// ensire parentNdoe of dot is position relative
+		dot.parentNode.style.position = 'relative';
+
+		parentHeight = dot.parentNode.offsetHeight;
+		// parentHeight = dot.parentNode.getBoundingClientRect().height;
+	}
+
+	$: top = parentHeight && offsetHeight ? parentHeight / 2 - offsetHeight / 2 : 0;
+	$: right = offsetWidth ? -offsetWidth / 2 : 0;
+	$: left = offsetWidth ? -offsetWidth / 2 : 0;
 </script>
 
+<svelte:window
+	on:resize={(e) => {
+		top = top;
+		left = left;
+		right = right;
+	}}
+/>
+
 <div
-	bind:this={marker}
-	{id}
-	class="absolute rounded-full h-16 w-16 bg-green-500 shadow-xl z-20 select-none opacity-50"
-	style="left:{x}px; top:{y}px;"
+	bind:this={dot}
 	bind:offsetWidth
 	bind:offsetHeight
+	use:connectable
+	class="flex absolute border-[{zoneSize}em] hover:border-red-500/50 {highlight
+		? ' border-red-500/50 '
+		: ''} border-transparent rounded-full"
+	style="top: {top}px;  {position == 'right' ? `right: ${right}px;` : `left: ${left}px;`}"
+	on:dragover={(e) => {
+		highlight = true;
+	}}
+	on:dragleave={(e) => {
+		highlight = false;
+	}}
+	on:focus={(e) => {
+		highlight = true;
+	}}
+	on:blur={(e) => {
+		highlight = false;
+	}}
 >
-	<div
-		class="absolute rounded-full h-32 w-32 shadow-xl z-10 select-none"
-		style="transform: translate({-offsetWidth / 2}px, {-offsetHeight / 2}px)"
-	>
-		<slot />
-	</div>
+	<slot>
+		<div
+			class="flex h-4 w-4 border-2 bg-blue-500 rounded-full border-blue-300 hover:ring hover:ring-blue-800"
+		/>
+	</slot>
 </div>
