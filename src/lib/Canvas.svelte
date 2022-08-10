@@ -39,10 +39,10 @@
 	};
 
 	function handler(p, e) {
-		e.stopPropagation();
-		// e.preventDefault();
-		left = p.clientX - canvas.offsetLeft;
-		top = p.clientY - canvas.offsetTop;
+		e.stopPropagation(); // afftect this event target only, not the ones below it
+		e.preventDefault(); // prevents scrolling whilst dragging
+		left = p.pageX - canvas.offsetLeft;
+		top = p.pageY - canvas.offsetTop;
 	}
 
 	function connectable(node, bar) {
@@ -118,7 +118,7 @@
 					}
 				]; // add latest link
 			},
-			avoidPointerEvents: true,
+			avoidPointerEvents: true, // mkaes mobile work better
 			eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
 		});
 
