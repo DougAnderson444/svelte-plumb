@@ -80,8 +80,6 @@
 					}
 				};
 
-				console.log({ link });
-
 				// Prevent duplicate links
 				const check = data.links.find((el) => el.source.id == node.id && el.target.id == MARKER);
 				if (check == undefined) data.links = [...data.links, link]; // add latest link
