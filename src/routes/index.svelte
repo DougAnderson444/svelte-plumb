@@ -18,12 +18,20 @@
 			{ id: 5, type: types.description, value: 'Cat' },
 			{ id: 6, type: types.description, value: 'Unicorn' }
 		],
-		links: []
+		links: [
+			{
+				id: '2-to-6',
+				source: { id: '2' },
+				target: { id: '6' },
+				opts: { label: { enabled: true, value: '🦄 to Unicorn' } }
+			}
+		]
 	};
 
 	let opts = {
 		links: {
-			strokeWidth: 18
+			strokeWidth: 18,
+			textStartOffset: 40
 		}
 	};
 </script>
@@ -94,4 +102,12 @@ Match the picture to the words:
 			<input type="range" bind:value={opts.links.strokeOpacity} min="0.1" max="1" step="0.1" />
 		</label>
 	</div>
+	<div class="my-4 p-4 bg-blue-200/50 rounded-lg shadow">
+		<label class=""
+			><span class="p-2">Start Distance {opts.links.textStartOffset}</span>
+			<input type="range" bind:value={opts.links.textStartOffset} min="0%" max="90%" step="5%" />
+		</label>
+	</div>
 </div>
+
+<!-- {JSON.stringify({ data })} -->

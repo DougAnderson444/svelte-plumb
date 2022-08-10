@@ -18,7 +18,7 @@
 	export let groupStrokeOpacity = '0.1';
 	export let groupStrokeColor = 'white';
 
-	export let textStartOffset = '40%';
+	export let textStartOffset = 40; // %
 	export let arrowStartOffset = '60%';
 
 	const generateXcurve = link(curveBumpX);
@@ -89,7 +89,7 @@
 						stroke-opacity={strokeOpacity}
 					/>
 					<text>
-						<textPath xlink:href="#{link.id}" startOffset={textStartOffset}>
+						<textPath xlink:href="#{link.id}" startOffset={textStartOffset + '%'}>
 							<tspan fill="black"
 								>{link?.opts?.label?.enabled ? link?.opts?.label?.value : ''}</tspan
 							>
