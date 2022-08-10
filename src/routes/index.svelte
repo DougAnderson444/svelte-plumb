@@ -1,7 +1,7 @@
 <script>
 	// @ts-nocheck
 
-	import { Canvas } from '@douganderson444/svelte-plumb';
+	import { Canvas, Point } from '@douganderson444/svelte-plumb';
 
 	import { quintOut } from 'svelte/easing';
 	import { crossfade } from 'svelte/transition';
@@ -42,18 +42,26 @@ Match the picture to the words:
 
 <Canvas bind:data let:connectable>
 	<div class="flex flex-row justify-around ">
-		{#each [...Object.entries(types)] as [type, desc]}
+		{#each [...Object.entries(types)] as [type, desc], i}
 			<div class="flex flex-col border rounded-lg m-4 p-4">
 				{#each data.nodes.filter((t) => t.type == type) as node (node.id)}
 					<div
-						class="block m-2 cursor-pointer select-none"
+						class="block m-2 cursor-pointer select-none w-fit"
 						use:connectable
 						id={node?.id ? node?.id : null}
 					>
 						{node.value}
 					</div>
 				{/each}
+
+				<div class="relative inline-flex m-2 p-4 border rounded-lg">
+					We can have an external endpoint, by passing the connectable directive to a connector
+					component:
+					<Point position={i % 2 ? 'left' : 'right'} {connectable} />
+				</div>
 			</div>
 		{/each}
 	</div>
 </Canvas>
+
+{JSON.stringify(data)}
