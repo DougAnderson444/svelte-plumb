@@ -13,7 +13,7 @@
 	export let strokeWidth = 18;
 	export let arrowColor = 'green';
 
-	export let strokeOpacity = '0.5';
+	export let strokeOpacity = '0.3';
 
 	export let groupStrokeOpacity = '0.1';
 	export let groupStrokeColor = 'white';
@@ -81,48 +81,39 @@
 />
 
 {#if mounted}
-	<div class="svg-container">
-		<svg>
-			{#each links as link, i}
-				{#if link && mounted}
-					<g stroke={groupStrokeColor} stroke-opacity={groupStrokeOpacity}>
-						<path
-							d={genPath(link)}
-							id={link.id}
-							stroke-width={strokeWidth}
-							stroke={strokeColor}
-							fill="none"
-							stroke-linecap="round"
-							stroke-opacity={strokeOpacity}
-						/>
-						<text>
-							<textPath xlink:href="#{link.id}" startOffset={textStartOffset}>
-								<tspan fill="black"
-									>{link?.opts?.label?.enabled ? link?.opts?.label?.value : ''}</tspan
-								>
-							</textPath>
-							<textPath
-								xlink:href="#{link.id}"
-								startOffset={arrowStartOffset}
-								fill={arrowColor}
-								opacity={strokeOpacity * 1.3}>➤</textPath
+	<svg style="pointer-events: none;">
+		{#each links as link, i}
+			{#if link && mounted}
+				<g stroke={groupStrokeColor} stroke-opacity={groupStrokeOpacity}>
+					<path
+						d={genPath(link)}
+						id={link.id}
+						stroke-width={strokeWidth}
+						stroke={strokeColor}
+						fill="none"
+						stroke-linecap="round"
+						stroke-opacity={strokeOpacity}
+					/>
+					<text>
+						<textPath xlink:href="#{link.id}" startOffset={textStartOffset}>
+							<tspan fill="black"
+								>{link?.opts?.label?.enabled ? link?.opts?.label?.value : ''}</tspan
 							>
-						</text>
-					</g>
-				{/if}
-			{/each}
-		</svg>
-	</div>
+						</textPath>
+						<textPath
+							xlink:href="#{link.id}"
+							startOffset={arrowStartOffset}
+							fill={arrowColor}
+							opacity={strokeOpacity * 1.3}>➤</textPath
+						>
+					</text>
+				</g>
+			{/if}
+		{/each}
+	</svg>
 {/if}
 
 <style>
-	.svg-container {
-		/* position: relative;
-		top: 0;
-		left: 0; */
-		width: 100%;
-		height: 100%;
-	}
 	svg {
 		position: absolute;
 		top: 0;
@@ -130,7 +121,7 @@
 		float: left;
 		stroke-width: 5;
 		border: 1px dashed blue;
-		z-index: -1;
+		/* z-index: -1; */
 		width: 100%;
 		height: 100%;
 	}
@@ -144,7 +135,7 @@
 
 	tspan {
 		font-family: 'Luckiest Guy', cursive;
-		font-size: 0.5em;
+		font-size: 0.75em;
 		/* font-family: Impact; */
 		dominant-baseline: ideographic;
 	}
