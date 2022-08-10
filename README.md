@@ -21,10 +21,26 @@ The bare minimum is a framework Component wrapper (in this case, Svelte) because
 QED, as my high school math teacher would say.
 
 ```svelte
-<Canvas bind:data let:connectable>
-	<div use:connectable>Svelte action directive now applied to this HTMLElement</div>
+import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
 
-	<div use:connectable>Svelte action directive now applied to this HTMLElement</div>
+<Canvas bind:data let:connectable>
+	<div use:connectable>This HTMLElement is now connectable</div>
+
+	<!-- OPTIONS -->
+
+	<!-- Optional, override connecting marker, with `slot="marker"` -->
+	<!-- Styles are Tailwindcss shortcuts -->
+	<div
+		slot="marker"
+		class="h-16 w-16 p-8 rounded-full bg-pink-500 shadow-xl opacity-50 select-none border-[2em]"
+	/>
+
+	<!-- Optional, use connector end points as Child -->
+	<div>
+		We also add endpoints outside the element.
+		<EndPoint position={'right'} {connectable} />
+		<EndPoint position={'left'} {connectable} />
+	</div>
 </Canvas>
 ```
 
