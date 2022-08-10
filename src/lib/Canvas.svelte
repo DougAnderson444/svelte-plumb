@@ -8,7 +8,7 @@
 	 * 3. bind the data through a prop
 	 */
 
-	import Endpoint from './Endpoint.svelte';
+	import CursorMarker from './CursorMarker.svelte';
 	import Links from './Links.svelte';
 
 	import PointerTracker from '@douganderson444/pointer-tracker';
@@ -147,7 +147,14 @@
 	<div class="text-black font-bold">Directive is available within the slot as a slot prop</div>
 
 	{#if connecting}
-		<Endpoint bind:marker {left} {top} id={MARKER} />
+		<CursorMarker bind:marker {left} {top} id={MARKER}>
+			<slot name="marker">
+				<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
+				<div
+					class="h-16 w-16 p-8 rounded-full bg-green-500 shadow-xl opacity-50 select-none border-[2em]"
+				/>
+			</slot>
+		</CursorMarker>
 	{/if}
 
 	{#if canvas}
