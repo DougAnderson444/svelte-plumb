@@ -74,12 +74,6 @@
 	}
 </script>
 
-<svelte:window
-	on:resize={(e) => {
-		links = links;
-	}}
-/>
-
 {#if mounted}
 	<svg style="pointer-events: none;">
 		{#each links as link, i}

@@ -20,6 +20,12 @@
 		],
 		links: []
 	};
+
+	let opts = {
+		links: {
+			strokeWidth: 18
+		}
+	};
 </script>
 
 <svelte:head>
@@ -40,7 +46,7 @@
 
 Match the picture to the words:
 
-<Canvas bind:data let:connectable>
+<Canvas bind:data bind:opts let:connectable>
 	<div class="flex flex-row justify-around ">
 		{#each [...Object.entries(types)] as [type, desc], i}
 			<div class="flex flex-col border rounded-lg m-4 p-4">
@@ -72,4 +78,20 @@ Match the picture to the words:
 	</div>
 </Canvas>
 
-{JSON.stringify(data)}
+<!-- Control Panel for Links -->
+
+<div class="m-4 p-4 bg-slate-100 rounded-lg shadow-lg border">
+	<div class="text-lg font-bold underline">Control Panel</div>
+	<div class="my-4 p-4 bg-blue-200/50 rounded-lg shadow">
+		<label class=""
+			><span class="p-2">Stroke Width</span>
+			<input type="range" bind:value={opts.links.strokeWidth} min="1" max="50" />
+		</label>
+	</div>
+	<div class="my-4 p-4 bg-blue-200/50 rounded-lg shadow">
+		<label class=""
+			><span class="p-2">Stroke Opacity</span>
+			<input type="range" bind:value={opts.links.strokeOpacity} min="0.1" max="1" step="0.1" />
+		</label>
+	</div>
+</div>

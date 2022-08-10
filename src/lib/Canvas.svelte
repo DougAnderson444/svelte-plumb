@@ -15,6 +15,7 @@
 	import { nanoid } from 'nanoid';
 
 	export let data;
+	export let opts = {};
 
 	let canvas;
 	let connecting;
@@ -135,6 +136,12 @@
 	}
 </script>
 
+<svelte:window
+	on:resize={(e) => {
+		data.links = data.links;
+	}}
+/>
+
 <div
 	bind:this={canvas}
 	class="relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4 p-4 z-50"
@@ -149,5 +156,5 @@
 		<slot {connectable} />
 	{/if}
 
-	<Links links={data.links} {canvas} />
+	<Links links={data.links} {canvas} {...opts?.links} />
 </div>

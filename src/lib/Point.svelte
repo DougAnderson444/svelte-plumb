@@ -17,6 +17,14 @@
 	$: left = offsetWidth ? -offsetWidth / 2 : 0;
 </script>
 
+<svelte:window
+	on:resize={(e) => {
+		top = top;
+		left = left;
+		right = right;
+	}}
+/>
+
 <div
 	bind:this={dot}
 	bind:offsetWidth
