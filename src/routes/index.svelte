@@ -53,14 +53,22 @@ Match the picture to the words:
 						{node.value}
 					</div>
 				{/each}
-
-				<div class="relative inline-flex m-2 p-4 border rounded-lg">
-					We can have an external endpoint, by passing the connectable directive to a connector
-					component:
-					<Point position={i % 2 ? 'left' : 'right'} {connectable} />
-				</div>
 			</div>
 		{/each}
+	</div>
+	<div class="flex flex-row flex-wrap border rounded-lg m-4 p-4 justify-between bg-neutral-50">
+		<div class="relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100">
+			Can we also have an external endpoint?
+			<Point position={'right'} {connectable} />
+		</div>
+		<div class="relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-red-300">
+			No, libraries cannot do that.
+			<Point position={'left'} {connectable} />
+		</div>
+		<div class="relative inline-flex m-2 ml-auto p-4 border rounded-lg  w-1/3 bg-green-300">
+			Yes, pass the connectable directive to the component.
+			<Point position={'left'} {connectable} />
+		</div>
 	</div>
 </Canvas>
 
