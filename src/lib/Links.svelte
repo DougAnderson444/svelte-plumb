@@ -18,7 +18,7 @@
 	export let groupStrokeOpacity = '0.1';
 	export let groupStrokeColor = 'white';
 
-	export let textStartOffset = 40; // %
+	export let textStartOffset = 20; // %
 	export let arrowStartOffset = '60%';
 
 	const generateXcurve = link(curveBumpX);

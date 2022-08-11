@@ -12,8 +12,26 @@ const config = {
 	server: {
 		fs: {
 			// https://github.com/vitejs/vite/issues/5689
+			strict: false,
 			allow: ['.']
 		}
+	},
+	build: {
+		rollupOptions: {
+			// https://rollupjs.org/guide/en/#big-list-of-options
+			output: {
+				minifyInternalExports: false,
+				compact: false
+			}
+		},
+		minify: false,
+		sourcemap: true,
+		optimization: {
+			minimize: false
+		}
+	},
+	optimization: {
+		minimize: false
 	}
 };
 
