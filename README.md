@@ -4,6 +4,11 @@ Experimental Work In Progress.
 
 Going for the simplest svg drawing API _ever_.
 
+- [x] Simple API
+- [x] Defaults + Customization
+- [x] Connect Elements and EndPoints
+- [x] Touch/Mobile friendly
+
 ![Demo](static/thumb.png)
 
 ## The Problem
@@ -27,11 +32,11 @@ QED, as my high school math teacher would say.
 ### Basic Use
 
 ```svelte
-import {Canvas} from '@douganderson444/svelte-plumb';
+import { Canvas } from '@douganderson444/svelte-plumb';
 
 <Canvas bind:data let:connectable>
 	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
-</Canvas>
+</Canvas>;
 ```
 
 <hr>
@@ -39,7 +44,7 @@ import {Canvas} from '@douganderson444/svelte-plumb';
 ### Use with optional EndPoints
 
 ```svelte
-import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
+import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
 
 <Canvas bind:data let:connectable>
 	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
@@ -58,7 +63,7 @@ import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
 ### Use with optional styling
 
 ```svelte
-import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
+import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
 
 <Canvas bind:data let:connectable>
 	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
@@ -93,6 +98,13 @@ So, anything within the Canvas component with a `use:connectable` action directi
 # REPL Demo
 
 https://svelte.dev/repl/cf05fb3c64674978a717ce1f861a82c0?version=3.49.0
+
+# TODO
+
+- [] CRUD link paths
+- [] Move end points
+- [] Add option: number of connectiosn allowed
+- [] Disable duplicate links
 
 # Inspiration
 
