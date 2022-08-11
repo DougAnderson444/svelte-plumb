@@ -1,2 +1,1 @@
-export * from './src/lb/index';
-
+export * from './src/lb/index.js';
