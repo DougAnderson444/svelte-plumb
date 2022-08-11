@@ -38,18 +38,11 @@
 	};
 </script>
 
-<svelte:head>
-	<link
-		rel="stylesheet"
-		href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.3.5/tailwind.min.css"
-	/>
-</svelte:head>
-
 <div class="my-2 p-2 bg-blue-100 rounded-lg w-fit">
 	by <a href="https://twitter.com/DougAnderson444" class="font-bold m-2 underline"
 		>@DougAnderson444</a
 	>
-	<a href="https://twitter.com/DougAnderson444" class="font-bold m-2 underline"
+	<a href="https://github.com/DougAnderson444/svelte-plumb" class="font-bold m-2 underline"
 		>https://github.com/DougAnderson444/svelte-plumb</a
 	>
 </div>
@@ -59,7 +52,7 @@ Match the picture to the words:
 <Canvas bind:data bind:opts let:connectable>
 	<div class="flex flex-row justify-around ">
 		{#each [...Object.entries(types)] as [type, desc], i}
-			<div class="flex flex-col border rounded-lg m-4 p-4">
+			<div class="flex flex-col border rounded-lg m-4 p-4 items-center">
 				{#each data.nodes.filter((t) => t.type == type) as node (node.id)}
 					<div
 						class="block m-2 cursor-pointer select-none w-fit"
@@ -87,7 +80,7 @@ Match the picture to the words:
 			like this one.
 			<EndPoint position={'left'} {connectable}>
 				<div
-					class="h-4 w-4 bg-green-500 rounded-full border-4 border-black hover:ring hover:ring-green-800"
+					class="h-4 w-4 bg-white rounded-full border-4 border-black hover:ring hover:ring-green-800"
 				/>
 			</EndPoint>
 		</div>
