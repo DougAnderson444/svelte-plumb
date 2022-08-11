@@ -15,7 +15,7 @@
 	import PointerTracker from '@douganderson444/pointer-tracker';
 	import { nanoid } from 'nanoid';
 	import Highlighter from './Highlighter.svelte';
-	import { generateLinkLabel } from './utils';
+	import { generateLinkLabel } from './utils.js';
 
 	export let data;
 	export let opts = {};
