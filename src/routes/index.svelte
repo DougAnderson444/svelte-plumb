@@ -18,7 +18,7 @@
 			{ id: 3, type: types.emojii, value: '🐐' },
 			{ id: 4, type: types.description, value: 'GOAT' },
 			{ id: 5, type: types.description, value: 'Cat' },
-			{ id: 6, type: types.description, value: 'Unicorn' }
+			{ id: 6, type: types.description, value: 'A very nice Unicorn' }
 		],
 		links: [
 			{
@@ -90,7 +90,7 @@ Match the picture to the words:
 	<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
 	<div
 		slot="marker"
-		class="h-16 w-16 p-8 rounded-full bg-pink-500 shadow-xl opacity-50 select-none border-[2em]"
+		class="h-16 w-16 p-8 rounded-full bg-pink-500/80 shadow-xl opacity-50 select-none border-[2em]"
 	/>
 </Canvas>
 

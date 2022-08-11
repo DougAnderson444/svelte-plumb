@@ -2,16 +2,15 @@
 	// @ts-nocheck
 
 	export let node;
-	export let calcOffsetFromCanvas;
 	export let zoneSize = '2em';
 
 	let dot;
 
 	let highlight;
 
-	// OVERLAY on node
-	$: top = dot ? calcOffsetFromCanvas(node).y - dot.offsetHeight / 2 + node.offsetHeight / 2 : 0;
-	$: left = dot ? calcOffsetFromCanvas(node).x - dot.offsetWidth / 2 + node.offsetWidth / 2 : 0;
+	// OVERLAY on center of parent node
+	$: top = dot ? -dot.offsetHeight / 2 + node.offsetHeight / 2 : 0;
+	$: left = dot ? -dot.offsetWidth / 2 + node.offsetWidth / 2 : 0;
 
 	// move the dot underneath the node its highlighting in the DOM, so events bubble easily
 	$: if (dot) node.insertAdjacentElement('beforeend', dot);
@@ -51,7 +50,7 @@
 		<slot>
 			<div
 				style="transform: translate(-50%, -50%);"
-				class="absolute border-[{zoneSize}] border-yellow-200/50 h-0 w-0 rounded-full"
+				class="absolute border-[{zoneSize}] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full"
 			/>
 		</slot>
 	{/if}

@@ -74,6 +74,9 @@
 			node.dataset.dropzone = true;
 		}
 
+		// TODO: Handle absolute nodes, create a relative child?
+		if (!node.style.position) node.style.position = 'relative';
+
 		// link from node to marker
 		let link;
 
@@ -190,6 +193,6 @@
 
 	<!-- highlighters -->
 	{#each [...Object.entries(highlighters)] as [nodeid, node]}
-		<Highlighter {node} {calcOffsetFromCanvas} />
+		<Highlighter {node} />
 	{/each}
 </div>

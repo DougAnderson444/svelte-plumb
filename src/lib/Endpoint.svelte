@@ -13,6 +13,7 @@
 
 	$: if (dot) {
 		// ensire parentNdoe of dot is position relative
+		// otherwsier, absolute positioning of dot will be relative to the window
 		dot.parentNode.style.position = 'relative';
 
 		parentHeight = dot.parentNode.offsetHeight;
@@ -32,17 +33,20 @@
 	}}
 />
 
+<!-- Color when you hover on the endpoint -->
 <div
 	bind:this={dot}
 	bind:offsetWidth
 	bind:offsetHeight
-	use:connectable
-	class="flex absolute border-[{zoneSize}em] hover:border-red-500/50 border-transparent rounded-full"
+	class="flex absolute"
 	style="top: {top}px;  {position == 'right' ? `right: ${right}px;` : `left: ${left}px;`}"
 >
-	<slot>
-		<div
-			class="flex h-4 w-4 border-2 bg-blue-500 rounded-full border-blue-300 hover:ring hover:ring-blue-800"
-		/>
-	</slot>
+	<div use:connectable class="relative">
+		<slot>
+			<!-- Color of the actual endpoint -->
+			<div
+				class="flex h-4 w-4 border-2 bg-blue-500 rounded-full border-blue-300 hover:ring hover:ring-blue-800"
+			/>
+		</slot>
+	</div>
 </div>
