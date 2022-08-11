@@ -29,6 +29,7 @@
     then set this style to same as node -->
 
 <div
+	id={node.id + '--highlighter'}
 	data-highlighter="true"
 	class="absolute border-[{zoneSize}] border-transparent rounded-full p-0 m-0 "
 	style="top: {top}px; left: {left}px;"
