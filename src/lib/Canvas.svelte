@@ -10,12 +10,16 @@
 
 	import CursorMarker from './CursorMarker.svelte';
 	import Links from './Links.svelte';
+	import { EndPoint } from '$lib';
 
 	import PointerTracker from '@douganderson444/pointer-tracker';
 	import { nanoid } from 'nanoid';
+	import Highlighter from './Highlighter.svelte';
 
 	export let data;
 	export let opts = {};
+
+	let highlighters = {};
 
 	let canvas;
 	let connecting;
@@ -45,6 +49,24 @@
 		top = p.pageY - canvas.offsetTop;
 	}
 
+	function calcOffsetFromCanvas(child) {
+		if (child == canvas) return { x: child.offsetLeft, y: child.offsetTop };
+		// need to get the offetTop from canvas, which may be different from the sourceEl offetTop
+		// get different between bounding rect top between sourceEl and canvas
+		let sourceOffsetTop = child.getBoundingClientRect().top;
+		let canvasOffsetTop = canvas.getBoundingClientRect().top;
+		let sourceOffsetTopDiff = sourceOffsetTop - canvasOffsetTop; // zero if same
+		let sourceOffsetTopDiffPx = sourceOffsetTopDiff * window.devicePixelRatio;
+
+		// same for left
+		let sourceOffsetLeft = child.getBoundingClientRect().left;
+		let canvasOffsetLeft = canvas.getBoundingClientRect().left;
+		let sourceOffsetLeftDiff = sourceOffsetLeft - canvasOffsetLeft; // zero if same
+		let sourceOffsetLeftDiffPx = sourceOffsetLeftDiff * window.devicePixelRatio;
+
+		return { x: sourceOffsetLeftDiff, y: sourceOffsetTopDiff };
+	}
+
 	function connectable(node, bar) {
 		if (!node.id) node.id = nanoid();
 
@@ -54,6 +76,9 @@
 
 		// link from node to marker
 		let link;
+
+		// add to list of nodes to highlight when connecting
+		highlighters[node.id] = node;
 
 		let pointerTracker = new PointerTracker(node, {
 			start(pointer, event) {
@@ -161,5 +186,10 @@
 		<slot {connectable} />
 	{/if}
 
-	<Links links={data.links} {canvas} {...opts?.links} />
+	<Links links={data.links} {calcOffsetFromCanvas} {...opts?.links} />
+
+	<!-- highlighters -->
+	{#each [...Object.entries(highlighters)] as [nodeid, node]}
+		<Highlighter {node} {calcOffsetFromCanvas} />
+	{/each}
 </div>
