@@ -15,6 +15,7 @@
 	import PointerTracker from '@douganderson444/pointer-tracker';
 	import { nanoid } from 'nanoid';
 	import Highlighter from './Highlighter.svelte';
+	import { generateLinkLabel } from './utils';
 
 	export let data;
 	export let opts = {};
@@ -30,17 +31,6 @@
 
 	let left = 0;
 	let top = 0;
-
-	// get data nodes value from matching node.id
-	const getNodeValue = (sourceID, targetID = false) => {
-		const match = data.nodes.find((el) => el.id == sourceID);
-		if (!match || !match.value) return '';
-		if (!targetID) return match.value + ' to';
-
-		const match2 = data.nodes.find((el) => el.id == targetID);
-		if (!match2) return match.value;
-		return `${match.value} to ${match2.value}`;
-	};
 
 	function handler(p, e) {
 		e.stopPropagation(); // afftect this event target only, not the ones below it
@@ -80,6 +70,7 @@
 		// link from node to marker
 		let link;
 		let highlight = false;
+		let overZone;
 
 		// add to list of nodes to highlight when connecting
 		highlighters[node.id] = { node, highlight };
@@ -104,22 +95,25 @@
 					opts: {
 						label: {
 							enabled: true,
-							value: getNodeValue(node.id)
+							value: generateLinkLabel(data.nodes, node.id)
 						}
 					}
 				};
 
+				// unhightlight prev
+				if (overZone) highlighters[overZone.id].highlight = false;
+
 				// simulate mouseover for mobile
-				let overHighlighter = document
-					.elementFromPoint(
-						pointerTracker.currentPointers[0].clientX,
-						pointerTracker.currentPointers[0].clientY
-					)
-					.closest(`[data-highlighter]`);
-				if (overHighlighter) {
-					highlighters[node.id].highlight = true;
-				} else {
-					highlighters[node.id].highlight = false;
+				overZone =
+					document
+						.elementFromPoint(
+							pointerTracker.currentPointers[0].clientX,
+							pointerTracker.currentPointers[0].clientY
+						)
+						.closest(`[data-dropzone]`) || null;
+
+				if (overZone?.id) {
+					highlighters[overZone.id].highlight = true;
 				}
 
 				// Prevent duplicate links
@@ -132,6 +126,12 @@
 
 				// marker = null;
 				connecting = false;
+
+				// reset
+				if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
+					highlighters[overZone.id].highlight = false;
+				}
+				overZone = null;
 
 				// get closest dropzone target
 				let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
@@ -154,7 +154,7 @@
 						opts: {
 							label: {
 								enabled: true,
-								value: getNodeValue(node.id, zone.id)
+								value: generateLinkLabel(data.nodes, node.id, zone.id)
 							}
 						}
 					}
