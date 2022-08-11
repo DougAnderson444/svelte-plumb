@@ -79,9 +79,10 @@
 
 		// link from node to marker
 		let link;
+		let highlight = false;
 
 		// add to list of nodes to highlight when connecting
-		highlighters[node.id] = node;
+		highlighters[node.id] = { node, highlight };
 
 		let pointerTracker = new PointerTracker(node, {
 			start(pointer, event) {
@@ -107,6 +108,19 @@
 						}
 					}
 				};
+
+				// simulate mouseover for mobile
+				let overHighlighter = document
+					.elementFromPoint(
+						pointerTracker.currentPointers[0].clientX,
+						pointerTracker.currentPointers[0].clientY
+					)
+					.closest(`[data-highlighter]`);
+				if (overHighlighter) {
+					highlighters[node.id].highlight = true;
+				} else {
+					highlighters[node.id].highlight = false;
+				}
 
 				// Prevent duplicate links
 				const check = data.links.find((el) => el.source.id == node.id && el.target.id == MARKER);
@@ -192,7 +206,7 @@
 	<Links links={data.links} {calcOffsetFromCanvas} {...opts?.links} />
 
 	<!-- highlighters -->
-	{#each [...Object.entries(highlighters)] as [nodeid, node]}
-		<Highlighter {node} />
+	{#each [...Object.entries(highlighters)] as [nodeid, { node, highlight }]}
+		<Highlighter {node} {highlight} />
 	{/each}
 </div>
