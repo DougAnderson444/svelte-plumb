@@ -193,7 +193,7 @@
 			<slot name="marker">
 				<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
 				<div
-					class="h-16 w-16 p-8 rounded-full bg-green-500 shadow-xl opacity-50 select-none border-[2em]"
+					class="h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] "
 				/>
 			</slot>
 		</CursorMarker>

@@ -91,10 +91,9 @@ Match the picture to the words:
 
 	<!-- Optional -->
 	<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
-	<!-- bg-pink-500/80 -->
 	<div
 		slot="marker"
-		class="h-16 w-16 p-8 rounded-full shadow-xl opacity-50 select-none border-[2em]"
+		class="h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] z-50"
 	/>
 </Canvas>
 

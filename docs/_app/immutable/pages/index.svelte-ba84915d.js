@@ -12,7 +12,7 @@ function fallback_block$3(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "h-16 w-16 rounded-full bg-green-500 shadow-xl z-20 select-none opacity-50");
+      attr(div, "class", "h-16 w-16 p-8 rounded-full shadow-xl opacity-50 select-none border-[2em] border-pink-500/50");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -960,13 +960,13 @@ function fallback_block$2(ctx) {
     },
     h() {
       set_style(div, "transform", "translate(-50%, -50%)");
-      attr(div, "class", div_class_value = "absolute border-[" + ctx[2] + "] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full");
+      attr(div, "class", div_class_value = "absolute border-[" + (ctx[2] + "em") + "] md:border-[" + (ctx[2] / 2 + "em") + "] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty & 4 && div_class_value !== (div_class_value = "absolute border-[" + ctx2[2] + "] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full")) {
+      if (dirty & 4 && div_class_value !== (div_class_value = "absolute border-[" + (ctx2[2] + "em") + "] md:border-[" + (ctx2[2] / 2 + "em") + "] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full")) {
         attr(div, "class", div_class_value);
       }
     },
@@ -1007,7 +1007,7 @@ function create_fragment$4(ctx) {
     h() {
       attr(div, "id", div_id_value = ctx[1].id + "--highlighter");
       attr(div, "data-highlighter", "true");
-      attr(div, "class", div_class_value = "absolute border-[" + ctx[2] + "] border-transparent rounded-full p-0 m-0");
+      attr(div, "class", div_class_value = "absolute border-[" + (ctx[2] + "em") + "] md:border-[" + (ctx[2] / 2 + "em") + "] border-transparent rounded-full p-0 m-0");
       set_style(div, "top", ctx[5] + "px");
       set_style(div, "left", ctx[4] + "px");
     },
@@ -1051,7 +1051,7 @@ function create_fragment$4(ctx) {
       if (!current || dirty & 2 && div_id_value !== (div_id_value = ctx2[1].id + "--highlighter")) {
         attr(div, "id", div_id_value);
       }
-      if (!current || dirty & 4 && div_class_value !== (div_class_value = "absolute border-[" + ctx2[2] + "] border-transparent rounded-full p-0 m-0")) {
+      if (!current || dirty & 4 && div_class_value !== (div_class_value = "absolute border-[" + (ctx2[2] + "em") + "] md:border-[" + (ctx2[2] / 2 + "em") + "] border-transparent rounded-full p-0 m-0")) {
         attr(div, "class", div_class_value);
       }
       if (!current || dirty & 32) {
@@ -1087,7 +1087,7 @@ function instance$4($$self, $$props, $$invalidate) {
   let left;
   let { $$slots: slots = {}, $$scope } = $$props;
   let { node } = $$props;
-  let { zoneSize = "2em" } = $$props;
+  let { zoneSize = 2 } = $$props;
   let { highlight = false } = $$props;
   let dot;
   const resize_handler = (e) => {
@@ -1254,7 +1254,7 @@ function fallback_block$1(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "h-16 w-16 p-8 rounded-full bg-green-500 shadow-xl opacity-50 select-none border-[2em]");
+      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] ");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -2476,7 +2476,7 @@ function create_marker_slot(ctx) {
     },
     h() {
       attr(div, "slot", "marker");
-      attr(div, "class", "h-16 w-16 p-8 rounded-full shadow-xl opacity-50 select-none border-[2em]");
+      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] z-50");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -2895,4 +2895,4 @@ class Routes extends SvelteComponent {
 export {
   Routes as default
 };
-//# sourceMappingURL=index.svelte-e7945747.js.map
+//# sourceMappingURL=index.svelte-ba84915d.js.map

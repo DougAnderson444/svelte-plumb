@@ -2,7 +2,7 @@
 	// @ts-nocheck
 
 	export let node;
-	export let zoneSize = '2em';
+	export let zoneSize = 2;
 	export let highlight = false; // export makes it possible to set externally from the touch listener
 
 	let dot;
@@ -31,7 +31,10 @@
 <div
 	id={node.id + '--highlighter'}
 	data-highlighter="true"
-	class="absolute border-[{zoneSize}] border-transparent rounded-full p-0 m-0 "
+	class="absolute
+	border-[{zoneSize + 'em'}] 
+	md:border-[{zoneSize / 2 + 'em'}] 
+	border-transparent rounded-full p-0 m-0 "
 	style="top: {top}px; left: {left}px;"
 	bind:this={dot}
 	on:mouseover={(e) => {
@@ -51,7 +54,10 @@
 		<slot>
 			<div
 				style="transform: translate(-50%, -50%);"
-				class="absolute border-[{zoneSize}] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full"
+				class="absolute 
+				border-[{zoneSize + 'em'}] 
+				md:border-[{zoneSize / 2 + 'em'}] 
+				border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full"
 			/>
 		</slot>
 	{/if}

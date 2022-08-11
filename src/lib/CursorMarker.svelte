@@ -22,6 +22,8 @@
 	bind:offsetHeight
 >
 	<slot>
-		<div class="h-16 w-16 rounded-full bg-green-500 shadow-xl z-20 select-none opacity-50" />
+		<div
+			class="h-16 w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[2em] border-pink-500/50"
+		/>
 	</slot>
 </div>
