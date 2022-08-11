@@ -1700,8 +1700,8 @@ function instance$3($$self, $$props, $$invalidate) {
           $$invalidate(4, connecting = false);
           if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
             $$invalidate(2, highlighters[overZone.id].highlight = false, highlighters);
-            overZone = null;
           }
+          overZone = null;
           let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
           let zone = drop.closest(`[data-dropzone]`);
           $$invalidate(
@@ -2895,4 +2895,4 @@ class Routes extends SvelteComponent {
 export {
   Routes as default
 };
-//# sourceMappingURL=index.svelte-1ac7b319.js.map
+//# sourceMappingURL=index.svelte-e7945747.js.map
