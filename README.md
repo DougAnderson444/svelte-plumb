@@ -1,10 +1,12 @@
 # Svelte Plumb
 
-Experimental Work In Progress. Going for the simplest svg drawing API _ever_.
+Experimental Work In Progress.
+
+Going for the simplest svg drawing API _ever_.
 
 ![Demo](static/thumb.png)
 
-## Problem
+## The Problem
 
 Most javascript diagram libraries use SVGs for non-line / connectors. This is silly, we have HTML for that. This library explores making js diagramming a bit more simple to program and use as a library.
 
@@ -20,26 +22,38 @@ The bare minimum is a framework Component wrapper (in this case, Svelte) because
 
 QED, as my high school math teacher would say.
 
+## API
+
 ```svelte
 import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
 
 <Canvas bind:data let:connectable>
-	<div use:connectable>This HTMLElement is now connectable</div>
+	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
 
 	<!-- OPTIONS -->
+	<!-- Styles are Tailwindcss shortcuts, but regular css works too -->
 
-	<!-- Optional, override connecting marker, with `slot="marker"` -->
-	<!-- Styles are Tailwindcss shortcuts -->
+	<!-- OPTION, override connecting marker, with `slot="marker"` -->
 	<div
 		slot="marker"
 		class="h-16 w-16 p-8 rounded-full bg-pink-500 shadow-xl opacity-50 select-none border-[2em]"
 	/>
 
-	<!-- Optional, use connector end points as Child -->
+	<!-- OPTION, use connector end points  -->
 	<div>
 		We also add endpoints outside the element.
 		<EndPoint position={'right'} {connectable} />
 		<EndPoint position={'left'} {connectable} />
+	</div>
+
+	<!-- OPTION, style your endpoint -->
+	<div>
+		I like my endpoints like I like my donuts.
+		<EndPoint position={'left'} {connectable}>
+			<div
+				class="h-4 w-4 bg-white rounded-full border-4 border-black hover:ring hover:ring-green-800"
+			/>
+		</EndPoint>
 	</div>
 </Canvas>
 ```
