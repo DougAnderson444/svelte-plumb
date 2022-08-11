@@ -8,12 +8,11 @@
 	 * 3. bind the data through a prop
 	 */
 
-	import CursorMarker from './CursorMarker.svelte';
-	import Links from './Links.svelte';
-	import { EndPoint } from '$lib';
-
 	import PointerTracker from '@douganderson444/pointer-tracker';
 	import { nanoid } from 'nanoid';
+
+	import CursorMarker from './CursorMarker.svelte';
+	import Links from './Links.svelte';
 	import Highlighter from './Highlighter.svelte';
 	import { generateLinkLabel } from './utils.js';
 
