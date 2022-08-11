@@ -3,10 +3,9 @@
 
 	export let node;
 	export let zoneSize = '2em';
+	export let highlight = false; // export makes it possible to set externally from the touch listener
 
 	let dot;
-
-	let highlight;
 
 	// OVERLAY on center of parent node
 	$: top = dot ? -dot.offsetHeight / 2 + node.offsetHeight / 2 : 0;
@@ -30,11 +29,12 @@
     then set this style to same as node -->
 
 <div
+	data-highlighter="true"
 	class="absolute border-[{zoneSize}] border-transparent rounded-full p-0 m-0 "
 	style="top: {top}px; left: {left}px;"
 	bind:this={dot}
 	on:mouseover={(e) => {
-		highlight = true;
+		highlight = true; // actually this is redundant because overHighlighter in Canvas.svelte, but it's here for clarity
 	}}
 	on:mouseleave={(e) => {
 		highlight = false;
