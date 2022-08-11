@@ -1,7 +1,7 @@
 <script>
 	// @ts-nocheck
 
-	import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
+	import { Canvas, EndPoint, generateLinkLabel } from '@douganderson444/svelte-plumb';
 
 	import Skew from '$lib/Skew.svelte';
 
@@ -20,20 +20,23 @@
 			{ id: 5, type: types.description, value: 'Cat' },
 			{ id: 6, type: types.description, value: 'A very nice Unicorn' }
 		],
-		links: [
-			{
-				id: '2-to-6',
-				source: { id: '2' },
-				target: { id: '6' },
-				opts: { label: { enabled: true, value: '🦄 to Unicorn' } }
-			}
-		]
+		links: []
 	};
+
+	// set an initial link path
+	data.links = [
+		{
+			id: '2-to-6',
+			source: { id: '2' },
+			target: { id: '6' },
+			opts: { label: { enabled: true, value: generateLinkLabel(data.nodes, '2', '6') } }
+		}
+	];
 
 	let opts = {
 		links: {
 			strokeWidth: 18,
-			textStartOffset: 40
+			textStartOffset: 20
 		}
 	};
 </script>
@@ -88,9 +91,10 @@ Match the picture to the words:
 
 	<!-- Optional -->
 	<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
+	<!-- bg-pink-500/80 -->
 	<div
 		slot="marker"
-		class="h-16 w-16 p-8 rounded-full bg-pink-500/80 shadow-xl opacity-50 select-none border-[2em]"
+		class="h-16 w-16 p-8 rounded-full shadow-xl opacity-50 select-none border-[2em]"
 	/>
 </Canvas>
 
