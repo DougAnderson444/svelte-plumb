@@ -44,8 +44,8 @@ import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
 <Canvas bind:data let:connectable>
 	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
 
-	<!-- OPTION, use connector end points  -->
-	<div>
+	<!-- OPTION: use end points, absolutely positioned against a relative positioned parent  -->
+	<div class="relative" style="position: relative">
 		We also add endpoints outside the element.
 		<EndPoint position={'right'} {connectable} />
 		<EndPoint position={'left'} {connectable} />
@@ -67,7 +67,7 @@ import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
 	<!-- Styles are Tailwindcss shortcuts, but regular css works too -->
 
 	<!-- OPTION, style your endpoint -->
-	<div>
+	<div class="relative" style="position: relative">
 		I like my endpoints like I like my donuts.
 		<EndPoint position={'left'} {connectable}>
 			<div
@@ -76,7 +76,7 @@ import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
 		</EndPoint>
 	</div>
 
-	<!-- OPTION, override connecting marker, with `slot="marker"` -->
+	<!-- OPTION, override connecting marker, with slot="marker" -->
 	<div
 		slot="marker"
 		class="h-16 w-16 p-8 rounded-full bg-pink-500 shadow-xl opacity-50 select-none border-[2em]"
@@ -97,6 +97,7 @@ https://svelte.dev/repl/cf05fb3c64674978a717ce1f861a82c0?version=3.49.0
 # Inspiration
 
 [https://demo.jsplumbtoolkit.com/flowchart-builder/](https://demo.jsplumbtoolkit.com/flowchart-builder/)
+
 [https://github.com/bpmn-io/diagram-js](https://github.com/bpmn-io/diagram-js)
 
 CSS by [https://tailwindcss.com/](https://tailwindcss.com/)
