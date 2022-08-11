@@ -37,22 +37,8 @@
 	bind:offsetWidth
 	bind:offsetHeight
 	use:connectable
-	class="flex absolute border-[{zoneSize}em] hover:border-red-500/50 {highlight
-		? ' border-red-500/50 '
-		: ''} border-transparent rounded-full"
+	class="flex absolute border-[{zoneSize}em] hover:border-red-500/50 border-transparent rounded-full"
 	style="top: {top}px;  {position == 'right' ? `right: ${right}px;` : `left: ${left}px;`}"
-	on:dragover={(e) => {
-		highlight = true;
-	}}
-	on:dragleave={(e) => {
-		highlight = false;
-	}}
-	on:focus={(e) => {
-		highlight = true;
-	}}
-	on:blur={(e) => {
-		highlight = false;
-	}}
 >
 	<slot>
 		<div
