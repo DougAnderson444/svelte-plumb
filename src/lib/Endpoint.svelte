@@ -1,10 +1,7 @@
 <script>
 	// @ts-nocheck
-	import { onMount } from 'svelte';
-
 	export let position = 'right';
 	export let connectable;
-	export let zoneSize = 2;
 
 	let dot;
 	let offsetHeight, offsetWidth, parentHeight;
@@ -33,7 +30,6 @@
 	}}
 />
 
-<!-- Color when you hover on the endpoint -->
 <div
 	bind:this={dot}
 	bind:offsetWidth
@@ -43,7 +39,7 @@
 >
 	<div use:connectable class="relative">
 		<slot>
-			<!-- Color of the actual endpoint -->
+			<!-- Default styling of the actual endpoint -->
 			<div
 				class="flex h-4 w-4 border-2 bg-blue-500 rounded-full border-blue-300 hover:ring hover:ring-blue-800"
 			/>
