@@ -7,7 +7,7 @@
 	import { link, curveBumpX } from 'd3-shape';
 
 	export let links;
-	export let canvas;
+	export let calcOffsetFromCanvas;
 
 	export let strokeColor = 'green';
 	export let strokeWidth = 18;
@@ -31,31 +31,13 @@
 		mounted = true;
 	});
 
-	function calcDiff(child) {
-		if (child == canvas) return { x: child.offsetLeft, y: child.offsetTop };
-		// need to get the offetTop from canvas, which may be different from the sourceEl offetTop
-		// get different between bounding rect top between sourceEl and canvas
-		let sourceOffsetTop = child.getBoundingClientRect().top;
-		let canvasOffsetTop = canvas.getBoundingClientRect().top;
-		let sourceOffsetTopDiff = sourceOffsetTop - canvasOffsetTop; // zero if same
-		let sourceOffsetTopDiffPx = sourceOffsetTopDiff * window.devicePixelRatio;
-
-		// same for left
-		let sourceOffsetLeft = child.getBoundingClientRect().left;
-		let canvasOffsetLeft = canvas.getBoundingClientRect().left;
-		let sourceOffsetLeftDiff = sourceOffsetLeft - canvasOffsetLeft; // zero if same
-		let sourceOffsetLeftDiffPx = sourceOffsetLeftDiff * window.devicePixelRatio;
-
-		return { x: sourceOffsetLeftDiff, y: sourceOffsetTopDiff };
-	}
-
 	function genPath(link) {
 		let sourceEl = document.getElementById(link.source.id);
 		let targetEl = document.getElementById(link.target.id);
 
 		// centered
-		const { x: sx, y: sy } = calcDiff(sourceEl);
-		const { x: tx, y: ty } = calcDiff(targetEl);
+		const { x: sx, y: sy } = calcOffsetFromCanvas(sourceEl);
+		const { x: tx, y: ty } = calcOffsetFromCanvas(targetEl);
 
 		/**
 		 * Not sure why the svgs are slightly off by 3 pixels, but this is a workaround
