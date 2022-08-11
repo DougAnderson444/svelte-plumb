@@ -1,10 +1,6 @@
 {
 	"name": "@douganderson444/svelte-plumb",
-	"version": "0.0.3",
-<<<<<<< HEAD
-=======
-	"svelte": "index.js",
->>>>>>> 73a988294f2e0b04d34724faa4487d8739bab361
+	"version": "0.0.2",
 	"main": "index.js",
 	"module": "index.js",
 	"scripts": {
