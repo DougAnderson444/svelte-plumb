@@ -6,8 +6,6 @@
 	let dot;
 	let offsetHeight, offsetWidth, parentHeight;
 
-	let highlight;
-
 	$: if (dot) {
 		// ensire parentNdoe of dot is position relative
 		// otherwsier, absolute positioning of dot will be relative to the window
