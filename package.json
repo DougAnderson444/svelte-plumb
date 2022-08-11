@@ -1,6 +1,7 @@
 {
 	"name": "@douganderson444/svelte-plumb",
 	"version": "0.0.2",
+	"module": "index.js",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
