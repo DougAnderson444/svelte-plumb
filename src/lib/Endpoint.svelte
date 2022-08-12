@@ -2,6 +2,7 @@
 	// @ts-nocheck
 	export let position = 'right';
 	export let connectable;
+	export let options = {};
 
 	let dot;
 	let offsetHeight, offsetWidth, parentHeight;
@@ -35,7 +36,7 @@
 	class="flex absolute EndPoint"
 	style="top: {top}px;  {position == 'right' ? `right: ${right}px;` : `left: ${left}px;`}"
 >
-	<div use:connectable class="relative">
+	<div use:connectable={options} class="relative">
 		<slot>
 			<!-- Default styling of the actual endpoint -->
 			<div
