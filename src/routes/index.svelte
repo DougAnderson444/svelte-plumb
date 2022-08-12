@@ -35,7 +35,7 @@
 
 	let opts = {
 		links: {
-			strokeWidth: 18,
+			strokeWidth: 1,
 			textStartOffset: 20
 		}
 	};
@@ -52,50 +52,54 @@
 
 Match the picture to the words:
 
-<Canvas bind:data bind:opts let:connectable>
-	<div class="flex flex-row justify-around ">
-		{#each [...Object.entries(types)] as [type, desc], i}
-			<div class="flex flex-col border rounded-lg m-4 p-4 items-center">
-				{#each data.nodes.filter((t) => t.type == type) as node (node.id)}
-					<div
-						class="block m-2 cursor-pointer select-none w-fit"
-						use:connectable
-						id={node?.id ? node?.id : null}
-					>
-						{node.value}
-					</div>
-				{/each}
-			</div>
-		{/each}
-	</div>
-	<div class="flex flex-row flex-wrap border rounded-lg m-4 p-4 justify-between bg-neutral-50">
-		<div class="inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100">
-			Can we also have an external endpoint?
-			<EndPoint position={'right'} {connectable} />
-			<EndPoint position={'left'} {connectable} />
-		</div>
-		<div class="relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-red-300">
-			No, libraries cannot do that. Just kidding.
-			<EndPoint position={'left'} {connectable} />
-		</div>
-		<div class="relative flex-0 m-2 ml-auto p-4 border rounded-lg  w-1/3 bg-green-300">
-			Yes, pass the connectable directive to the component. They can even be <Skew>custom</Skew>,
-			like this one.
-			<EndPoint position={'left'} {connectable}>
-				<div
-					class="h-4 w-4 bg-white rounded-full border-4 border-black hover:ring hover:ring-green-800"
-				/>
-			</EndPoint>
-		</div>
-	</div>
+<div class="border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4">
+	<Canvas bind:data bind:opts let:connectable>
+		<div class="text-black font-bold">Directive is available within the slot as a slot prop</div>
 
-	<!-- Optional -->
-	<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
-	<div
-		slot="marker"
-		class="h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] z-50"
-	/>
-</Canvas>
+		<div class="flex flex-row justify-around ">
+			{#each [...Object.entries(types)] as [type, desc], i}
+				<div class="flex flex-col border rounded-lg m-4 p-4 items-center">
+					{#each data.nodes.filter((t) => t.type == type) as node (node.id)}
+						<div
+							class="block m-2 cursor-pointer select-none w-fit"
+							use:connectable
+							id={node?.id ? node?.id : null}
+						>
+							{node.value}
+						</div>
+					{/each}
+				</div>
+			{/each}
+		</div>
+		<div class="flex flex-row flex-wrap border rounded-lg m-4 p-4 justify-between bg-neutral-50">
+			<div class="inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100">
+				Can we also have an external endpoint?
+				<EndPoint position={'right'} {connectable} />
+				<EndPoint position={'left'} {connectable} />
+			</div>
+			<div class="relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-red-300">
+				No, libraries cannot do that. Just kidding.
+				<EndPoint position={'left'} {connectable} />
+			</div>
+			<div class="relative flex-0 m-2 ml-auto p-4 border rounded-lg  w-1/3 bg-green-300">
+				Yes, pass the connectable directive to the component. They can even be <Skew>custom</Skew>,
+				like this one.
+				<EndPoint position={'left'} {connectable}>
+					<div
+						class="h-4 w-4 bg-white rounded-full border-4 border-black hover:ring hover:ring-green-800"
+					/>
+				</EndPoint>
+			</div>
+		</div>
+
+		<!-- Optional -->
+		<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
+		<div
+			slot="marker"
+			class="h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em]"
+		/>
+	</Canvas>
+</div>
 
 <!-- Control Panel for Links -->
 

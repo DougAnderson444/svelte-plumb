@@ -10,7 +10,7 @@
 	export let calcOffsetFromCanvas;
 
 	export let strokeColor = 'green';
-	export let strokeWidth = 18;
+	export let strokeWidth = 1;
 	export let arrowColor = 'green';
 
 	export let strokeOpacity = '0.3';
@@ -19,7 +19,7 @@
 	export let groupStrokeColor = 'white';
 
 	export let textStartOffset = 20; // %
-	export let arrowStartOffset = '60%';
+	export let arrowStartOffset = '40%';
 
 	const generateXcurve = link(curveBumpX);
 
@@ -42,10 +42,10 @@
 		/**
 		 * Not sure why the svgs are slightly off by 3 pixels, but this is a workaround
 		 */
-		sourceX = sx + sourceEl.offsetWidth / 2 - 3;
-		sourceY = sy + sourceEl.offsetHeight / 2 - 3;
-		targetX = tx + targetEl.offsetWidth / 2 - 3;
-		targetY = ty + targetEl.offsetHeight / 2 - 3;
+		sourceX = sx + sourceEl.offsetWidth / 2;
+		sourceY = sy + sourceEl.offsetHeight / 2;
+		targetX = tx + targetEl.offsetWidth / 2;
+		targetY = ty + targetEl.offsetHeight / 2;
 
 		let d = generateXcurve({
 			source: [sourceX, sourceY],
@@ -56,7 +56,7 @@
 	}
 </script>
 
-{#if mounted}
+{#if mounted && links && links.length > 0}
 	<svg style="pointer-events: none;">
 		{#each links as link, i}
 			{#if link && mounted}
@@ -96,7 +96,6 @@
 		left: 0;
 		float: left;
 		stroke-width: 5;
-		border: 1px dashed blue;
 		/* z-index: -1; */
 		width: 100%;
 		height: 100%;
