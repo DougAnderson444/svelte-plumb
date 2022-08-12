@@ -1,4 +1,165 @@
 import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$1, empty, onMount, svg_element, claim_svg_element, destroy_each, text, space, claim_text, claim_space, xlink_attr, append_hydration, set_data, listen, group_outros, check_outros, run_all, assign, create_component, claim_component, mount_component, get_spread_update, get_spread_object, destroy_component, globals, bind, add_flush_callback, action_destroyer, set_input_value, to_number, update_keyed_each, destroy_block } from "../chunks/index-277b37a2.js";
+class Pointer {
+  constructor(nativePointer) {
+    this.id = -1;
+    this.nativePointer = nativePointer;
+    this.pageX = nativePointer.pageX;
+    this.pageY = nativePointer.pageY;
+    this.clientX = nativePointer.clientX;
+    this.clientY = nativePointer.clientY;
+    if (self.Touch && nativePointer instanceof Touch) {
+      this.id = nativePointer.identifier;
+    } else if (isPointerEvent(nativePointer)) {
+      this.id = nativePointer.pointerId;
+    }
+  }
+  getCoalesced() {
+    if ("getCoalescedEvents" in this.nativePointer) {
+      const events = this.nativePointer.getCoalescedEvents().map((p) => new Pointer(p));
+      if (events.length > 0)
+        return events;
+    }
+    return [this];
+  }
+}
+const isPointerEvent = (event) => "pointerId" in event;
+const isTouchEvent = (event) => "changedTouches" in event;
+const noop = () => {
+};
+class PointerTracker {
+  constructor(_element, { start = () => true, move = noop, end = noop, rawUpdates = false, avoidPointerEvents = false, eventListenerOptions = { capture: false, passive: false, once: false } } = {}) {
+    this._element = _element;
+    this.startPointers = [];
+    this.currentPointers = [];
+    this._excludeFromButtonsCheck = /* @__PURE__ */ new Set();
+    this._pointerStart = (event) => {
+      if (isPointerEvent(event) && event.buttons === 0) {
+        this._excludeFromButtonsCheck.add(event.pointerId);
+      } else if (!(event.buttons & 1)) {
+        return;
+      }
+      const pointer = new Pointer(event);
+      if (this.currentPointers.some((p) => p.id === pointer.id))
+        return;
+      if (!this._triggerPointerStart(pointer, event))
+        return;
+      if (isPointerEvent(event)) {
+        const capturingElement = event.target && "setPointerCapture" in event.target ? event.target : this._element;
+        capturingElement.setPointerCapture(event.pointerId);
+        this._element.addEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move, this._eventListenerOptions);
+        this._element.addEventListener("pointerup", this._pointerEnd, this._eventListenerOptions);
+        this._element.addEventListener("pointercancel", this._pointerEnd, this._eventListenerOptions);
+      } else {
+        window.addEventListener("mousemove", this._move);
+        window.addEventListener("mouseup", this._pointerEnd);
+      }
+    };
+    this._touchStart = (event) => {
+      for (const touch of Array.from(event.changedTouches)) {
+        this._triggerPointerStart(new Pointer(touch), event);
+      }
+    };
+    this._move = (event) => {
+      if (!isTouchEvent(event) && (!isPointerEvent(event) || !this._excludeFromButtonsCheck.has(event.pointerId)) && event.buttons === 0) {
+        this._pointerEnd(event);
+        return;
+      }
+      const previousPointers = this.currentPointers.slice();
+      const changedPointers = isTouchEvent(event) ? Array.from(event.changedTouches).map((t) => new Pointer(t)) : [new Pointer(event)];
+      const trackedChangedPointers = [];
+      for (const pointer of changedPointers) {
+        const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
+        if (index === -1)
+          continue;
+        trackedChangedPointers.push(pointer);
+        this.currentPointers[index] = pointer;
+      }
+      if (trackedChangedPointers.length === 0)
+        return;
+      this._moveCallback(previousPointers, trackedChangedPointers, event);
+    };
+    this._triggerPointerEnd = (pointer, event) => {
+      if (!isTouchEvent(event) && event.buttons & 1) {
+        return false;
+      }
+      const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
+      if (index === -1)
+        return false;
+      this.currentPointers.splice(index, 1);
+      this.startPointers.splice(index, 1);
+      this._excludeFromButtonsCheck.delete(pointer.id);
+      const cancelled = !(event.type === "mouseup" || event.type === "touchend" || event.type === "pointerup");
+      this._endCallback(pointer, event, cancelled);
+      return true;
+    };
+    this._pointerEnd = (event) => {
+      if (!this._triggerPointerEnd(new Pointer(event), event))
+        return;
+      if (isPointerEvent(event)) {
+        if (this.currentPointers.length)
+          return;
+        this._element.removeEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move);
+        this._element.removeEventListener("pointerup", this._pointerEnd);
+        this._element.removeEventListener("pointercancel", this._pointerEnd);
+      } else {
+        window.removeEventListener("mousemove", this._move);
+        window.removeEventListener("mouseup", this._pointerEnd);
+      }
+    };
+    this._touchEnd = (event) => {
+      for (const touch of Array.from(event.changedTouches)) {
+        this._triggerPointerEnd(new Pointer(touch), event);
+      }
+    };
+    this._startCallback = start;
+    this._moveCallback = move;
+    this._endCallback = end;
+    this._rawUpdates = rawUpdates && "onpointerrawupdate" in window;
+    this._eventListenerOptions = eventListenerOptions;
+    if (self.PointerEvent && !avoidPointerEvents) {
+      this._element.addEventListener("pointerdown", this._pointerStart, this._eventListenerOptions);
+    } else {
+      this._element.addEventListener("mousedown", this._pointerStart, this._eventListenerOptions);
+      this._element.addEventListener("touchstart", this._touchStart, this._eventListenerOptions);
+      this._element.addEventListener("touchmove", this._move, this._eventListenerOptions);
+      this._element.addEventListener("touchend", this._touchEnd, this._eventListenerOptions);
+      this._element.addEventListener("touchcancel", this._touchEnd, this._eventListenerOptions);
+    }
+  }
+  stop() {
+    this._element.removeEventListener("pointerdown", this._pointerStart);
+    this._element.removeEventListener("mousedown", this._pointerStart);
+    this._element.removeEventListener("touchstart", this._touchStart);
+    this._element.removeEventListener("touchmove", this._move);
+    this._element.removeEventListener("touchend", this._touchEnd);
+    this._element.removeEventListener("touchcancel", this._touchEnd);
+    this._element.removeEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move);
+    this._element.removeEventListener("pointerup", this._pointerEnd);
+    this._element.removeEventListener("pointercancel", this._pointerEnd);
+    window.removeEventListener("mousemove", this._move);
+    window.removeEventListener("mouseup", this._pointerEnd);
+  }
+  _triggerPointerStart(pointer, event) {
+    if (!this._startCallback(pointer, event))
+      return false;
+    this.currentPointers.push(pointer);
+    this.startPointers.push(pointer);
+    return true;
+  }
+}
+let nanoid = (size = 21) => crypto.getRandomValues(new Uint8Array(size)).reduce((id, byte) => {
+  byte &= 63;
+  if (byte < 36) {
+    id += byte.toString(36);
+  } else if (byte < 62) {
+    id += (byte - 26).toString(36).toUpperCase();
+  } else if (byte > 62) {
+    id += "-";
+  } else {
+    id += "_";
+  }
+  return id;
+}, "");
 function fallback_block$3(ctx) {
   let div;
   return {
@@ -12,7 +173,7 @@ function fallback_block$3(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "h-16 w-16 p-8 rounded-full shadow-xl opacity-50 select-none border-[2em] border-pink-500/50");
+      attr(div, "class", "h-16 w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[2em] border-pink-500/50");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -377,7 +538,7 @@ function create_if_block$2(ctx) {
     },
     h() {
       set_style(svg, "pointer-events", "none");
-      attr(svg, "class", "svelte-1bj7yo6");
+      attr(svg, "class", "svelte-1pvwyqr");
     },
     m(target, anchor) {
       insert_hydration(target, svg, anchor);
@@ -488,14 +649,14 @@ function create_if_block_1$1(ctx) {
       attr(path2, "stroke-linecap", "round");
       attr(path2, "stroke-opacity", ctx[4]);
       attr(tspan, "fill", "black");
-      attr(tspan, "class", "svelte-1bj7yo6");
+      attr(tspan, "class", "svelte-1pvwyqr");
       xlink_attr(textPath0, "xlink:href", textPath0_xlink_href_value = "#" + ctx[17].id);
       attr(textPath0, "startOffset", textPath0_startOffset_value = ctx[7] + "%");
       xlink_attr(textPath1, "xlink:href", textPath1_xlink_href_value = "#" + ctx[17].id);
       attr(textPath1, "startOffset", ctx[8]);
       attr(textPath1, "fill", ctx[3]);
       attr(textPath1, "opacity", textPath1_opacity_value = ctx[4] * 1.3);
-      attr(text_1, "class", "svelte-1bj7yo6");
+      attr(text_1, "class", "svelte-1pvwyqr");
       attr(g, "stroke", ctx[6]);
       attr(g, "stroke-opacity", ctx[5]);
     },
@@ -603,7 +764,7 @@ function create_each_block$2(ctx) {
 }
 function create_fragment$5(ctx) {
   let if_block_anchor;
-  let if_block = ctx[9] && create_if_block$2(ctx);
+  let if_block = ctx[9] && ctx[0] && ctx[0].length > 0 && create_if_block$2(ctx);
   return {
     c() {
       if (if_block)
@@ -621,7 +782,7 @@ function create_fragment$5(ctx) {
       insert_hydration(target, if_block_anchor, anchor);
     },
     p(ctx2, [dirty]) {
-      if (ctx2[9]) {
+      if (ctx2[9] && ctx2[0] && ctx2[0].length > 0) {
         if (if_block) {
           if_block.p(ctx2, dirty);
         } else {
@@ -648,13 +809,13 @@ function instance$5($$self, $$props, $$invalidate) {
   let { links } = $$props;
   let { calcOffsetFromCanvas } = $$props;
   let { strokeColor = "green" } = $$props;
-  let { strokeWidth = 18 } = $$props;
+  let { strokeWidth = 1 } = $$props;
   let { arrowColor = "green" } = $$props;
   let { strokeOpacity = "0.3" } = $$props;
   let { groupStrokeOpacity = "0.1" } = $$props;
   let { groupStrokeColor = "white" } = $$props;
   let { textStartOffset = 20 } = $$props;
-  let { arrowStartOffset = "60%" } = $$props;
+  let { arrowStartOffset = "40%" } = $$props;
   const generateXcurve = link(bumpX);
   let mounted;
   let sourceX, sourceY, targetX, targetY;
@@ -666,10 +827,10 @@ function instance$5($$self, $$props, $$invalidate) {
     let targetEl = document.getElementById(link2.target.id);
     const { x: sx, y: sy } = calcOffsetFromCanvas(sourceEl);
     const { x: tx, y: ty } = calcOffsetFromCanvas(targetEl);
-    sourceX = sx + sourceEl.offsetWidth / 2 - 3;
-    sourceY = sy + sourceEl.offsetHeight / 2 - 3;
-    targetX = tx + targetEl.offsetWidth / 2 - 3;
-    targetY = ty + targetEl.offsetHeight / 2 - 3;
+    sourceX = sx + sourceEl.offsetWidth / 2;
+    sourceY = sy + sourceEl.offsetHeight / 2;
+    targetX = tx + targetEl.offsetWidth / 2;
+    targetY = ty + targetEl.offsetHeight / 2;
     let d = generateXcurve({
       source: [sourceX, sourceY],
       target: [targetX, targetY]
@@ -730,167 +891,6 @@ class Links extends SvelteComponent {
     });
   }
 }
-class Pointer {
-  constructor(nativePointer) {
-    this.id = -1;
-    this.nativePointer = nativePointer;
-    this.pageX = nativePointer.pageX;
-    this.pageY = nativePointer.pageY;
-    this.clientX = nativePointer.clientX;
-    this.clientY = nativePointer.clientY;
-    if (self.Touch && nativePointer instanceof Touch) {
-      this.id = nativePointer.identifier;
-    } else if (isPointerEvent(nativePointer)) {
-      this.id = nativePointer.pointerId;
-    }
-  }
-  getCoalesced() {
-    if ("getCoalescedEvents" in this.nativePointer) {
-      const events = this.nativePointer.getCoalescedEvents().map((p) => new Pointer(p));
-      if (events.length > 0)
-        return events;
-    }
-    return [this];
-  }
-}
-const isPointerEvent = (event) => "pointerId" in event;
-const isTouchEvent = (event) => "changedTouches" in event;
-const noop = () => {
-};
-class PointerTracker {
-  constructor(_element, { start = () => true, move = noop, end = noop, rawUpdates = false, avoidPointerEvents = false, eventListenerOptions = { capture: false, passive: false, once: false } } = {}) {
-    this._element = _element;
-    this.startPointers = [];
-    this.currentPointers = [];
-    this._excludeFromButtonsCheck = /* @__PURE__ */ new Set();
-    this._pointerStart = (event) => {
-      if (isPointerEvent(event) && event.buttons === 0) {
-        this._excludeFromButtonsCheck.add(event.pointerId);
-      } else if (!(event.buttons & 1)) {
-        return;
-      }
-      const pointer = new Pointer(event);
-      if (this.currentPointers.some((p) => p.id === pointer.id))
-        return;
-      if (!this._triggerPointerStart(pointer, event))
-        return;
-      if (isPointerEvent(event)) {
-        const capturingElement = event.target && "setPointerCapture" in event.target ? event.target : this._element;
-        capturingElement.setPointerCapture(event.pointerId);
-        this._element.addEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move, this._eventListenerOptions);
-        this._element.addEventListener("pointerup", this._pointerEnd, this._eventListenerOptions);
-        this._element.addEventListener("pointercancel", this._pointerEnd, this._eventListenerOptions);
-      } else {
-        window.addEventListener("mousemove", this._move);
-        window.addEventListener("mouseup", this._pointerEnd);
-      }
-    };
-    this._touchStart = (event) => {
-      for (const touch of Array.from(event.changedTouches)) {
-        this._triggerPointerStart(new Pointer(touch), event);
-      }
-    };
-    this._move = (event) => {
-      if (!isTouchEvent(event) && (!isPointerEvent(event) || !this._excludeFromButtonsCheck.has(event.pointerId)) && event.buttons === 0) {
-        this._pointerEnd(event);
-        return;
-      }
-      const previousPointers = this.currentPointers.slice();
-      const changedPointers = isTouchEvent(event) ? Array.from(event.changedTouches).map((t) => new Pointer(t)) : [new Pointer(event)];
-      const trackedChangedPointers = [];
-      for (const pointer of changedPointers) {
-        const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
-        if (index === -1)
-          continue;
-        trackedChangedPointers.push(pointer);
-        this.currentPointers[index] = pointer;
-      }
-      if (trackedChangedPointers.length === 0)
-        return;
-      this._moveCallback(previousPointers, trackedChangedPointers, event);
-    };
-    this._triggerPointerEnd = (pointer, event) => {
-      if (!isTouchEvent(event) && event.buttons & 1) {
-        return false;
-      }
-      const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
-      if (index === -1)
-        return false;
-      this.currentPointers.splice(index, 1);
-      this.startPointers.splice(index, 1);
-      this._excludeFromButtonsCheck.delete(pointer.id);
-      const cancelled = !(event.type === "mouseup" || event.type === "touchend" || event.type === "pointerup");
-      this._endCallback(pointer, event, cancelled);
-      return true;
-    };
-    this._pointerEnd = (event) => {
-      if (!this._triggerPointerEnd(new Pointer(event), event))
-        return;
-      if (isPointerEvent(event)) {
-        if (this.currentPointers.length)
-          return;
-        this._element.removeEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move);
-        this._element.removeEventListener("pointerup", this._pointerEnd);
-        this._element.removeEventListener("pointercancel", this._pointerEnd);
-      } else {
-        window.removeEventListener("mousemove", this._move);
-        window.removeEventListener("mouseup", this._pointerEnd);
-      }
-    };
-    this._touchEnd = (event) => {
-      for (const touch of Array.from(event.changedTouches)) {
-        this._triggerPointerEnd(new Pointer(touch), event);
-      }
-    };
-    this._startCallback = start;
-    this._moveCallback = move;
-    this._endCallback = end;
-    this._rawUpdates = rawUpdates && "onpointerrawupdate" in window;
-    this._eventListenerOptions = eventListenerOptions;
-    if (self.PointerEvent && !avoidPointerEvents) {
-      this._element.addEventListener("pointerdown", this._pointerStart, this._eventListenerOptions);
-    } else {
-      this._element.addEventListener("mousedown", this._pointerStart, this._eventListenerOptions);
-      this._element.addEventListener("touchstart", this._touchStart, this._eventListenerOptions);
-      this._element.addEventListener("touchmove", this._move, this._eventListenerOptions);
-      this._element.addEventListener("touchend", this._touchEnd, this._eventListenerOptions);
-      this._element.addEventListener("touchcancel", this._touchEnd, this._eventListenerOptions);
-    }
-  }
-  stop() {
-    this._element.removeEventListener("pointerdown", this._pointerStart);
-    this._element.removeEventListener("mousedown", this._pointerStart);
-    this._element.removeEventListener("touchstart", this._touchStart);
-    this._element.removeEventListener("touchmove", this._move);
-    this._element.removeEventListener("touchend", this._touchEnd);
-    this._element.removeEventListener("touchcancel", this._touchEnd);
-    this._element.removeEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move);
-    this._element.removeEventListener("pointerup", this._pointerEnd);
-    this._element.removeEventListener("pointercancel", this._pointerEnd);
-    window.removeEventListener("mousemove", this._move);
-    window.removeEventListener("mouseup", this._pointerEnd);
-  }
-  _triggerPointerStart(pointer, event) {
-    if (!this._startCallback(pointer, event))
-      return false;
-    this.currentPointers.push(pointer);
-    this.startPointers.push(pointer);
-    return true;
-  }
-}
-let nanoid = (size = 21) => crypto.getRandomValues(new Uint8Array(size)).reduce((id, byte) => {
-  byte &= 63;
-  if (byte < 36) {
-    id += byte.toString(36);
-  } else if (byte < 62) {
-    id += (byte - 26).toString(36).toUpperCase();
-  } else if (byte > 62) {
-    id += "-";
-  } else {
-    id += "_";
-  }
-  return id;
-}, "");
 function create_if_block$1(ctx) {
   let current;
   const default_slot_template = ctx[7].default;
@@ -1168,28 +1168,29 @@ const generateLinkLabel = (nodes, sourceID, targetID = false) => {
     return match.value;
   return `${match.value} to ${match2.value}`;
 };
+const Canvas_svelte_svelte_type_style_lang = "";
 const { window: window_1 } = globals;
 function get_each_context$1(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[16] = list[i][0];
-  child_ctx[17] = list[i][1].node;
-  child_ctx[18] = list[i][1].highlight;
+  child_ctx[17] = list[i][0];
+  child_ctx[18] = list[i][1].node;
+  child_ctx[19] = list[i][1].highlight;
   return child_ctx;
 }
 const get_default_slot_changes = (dirty) => ({});
-const get_default_slot_context = (ctx) => ({ connectable: ctx[9] });
+const get_default_slot_context = (ctx) => ({ connectable: ctx[10] });
 const get_marker_slot_changes = (dirty) => ({});
-const get_marker_slot_context = (ctx) => ({ connectable: ctx[9] });
+const get_marker_slot_context = (ctx) => ({ connectable: ctx[10] });
 function create_if_block_1(ctx) {
   let cursormarker;
   let updating_marker;
   let current;
   function cursormarker_marker_binding(value) {
-    ctx[12](value);
+    ctx[13](value);
   }
   let cursormarker_props = {
-    left: ctx[6],
-    top: ctx[7],
+    left: ctx[7],
+    top: ctx[8],
     id: MARKER,
     $$slots: { default: [create_default_slot$1] },
     $$scope: { ctx }
@@ -1212,11 +1213,11 @@ function create_if_block_1(ctx) {
     },
     p(ctx2, dirty) {
       const cursormarker_changes = {};
-      if (dirty & 64)
-        cursormarker_changes.left = ctx2[6];
       if (dirty & 128)
-        cursormarker_changes.top = ctx2[7];
-      if (dirty & 16384) {
+        cursormarker_changes.left = ctx2[7];
+      if (dirty & 256)
+        cursormarker_changes.top = ctx2[8];
+      if (dirty & 32768) {
         cursormarker_changes.$$scope = { dirty, ctx: ctx2 };
       }
       if (!updating_marker && dirty & 32) {
@@ -1254,7 +1255,7 @@ function fallback_block$1(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] ");
+      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em]  svelte-1eldltn");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -1268,8 +1269,8 @@ function fallback_block$1(ctx) {
 }
 function create_default_slot$1(ctx) {
   let current;
-  const marker_slot_template = ctx[10].marker;
-  const marker_slot = create_slot(marker_slot_template, ctx, ctx[14], get_marker_slot_context);
+  const marker_slot_template = ctx[11].marker;
+  const marker_slot = create_slot(marker_slot_template, ctx, ctx[15], get_marker_slot_context);
   const marker_slot_or_fallback = marker_slot || fallback_block$1();
   return {
     c() {
@@ -1288,13 +1289,13 @@ function create_default_slot$1(ctx) {
     },
     p(ctx2, dirty) {
       if (marker_slot) {
-        if (marker_slot.p && (!current || dirty & 16384)) {
+        if (marker_slot.p && (!current || dirty & 32768)) {
           update_slot_base(
             marker_slot,
             marker_slot_template,
             ctx2,
-            ctx2[14],
-            !current ? get_all_dirty_from_scope(ctx2[14]) : get_slot_changes(marker_slot_template, ctx2[14], dirty, get_marker_slot_changes),
+            ctx2[15],
+            !current ? get_all_dirty_from_scope(ctx2[15]) : get_slot_changes(marker_slot_template, ctx2[15], dirty, get_marker_slot_changes),
             get_marker_slot_context
           );
         }
@@ -1318,8 +1319,8 @@ function create_default_slot$1(ctx) {
 }
 function create_if_block(ctx) {
   let current;
-  const default_slot_template = ctx[10].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[14], get_default_slot_context);
+  const default_slot_template = ctx[11].default;
+  const default_slot = create_slot(default_slot_template, ctx, ctx[15], get_default_slot_context);
   return {
     c() {
       if (default_slot)
@@ -1337,13 +1338,13 @@ function create_if_block(ctx) {
     },
     p(ctx2, dirty) {
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 16384)) {
+        if (default_slot.p && (!current || dirty & 32768)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
-            ctx2[14],
-            !current ? get_all_dirty_from_scope(ctx2[14]) : get_slot_changes(default_slot_template, ctx2[14], dirty, get_default_slot_changes),
+            ctx2[15],
+            !current ? get_all_dirty_from_scope(ctx2[15]) : get_slot_changes(default_slot_template, ctx2[15], dirty, get_default_slot_changes),
             get_default_slot_context
           );
         }
@@ -1370,8 +1371,8 @@ function create_each_block$1(ctx) {
   let current;
   highlighter = new Highlighter({
     props: {
-      node: ctx[17],
-      highlight: ctx[18]
+      node: ctx[18],
+      highlight: ctx[19]
     }
   });
   return {
@@ -1388,9 +1389,9 @@ function create_each_block$1(ctx) {
     p(ctx2, dirty) {
       const highlighter_changes = {};
       if (dirty & 4)
-        highlighter_changes.node = ctx2[17];
+        highlighter_changes.node = ctx2[18];
       if (dirty & 4)
-        highlighter_changes.highlight = ctx2[18];
+        highlighter_changes.highlight = ctx2[19];
       highlighter.$set(highlighter_changes);
     },
     i(local) {
@@ -1409,32 +1410,43 @@ function create_each_block$1(ctx) {
   };
 }
 function create_fragment$3(ctx) {
-  var _a;
-  let div1;
-  let div0;
+  var _a, _b;
+  let div;
   let t0;
   let t1;
+  let links0;
   let t2;
+  let links1;
   let t3;
-  let links;
-  let t4;
   let current;
   let mounted;
   let dispose;
   let if_block0 = ctx[4] && create_if_block_1(ctx);
   let if_block1 = ctx[3] && create_if_block(ctx);
-  const links_spread_levels = [
-    { links: ctx[0].links },
+  const links0_spread_levels = [
+    { links: [ctx[6]] },
     {
-      calcOffsetFromCanvas: ctx[8]
+      calcOffsetFromCanvas: ctx[9]
     },
     (_a = ctx[1]) == null ? void 0 : _a.links
   ];
-  let links_props = {};
-  for (let i = 0; i < links_spread_levels.length; i += 1) {
-    links_props = assign(links_props, links_spread_levels[i]);
+  let links0_props = {};
+  for (let i = 0; i < links0_spread_levels.length; i += 1) {
+    links0_props = assign(links0_props, links0_spread_levels[i]);
   }
-  links = new Links({ props: links_props });
+  links0 = new Links({ props: links0_props });
+  const links1_spread_levels = [
+    { links: ctx[0].links },
+    {
+      calcOffsetFromCanvas: ctx[9]
+    },
+    (_b = ctx[1]) == null ? void 0 : _b.links
+  ];
+  let links1_props = {};
+  for (let i = 0; i < links1_spread_levels.length; i += 1) {
+    links1_props = assign(links1_props, links1_spread_levels[i]);
+  }
+  links1 = new Links({ props: links1_props });
   let each_value = [...Object.entries(ctx[2])];
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
@@ -1445,74 +1457,68 @@ function create_fragment$3(ctx) {
   });
   return {
     c() {
-      div1 = element("div");
-      div0 = element("div");
-      t0 = text("Directive is available within the slot as a slot prop");
-      t1 = space();
+      div = element("div");
       if (if_block0)
         if_block0.c();
-      t2 = space();
+      t0 = space();
       if (if_block1)
         if_block1.c();
+      t1 = space();
+      create_component(links0.$$.fragment);
+      t2 = space();
+      create_component(links1.$$.fragment);
       t3 = space();
-      create_component(links.$$.fragment);
-      t4 = space();
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
       }
       this.h();
     },
     l(nodes) {
-      div1 = claim_element(nodes, "DIV", { class: true });
-      var div1_nodes = children(div1);
-      div0 = claim_element(div1_nodes, "DIV", { class: true });
-      var div0_nodes = children(div0);
-      t0 = claim_text(div0_nodes, "Directive is available within the slot as a slot prop");
-      div0_nodes.forEach(detach);
-      t1 = claim_space(div1_nodes);
+      div = claim_element(nodes, "DIV", { class: true });
+      var div_nodes = children(div);
       if (if_block0)
-        if_block0.l(div1_nodes);
-      t2 = claim_space(div1_nodes);
+        if_block0.l(div_nodes);
+      t0 = claim_space(div_nodes);
       if (if_block1)
-        if_block1.l(div1_nodes);
-      t3 = claim_space(div1_nodes);
-      claim_component(links.$$.fragment, div1_nodes);
-      t4 = claim_space(div1_nodes);
+        if_block1.l(div_nodes);
+      t1 = claim_space(div_nodes);
+      claim_component(links0.$$.fragment, div_nodes);
+      t2 = claim_space(div_nodes);
+      claim_component(links1.$$.fragment, div_nodes);
+      t3 = claim_space(div_nodes);
       for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].l(div1_nodes);
+        each_blocks[i].l(div_nodes);
       }
-      div1_nodes.forEach(detach);
+      div_nodes.forEach(detach);
       this.h();
     },
     h() {
-      attr(div0, "class", "text-black font-bold");
-      attr(div1, "class", "relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4 p-4 z-50");
+      attr(div, "class", "relative svelte-1eldltn");
     },
     m(target, anchor) {
-      insert_hydration(target, div1, anchor);
-      append_hydration(div1, div0);
-      append_hydration(div0, t0);
-      append_hydration(div1, t1);
+      insert_hydration(target, div, anchor);
       if (if_block0)
-        if_block0.m(div1, null);
-      append_hydration(div1, t2);
+        if_block0.m(div, null);
+      append_hydration(div, t0);
       if (if_block1)
-        if_block1.m(div1, null);
-      append_hydration(div1, t3);
-      mount_component(links, div1, null);
-      append_hydration(div1, t4);
+        if_block1.m(div, null);
+      append_hydration(div, t1);
+      mount_component(links0, div, null);
+      append_hydration(div, t2);
+      mount_component(links1, div, null);
+      append_hydration(div, t3);
       for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].m(div1, null);
+        each_blocks[i].m(div, null);
       }
-      ctx[13](div1);
+      ctx[14](div);
       current = true;
       if (!mounted) {
-        dispose = listen(window_1, "resize", ctx[11]);
+        dispose = listen(window_1, "resize", ctx[12]);
         mounted = true;
       }
     },
     p(ctx2, [dirty]) {
-      var _a2;
+      var _a2, _b2;
       if (ctx2[4]) {
         if (if_block0) {
           if_block0.p(ctx2, dirty);
@@ -1523,7 +1529,7 @@ function create_fragment$3(ctx) {
           if_block0 = create_if_block_1(ctx2);
           if_block0.c();
           transition_in(if_block0, 1);
-          if_block0.m(div1, t2);
+          if_block0.m(div, t0);
         }
       } else if (if_block0) {
         group_outros();
@@ -1542,7 +1548,7 @@ function create_fragment$3(ctx) {
           if_block1 = create_if_block(ctx2);
           if_block1.c();
           transition_in(if_block1, 1);
-          if_block1.m(div1, t3);
+          if_block1.m(div, t1);
         }
       } else if (if_block1) {
         group_outros();
@@ -1551,14 +1557,22 @@ function create_fragment$3(ctx) {
         });
         check_outros();
       }
-      const links_changes = dirty & 259 ? get_spread_update(links_spread_levels, [
-        dirty & 1 && { links: ctx2[0].links },
-        dirty & 256 && {
-          calcOffsetFromCanvas: ctx2[8]
+      const links0_changes = dirty & 578 ? get_spread_update(links0_spread_levels, [
+        dirty & 64 && { links: [ctx2[6]] },
+        dirty & 512 && {
+          calcOffsetFromCanvas: ctx2[9]
         },
         dirty & 2 && get_spread_object((_a2 = ctx2[1]) == null ? void 0 : _a2.links)
       ]) : {};
-      links.$set(links_changes);
+      links0.$set(links0_changes);
+      const links1_changes = dirty & 515 ? get_spread_update(links1_spread_levels, [
+        dirty & 1 && { links: ctx2[0].links },
+        dirty & 512 && {
+          calcOffsetFromCanvas: ctx2[9]
+        },
+        dirty & 2 && get_spread_object((_b2 = ctx2[1]) == null ? void 0 : _b2.links)
+      ]) : {};
+      links1.$set(links1_changes);
       if (dirty & 4) {
         each_value = [...Object.entries(ctx2[2])];
         let i;
@@ -1571,7 +1585,7 @@ function create_fragment$3(ctx) {
             each_blocks[i] = create_each_block$1(child_ctx);
             each_blocks[i].c();
             transition_in(each_blocks[i], 1);
-            each_blocks[i].m(div1, null);
+            each_blocks[i].m(div, null);
           }
         }
         group_outros();
@@ -1586,7 +1600,8 @@ function create_fragment$3(ctx) {
         return;
       transition_in(if_block0);
       transition_in(if_block1);
-      transition_in(links.$$.fragment, local);
+      transition_in(links0.$$.fragment, local);
+      transition_in(links1.$$.fragment, local);
       for (let i = 0; i < each_value.length; i += 1) {
         transition_in(each_blocks[i]);
       }
@@ -1595,7 +1610,8 @@ function create_fragment$3(ctx) {
     o(local) {
       transition_out(if_block0);
       transition_out(if_block1);
-      transition_out(links.$$.fragment, local);
+      transition_out(links0.$$.fragment, local);
+      transition_out(links1.$$.fragment, local);
       each_blocks = each_blocks.filter(Boolean);
       for (let i = 0; i < each_blocks.length; i += 1) {
         transition_out(each_blocks[i]);
@@ -1604,14 +1620,15 @@ function create_fragment$3(ctx) {
     },
     d(detaching) {
       if (detaching)
-        detach(div1);
+        detach(div);
       if (if_block0)
         if_block0.d();
       if (if_block1)
         if_block1.d();
-      destroy_component(links);
+      destroy_component(links0);
+      destroy_component(links1);
       destroy_each(each_blocks, detaching);
-      ctx[13](null);
+      ctx[14](null);
       mounted = false;
       dispose();
     }
@@ -1626,13 +1643,14 @@ function instance$3($$self, $$props, $$invalidate) {
   let canvas;
   let connecting;
   let marker;
+  let tempLink = null;
   let left = 0;
   let top = 0;
   function handler(p, e) {
     e.stopPropagation();
     e.preventDefault();
-    $$invalidate(6, left = p.pageX - canvas.offsetLeft);
-    $$invalidate(7, top = p.pageY - canvas.offsetTop);
+    $$invalidate(7, left = p.pageX - canvas.offsetLeft);
+    $$invalidate(8, top = p.pageY - canvas.offsetTop);
   }
   function calcOffsetFromCanvas(child) {
     if (child == canvas)
@@ -1656,7 +1674,6 @@ function instance$3($$self, $$props, $$invalidate) {
     }
     if (!node.style.position)
       node.style.position = "relative";
-    let link2;
     let highlight = false;
     let overZone;
     $$invalidate(2, highlighters[node.id] = { node, highlight }, highlighters);
@@ -1671,8 +1688,9 @@ function instance$3($$self, $$props, $$invalidate) {
           return true;
         },
         move(previousPointers, changedPointers, event) {
+          var _a;
           handler(pointerTracker.currentPointers[0], event);
-          link2 = {
+          $$invalidate(6, tempLink = {
             id: node.id + "-to-",
             source: { id: node.id },
             target: { id: MARKER },
@@ -1682,18 +1700,13 @@ function instance$3($$self, $$props, $$invalidate) {
                 value: generateLinkLabel(data.nodes, node.id)
               }
             }
-          };
+          });
           if (overZone)
             $$invalidate(2, highlighters[overZone.id].highlight = false, highlighters);
-          overZone = document.elementFromPoint(pointerTracker.currentPointers[0].clientX, pointerTracker.currentPointers[0].clientY).closest(`[data-dropzone]`) || null;
+          overZone = ((_a = document.elementFromPoint(pointerTracker.currentPointers[0].clientX, pointerTracker.currentPointers[0].clientY)) == null ? void 0 : _a.closest(`[data-dropzone]`)) || null;
           if (overZone == null ? void 0 : overZone.id) {
             $$invalidate(2, highlighters[overZone.id].highlight = true, highlighters);
           }
-          const check = data.links.find((el) => el.source.id == node.id && el.target.id == MARKER);
-          if (check == void 0)
-            $$invalidate(0, data.links = [...data.links, link2], data);
-          else
-            $$invalidate(0, data);
         },
         end: (pointer, event, cancelled) => {
           $$invalidate(5, marker.style.display = "none", marker);
@@ -1704,11 +1717,7 @@ function instance$3($$self, $$props, $$invalidate) {
           overZone = null;
           let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
           let zone = drop.closest(`[data-dropzone]`);
-          $$invalidate(
-            0,
-            data.links = data.links.map((el) => el.source.id == node.id && el.target.id == MARKER ? null : el).filter((r) => r),
-            data
-          );
+          $$invalidate(6, tempLink = null);
           if (!zone || !(zone == null ? void 0 : zone.id))
             return;
           $$invalidate(
@@ -1748,7 +1757,7 @@ function instance$3($$self, $$props, $$invalidate) {
     marker = value;
     $$invalidate(5, marker);
   }
-  function div1_binding($$value) {
+  function div_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](() => {
       canvas = $$value;
       $$invalidate(3, canvas);
@@ -1760,7 +1769,7 @@ function instance$3($$self, $$props, $$invalidate) {
     if ("opts" in $$props2)
       $$invalidate(1, opts = $$props2.opts);
     if ("$$scope" in $$props2)
-      $$invalidate(14, $$scope = $$props2.$$scope);
+      $$invalidate(15, $$scope = $$props2.$$scope);
   };
   return [
     data,
@@ -1769,6 +1778,7 @@ function instance$3($$self, $$props, $$invalidate) {
     canvas,
     connecting,
     marker,
+    tempLink,
     left,
     top,
     calcOffsetFromCanvas,
@@ -1776,7 +1786,7 @@ function instance$3($$self, $$props, $$invalidate) {
     slots,
     resize_handler,
     cursormarker_marker_binding,
-    div1_binding,
+    div_binding,
     $$scope
   ];
 }
@@ -1786,6 +1796,7 @@ class Canvas extends SvelteComponent {
     init(this, options, instance$3, create_fragment$3, safe_not_equal, { data: 0, opts: 1 });
   }
 }
+const EndPoint_svelte_svelte_type_style_lang = "";
 function fallback_block(ctx) {
   let div;
   return {
@@ -1799,7 +1810,7 @@ function fallback_block(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "flex h-4 w-4 border-2 bg-blue-500 rounded-full border-blue-300 hover:ring hover:ring-blue-800");
+      attr(div, "class", "flex h-4 w-4 border-2 bg-blue-500 rounded-full border-blue-300 hover:ring hover:ring-blue-800 svelte-1eldltn");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -1842,8 +1853,8 @@ function create_fragment$2(ctx) {
       this.h();
     },
     h() {
-      attr(div0, "class", "relative");
-      attr(div1, "class", "flex absolute");
+      attr(div0, "class", "relative svelte-1eldltn");
+      attr(div1, "class", "flex absolute EndPoint svelte-1eldltn");
       attr(div1, "style", div1_style_value = "top: " + ctx[7] + "px; " + (ctx[0] == "right" ? `right: ${ctx[6]}px;` : `left: ${ctx[5]}px;`));
       add_render_callback(() => ctx[13].call(div1));
     },
@@ -2240,21 +2251,24 @@ function create_default_slot_1(ctx) {
 function create_default_slot(ctx) {
   let div0;
   let t0;
-  let div4;
-  let div1;
   let t1;
-  let endpoint0;
+  let div1;
   let t2;
-  let endpoint1;
-  let t3;
+  let div5;
   let div2;
+  let t3;
+  let endpoint0;
   let t4;
-  let endpoint2;
+  let endpoint1;
   let t5;
   let div3;
   let t6;
-  let skew;
+  let endpoint2;
   let t7;
+  let div4;
+  let t8;
+  let skew;
+  let t9;
   let endpoint3;
   let current;
   let each_value = [...Object.entries(ctx[2])];
@@ -2297,91 +2311,103 @@ function create_default_slot(ctx) {
   return {
     c() {
       div0 = element("div");
+      t0 = text("Directive is available within the slot as a slot prop");
+      t1 = space();
+      div1 = element("div");
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
       }
-      t0 = space();
-      div4 = element("div");
-      div1 = element("div");
-      t1 = text("Can we also have an external endpoint?\n			");
-      create_component(endpoint0.$$.fragment);
       t2 = space();
-      create_component(endpoint1.$$.fragment);
-      t3 = space();
+      div5 = element("div");
       div2 = element("div");
-      t4 = text("No, libraries cannot do that. Just kidding.\n			");
-      create_component(endpoint2.$$.fragment);
+      t3 = text("Can we also have an external endpoint?\n				");
+      create_component(endpoint0.$$.fragment);
+      t4 = space();
+      create_component(endpoint1.$$.fragment);
       t5 = space();
       div3 = element("div");
-      t6 = text("Yes, pass the connectable directive to the component. They can even be ");
+      t6 = text("No, libraries cannot do that. Just kidding.\n				");
+      create_component(endpoint2.$$.fragment);
+      t7 = space();
+      div4 = element("div");
+      t8 = text("Yes, pass the connectable directive to the component. They can even be ");
       create_component(skew.$$.fragment);
-      t7 = text(",\n			like this one.\n			");
+      t9 = text(",\n				like this one.\n				");
       create_component(endpoint3.$$.fragment);
       this.h();
     },
     l(nodes) {
       div0 = claim_element(nodes, "DIV", { class: true });
       var div0_nodes = children(div0);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].l(div0_nodes);
-      }
+      t0 = claim_text(div0_nodes, "Directive is available within the slot as a slot prop");
       div0_nodes.forEach(detach);
-      t0 = claim_space(nodes);
-      div4 = claim_element(nodes, "DIV", { class: true });
-      var div4_nodes = children(div4);
-      div1 = claim_element(div4_nodes, "DIV", { class: true });
+      t1 = claim_space(nodes);
+      div1 = claim_element(nodes, "DIV", { class: true });
       var div1_nodes = children(div1);
-      t1 = claim_text(div1_nodes, "Can we also have an external endpoint?\n			");
-      claim_component(endpoint0.$$.fragment, div1_nodes);
-      t2 = claim_space(div1_nodes);
-      claim_component(endpoint1.$$.fragment, div1_nodes);
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        each_blocks[i].l(div1_nodes);
+      }
       div1_nodes.forEach(detach);
-      t3 = claim_space(div4_nodes);
-      div2 = claim_element(div4_nodes, "DIV", { class: true });
+      t2 = claim_space(nodes);
+      div5 = claim_element(nodes, "DIV", { class: true });
+      var div5_nodes = children(div5);
+      div2 = claim_element(div5_nodes, "DIV", { class: true });
       var div2_nodes = children(div2);
-      t4 = claim_text(div2_nodes, "No, libraries cannot do that. Just kidding.\n			");
-      claim_component(endpoint2.$$.fragment, div2_nodes);
+      t3 = claim_text(div2_nodes, "Can we also have an external endpoint?\n				");
+      claim_component(endpoint0.$$.fragment, div2_nodes);
+      t4 = claim_space(div2_nodes);
+      claim_component(endpoint1.$$.fragment, div2_nodes);
       div2_nodes.forEach(detach);
-      t5 = claim_space(div4_nodes);
-      div3 = claim_element(div4_nodes, "DIV", { class: true });
+      t5 = claim_space(div5_nodes);
+      div3 = claim_element(div5_nodes, "DIV", { class: true });
       var div3_nodes = children(div3);
-      t6 = claim_text(div3_nodes, "Yes, pass the connectable directive to the component. They can even be ");
-      claim_component(skew.$$.fragment, div3_nodes);
-      t7 = claim_text(div3_nodes, ",\n			like this one.\n			");
-      claim_component(endpoint3.$$.fragment, div3_nodes);
+      t6 = claim_text(div3_nodes, "No, libraries cannot do that. Just kidding.\n				");
+      claim_component(endpoint2.$$.fragment, div3_nodes);
       div3_nodes.forEach(detach);
+      t7 = claim_space(div5_nodes);
+      div4 = claim_element(div5_nodes, "DIV", { class: true });
+      var div4_nodes = children(div4);
+      t8 = claim_text(div4_nodes, "Yes, pass the connectable directive to the component. They can even be ");
+      claim_component(skew.$$.fragment, div4_nodes);
+      t9 = claim_text(div4_nodes, ",\n				like this one.\n				");
+      claim_component(endpoint3.$$.fragment, div4_nodes);
       div4_nodes.forEach(detach);
+      div5_nodes.forEach(detach);
       this.h();
     },
     h() {
-      attr(div0, "class", "flex flex-row justify-around ");
-      attr(div1, "class", "inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100");
-      attr(div2, "class", "relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-red-300");
-      attr(div3, "class", "relative flex-0 m-2 ml-auto p-4 border rounded-lg w-1/3 bg-green-300");
-      attr(div4, "class", "flex flex-row flex-wrap border rounded-lg m-4 p-4 justify-between bg-neutral-50");
+      attr(div0, "class", "text-black font-bold");
+      attr(div1, "class", "flex flex-row justify-around ");
+      attr(div2, "class", "inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100");
+      attr(div3, "class", "relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-red-300");
+      attr(div4, "class", "relative flex-0 m-2 ml-auto p-4 border rounded-lg w-1/3 bg-green-300");
+      attr(div5, "class", "flex flex-row flex-wrap border rounded-lg m-4 p-4 justify-between bg-neutral-50");
     },
     m(target, anchor) {
       insert_hydration(target, div0, anchor);
+      append_hydration(div0, t0);
+      insert_hydration(target, t1, anchor);
+      insert_hydration(target, div1, anchor);
       for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].m(div0, null);
+        each_blocks[i].m(div1, null);
       }
-      insert_hydration(target, t0, anchor);
-      insert_hydration(target, div4, anchor);
-      append_hydration(div4, div1);
-      append_hydration(div1, t1);
-      mount_component(endpoint0, div1, null);
-      append_hydration(div1, t2);
-      mount_component(endpoint1, div1, null);
-      append_hydration(div4, t3);
-      append_hydration(div4, div2);
+      insert_hydration(target, t2, anchor);
+      insert_hydration(target, div5, anchor);
+      append_hydration(div5, div2);
+      append_hydration(div2, t3);
+      mount_component(endpoint0, div2, null);
       append_hydration(div2, t4);
-      mount_component(endpoint2, div2, null);
-      append_hydration(div4, t5);
-      append_hydration(div4, div3);
+      mount_component(endpoint1, div2, null);
+      append_hydration(div5, t5);
+      append_hydration(div5, div3);
       append_hydration(div3, t6);
-      mount_component(skew, div3, null);
-      append_hydration(div3, t7);
-      mount_component(endpoint3, div3, null);
+      mount_component(endpoint2, div3, null);
+      append_hydration(div5, t7);
+      append_hydration(div5, div4);
+      append_hydration(div4, t8);
+      mount_component(skew, div4, null);
+      append_hydration(div4, t9);
+      mount_component(endpoint3, div4, null);
       current = true;
     },
     p(ctx2, dirty) {
@@ -2395,7 +2421,7 @@ function create_default_slot(ctx) {
           } else {
             each_blocks[i] = create_each_block(child_ctx);
             each_blocks[i].c();
-            each_blocks[i].m(div0, null);
+            each_blocks[i].m(div1, null);
           }
         }
         for (; i < each_blocks.length; i += 1) {
@@ -2449,11 +2475,15 @@ function create_default_slot(ctx) {
     d(detaching) {
       if (detaching)
         detach(div0);
+      if (detaching)
+        detach(t1);
+      if (detaching)
+        detach(div1);
       destroy_each(each_blocks, detaching);
       if (detaching)
-        detach(t0);
+        detach(t2);
       if (detaching)
-        detach(div4);
+        detach(div5);
       destroy_component(endpoint0);
       destroy_component(endpoint1);
       destroy_component(endpoint2);
@@ -2476,7 +2506,7 @@ function create_marker_slot(ctx) {
     },
     h() {
       attr(div, "slot", "marker");
-      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] z-50");
+      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em]");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -2497,29 +2527,30 @@ function create_fragment(ctx) {
   let a1;
   let t3;
   let t4;
+  let div1;
   let canvas;
   let updating_data;
   let updating_opts;
   let t5;
-  let div5;
-  let div1;
+  let div6;
+  let div2;
   let t6;
   let t7;
-  let div2;
+  let div3;
   let label0;
   let span0;
   let t8;
   let t9;
   let input0;
   let t10;
-  let div3;
+  let div4;
   let label1;
   let span1;
   let t11;
   let t12;
   let input1;
   let t13;
-  let div4;
+  let div5;
   let label2;
   let span2;
   let t14;
@@ -2570,27 +2601,28 @@ function create_fragment(ctx) {
       a1 = element("a");
       t3 = text("https://github.com/DougAnderson444/svelte-plumb");
       t4 = text("\n\nMatch the picture to the words:\n\n");
+      div1 = element("div");
       create_component(canvas.$$.fragment);
       t5 = space();
-      div5 = element("div");
-      div1 = element("div");
+      div6 = element("div");
+      div2 = element("div");
       t6 = text("Control Panel");
       t7 = space();
-      div2 = element("div");
+      div3 = element("div");
       label0 = element("label");
       span0 = element("span");
       t8 = text("Stroke Width");
       t9 = space();
       input0 = element("input");
       t10 = space();
-      div3 = element("div");
+      div4 = element("div");
       label1 = element("label");
       span1 = element("span");
       t11 = text("Stroke Opacity");
       t12 = space();
       input1 = element("input");
       t13 = space();
-      div4 = element("div");
+      div5 = element("div");
       label2 = element("label");
       span2 = element("span");
       t14 = text("Start Distance ");
@@ -2614,18 +2646,21 @@ function create_fragment(ctx) {
       a1_nodes.forEach(detach);
       div0_nodes.forEach(detach);
       t4 = claim_text(nodes, "\n\nMatch the picture to the words:\n\n");
-      claim_component(canvas.$$.fragment, nodes);
-      t5 = claim_space(nodes);
-      div5 = claim_element(nodes, "DIV", { class: true });
-      var div5_nodes = children(div5);
-      div1 = claim_element(div5_nodes, "DIV", { class: true });
+      div1 = claim_element(nodes, "DIV", { class: true });
       var div1_nodes = children(div1);
-      t6 = claim_text(div1_nodes, "Control Panel");
+      claim_component(canvas.$$.fragment, div1_nodes);
       div1_nodes.forEach(detach);
-      t7 = claim_space(div5_nodes);
-      div2 = claim_element(div5_nodes, "DIV", { class: true });
+      t5 = claim_space(nodes);
+      div6 = claim_element(nodes, "DIV", { class: true });
+      var div6_nodes = children(div6);
+      div2 = claim_element(div6_nodes, "DIV", { class: true });
       var div2_nodes = children(div2);
-      label0 = claim_element(div2_nodes, "LABEL", { class: true });
+      t6 = claim_text(div2_nodes, "Control Panel");
+      div2_nodes.forEach(detach);
+      t7 = claim_space(div6_nodes);
+      div3 = claim_element(div6_nodes, "DIV", { class: true });
+      var div3_nodes = children(div3);
+      label0 = claim_element(div3_nodes, "LABEL", { class: true });
       var label0_nodes = children(label0);
       span0 = claim_element(label0_nodes, "SPAN", { class: true });
       var span0_nodes = children(span0);
@@ -2634,11 +2669,11 @@ function create_fragment(ctx) {
       t9 = claim_space(label0_nodes);
       input0 = claim_element(label0_nodes, "INPUT", { type: true, min: true, max: true });
       label0_nodes.forEach(detach);
-      div2_nodes.forEach(detach);
-      t10 = claim_space(div5_nodes);
-      div3 = claim_element(div5_nodes, "DIV", { class: true });
-      var div3_nodes = children(div3);
-      label1 = claim_element(div3_nodes, "LABEL", { class: true });
+      div3_nodes.forEach(detach);
+      t10 = claim_space(div6_nodes);
+      div4 = claim_element(div6_nodes, "DIV", { class: true });
+      var div4_nodes = children(div4);
+      label1 = claim_element(div4_nodes, "LABEL", { class: true });
       var label1_nodes = children(label1);
       span1 = claim_element(label1_nodes, "SPAN", { class: true });
       var span1_nodes = children(span1);
@@ -2652,11 +2687,11 @@ function create_fragment(ctx) {
         step: true
       });
       label1_nodes.forEach(detach);
-      div3_nodes.forEach(detach);
-      t13 = claim_space(div5_nodes);
-      div4 = claim_element(div5_nodes, "DIV", { class: true });
-      var div4_nodes = children(div4);
-      label2 = claim_element(div4_nodes, "LABEL", { class: true });
+      div4_nodes.forEach(detach);
+      t13 = claim_space(div6_nodes);
+      div5 = claim_element(div6_nodes, "DIV", { class: true });
+      var div5_nodes = children(div5);
+      label2 = claim_element(div5_nodes, "LABEL", { class: true });
       var label2_nodes = children(label2);
       span2 = claim_element(label2_nodes, "SPAN", { class: true });
       var span2_nodes = children(span2);
@@ -2671,8 +2706,8 @@ function create_fragment(ctx) {
         step: true
       });
       label2_nodes.forEach(detach);
-      div4_nodes.forEach(detach);
       div5_nodes.forEach(detach);
+      div6_nodes.forEach(detach);
       this.h();
     },
     h() {
@@ -2681,28 +2716,29 @@ function create_fragment(ctx) {
       attr(a1, "href", "https://github.com/DougAnderson444/svelte-plumb");
       attr(a1, "class", "font-bold m-2 underline");
       attr(div0, "class", "my-2 p-2 bg-blue-100 rounded-lg w-fit");
-      attr(div1, "class", "text-lg font-bold underline");
+      attr(div1, "class", "border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4");
+      attr(div2, "class", "text-lg font-bold underline");
       attr(span0, "class", "p-2");
       attr(input0, "type", "range");
       attr(input0, "min", "1");
       attr(input0, "max", "50");
       attr(label0, "class", "");
-      attr(div2, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
+      attr(div3, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
       attr(span1, "class", "p-2");
       attr(input1, "type", "range");
       attr(input1, "min", "0.1");
       attr(input1, "max", "1");
       attr(input1, "step", "0.1");
       attr(label1, "class", "");
-      attr(div3, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
+      attr(div4, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
       attr(span2, "class", "p-2");
       attr(input2, "type", "range");
       attr(input2, "min", "0%");
       attr(input2, "max", "90%");
       attr(input2, "step", "5%");
       attr(label2, "class", "");
-      attr(div4, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
-      attr(div5, "class", "m-4 p-4 bg-slate-100 rounded-lg shadow-lg border");
+      attr(div5, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
+      attr(div6, "class", "m-4 p-4 bg-slate-100 rounded-lg shadow-lg border");
     },
     m(target, anchor) {
       insert_hydration(target, div0, anchor);
@@ -2713,30 +2749,31 @@ function create_fragment(ctx) {
       append_hydration(div0, a1);
       append_hydration(a1, t3);
       insert_hydration(target, t4, anchor);
-      mount_component(canvas, target, anchor);
+      insert_hydration(target, div1, anchor);
+      mount_component(canvas, div1, null);
       insert_hydration(target, t5, anchor);
-      insert_hydration(target, div5, anchor);
-      append_hydration(div5, div1);
-      append_hydration(div1, t6);
-      append_hydration(div5, t7);
-      append_hydration(div5, div2);
-      append_hydration(div2, label0);
+      insert_hydration(target, div6, anchor);
+      append_hydration(div6, div2);
+      append_hydration(div2, t6);
+      append_hydration(div6, t7);
+      append_hydration(div6, div3);
+      append_hydration(div3, label0);
       append_hydration(label0, span0);
       append_hydration(span0, t8);
       append_hydration(label0, t9);
       append_hydration(label0, input0);
       set_input_value(input0, ctx[1].links.strokeWidth);
-      append_hydration(div5, t10);
-      append_hydration(div5, div3);
-      append_hydration(div3, label1);
+      append_hydration(div6, t10);
+      append_hydration(div6, div4);
+      append_hydration(div4, label1);
       append_hydration(label1, span1);
       append_hydration(span1, t11);
       append_hydration(label1, t12);
       append_hydration(label1, input1);
       set_input_value(input1, ctx[1].links.strokeOpacity);
-      append_hydration(div5, t13);
-      append_hydration(div5, div4);
-      append_hydration(div4, label2);
+      append_hydration(div6, t13);
+      append_hydration(div6, div5);
+      append_hydration(div5, label2);
       append_hydration(label2, span2);
       append_hydration(span2, t14);
       append_hydration(span2, t15);
@@ -2799,11 +2836,13 @@ function create_fragment(ctx) {
         detach(div0);
       if (detaching)
         detach(t4);
-      destroy_component(canvas, detaching);
+      if (detaching)
+        detach(div1);
+      destroy_component(canvas);
       if (detaching)
         detach(t5);
       if (detaching)
-        detach(div5);
+        detach(div6);
       mounted = false;
       run_all(dispose);
     }
@@ -2851,7 +2890,7 @@ function instance($$self, $$props, $$invalidate) {
     }
   ];
   let opts = {
-    links: { strokeWidth: 18, textStartOffset: 20 }
+    links: { strokeWidth: 1, textStartOffset: 20 }
   };
   const func = (type, t) => t.type == type;
   function canvas_data_binding(value) {
@@ -2895,4 +2934,4 @@ class Routes extends SvelteComponent {
 export {
   Routes as default
 };
-//# sourceMappingURL=index.svelte-ba84915d.js.map
+//# sourceMappingURL=index.svelte-0ccbfd1f.js.map
