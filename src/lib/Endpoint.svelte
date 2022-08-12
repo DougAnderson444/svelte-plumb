@@ -32,7 +32,7 @@
 	bind:this={dot}
 	bind:offsetWidth
 	bind:offsetHeight
-	class="flex absolute"
+	class="flex absolute EndPoint"
 	style="top: {top}px;  {position == 'right' ? `right: ${right}px;` : `left: ${left}px;`}"
 >
 	<div use:connectable class="relative">
@@ -44,3 +44,5 @@
 		</slot>
 	</div>
 </div>
+
+<style lang="postcss"></style>

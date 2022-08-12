@@ -209,3 +209,5 @@
 		<Highlighter {node} {highlight} />
 	{/each}
 </div>
+
+<style lang="postcss"></style>
