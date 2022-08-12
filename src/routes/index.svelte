@@ -5,6 +5,8 @@
 
 	import Skew from '$lib/Skew.svelte';
 
+	import Toast from '$lib/Toast.svelte';
+
 	import { quintOut } from 'svelte/easing';
 	import { crossfade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
@@ -39,22 +41,34 @@
 			textStartOffset: 20
 		}
 	};
+
+	let toast = false;
+
+	function handleConnected(e) {
+		toast = e.detail.source?.dataset?.value + ' to ' + e.detail.target?.dataset?.value;
+		console.log(toast);
+	}
 </script>
 
-<div class="my-2 p-2 bg-blue-100 rounded-lg w-fit">
-	by <a href="https://twitter.com/DougAnderson444" class="font-bold m-2 underline"
-		>@DougAnderson444</a
-	>
-	<a href="https://github.com/DougAnderson444/svelte-plumb" class="font-bold m-2 underline"
-		>https://github.com/DougAnderson444/svelte-plumb</a
-	>
+<div class="mb-4 ml-4 p-2 w-fit">
+	<div class="my-4 p-2 bg-blue-100 rounded-lg w-fit">
+		<a href="https://github.com/DougAnderson444/svelte-plumb" class="font-bold m-2 underline"
+			>https://github.com/DougAnderson444/svelte-plumb</a
+		>
+	</div>
+	<div class="my-4 p-2 bg-blue-100 rounded-lg w-fit">
+		by <a href="https://twitter.com/DougAnderson444" class="font-bold underline">@DougAnderson444</a
+		>
+	</div>
+
+	Match the picture to the words:
 </div>
 
-Match the picture to the words:
-
 <div class="border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4">
-	<Canvas bind:data bind:opts let:connectable>
-		<div class="text-black font-bold">Directive is available within the slot as a slot prop</div>
+	<Canvas bind:data {opts} let:connectable on:connected={handleConnected}>
+		<div class="text-black font-bold m-4">
+			Directive is available within the slot as a slot prop
+		</div>
 
 		<div class="flex flex-row justify-around ">
 			{#each [...Object.entries(types)] as [type, desc], i}
@@ -62,7 +76,7 @@ Match the picture to the words:
 					{#each data.nodes.filter((t) => t.type == type) as node (node.id)}
 						<div
 							class="block m-2 cursor-pointer select-none w-fit"
-							use:connectable
+							use:connectable={{ dataset: { value: node.value } }}
 							id={node?.id ? node?.id : null}
 						>
 							{node.value}
@@ -98,6 +112,14 @@ Match the picture to the words:
 			slot="marker"
 			class="h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em]"
 		/>
+
+		{#if toast}
+			{#key toast}
+				<Toast bind:toast>
+					{toast}
+				</Toast>
+			{/key}
+		{/if}
 	</Canvas>
 </div>
 
