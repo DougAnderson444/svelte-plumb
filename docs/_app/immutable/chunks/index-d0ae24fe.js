@@ -1,5 +1,6 @@
 function noop() {
 }
+const identity = (x) => x;
 function assign(tar, src) {
   for (const k in src)
     tar[k] = src[k];
@@ -69,6 +70,33 @@ function get_all_dirty_from_scope($$scope) {
 }
 function action_destroyer(action_result) {
   return action_result && is_function(action_result.destroy) ? action_result.destroy : noop;
+}
+const is_client = typeof window !== "undefined";
+let now = is_client ? () => window.performance.now() : () => Date.now();
+let raf = is_client ? (cb) => requestAnimationFrame(cb) : noop;
+const tasks = /* @__PURE__ */ new Set();
+function run_tasks(now2) {
+  tasks.forEach((task) => {
+    if (!task.c(now2)) {
+      tasks.delete(task);
+      task.f();
+    }
+  });
+  if (tasks.size !== 0)
+    raf(run_tasks);
+}
+function loop(callback) {
+  let task;
+  if (tasks.size === 0)
+    raf(run_tasks);
+  return {
+    promise: new Promise((fulfill) => {
+      tasks.add(task = { c: callback, f: fulfill });
+    }),
+    abort() {
+      tasks.delete(task);
+    }
+  };
 }
 let is_hydrating = false;
 function start_hydrating() {
@@ -140,6 +168,23 @@ function init_hydrate(target) {
 }
 function append(target, node) {
   target.appendChild(node);
+}
+function get_root_for_style(node) {
+  if (!node)
+    return document;
+  const root = node.getRootNode ? node.getRootNode() : node.ownerDocument;
+  if (root && root.host) {
+    return root;
+  }
+  return node.ownerDocument;
+}
+function append_empty_stylesheet(node) {
+  const style_element = element("style");
+  append_stylesheet(get_root_for_style(node), style_element);
+  return style_element.sheet;
+}
+function append_stylesheet(node, style) {
+  append(node.head || node, style);
 }
 function append_hydration(target, node) {
   if (is_hydrating) {
@@ -359,6 +404,74 @@ function add_resize_listener(node, fn) {
     detach(iframe);
   };
 }
+function custom_event(type, detail, { bubbles = false, cancelable = false } = {}) {
+  const e = document.createEvent("CustomEvent");
+  e.initCustomEvent(type, bubbles, cancelable, detail);
+  return e;
+}
+const managed_styles = /* @__PURE__ */ new Map();
+let active = 0;
+function hash(str) {
+  let hash2 = 5381;
+  let i = str.length;
+  while (i--)
+    hash2 = (hash2 << 5) - hash2 ^ str.charCodeAt(i);
+  return hash2 >>> 0;
+}
+function create_style_information(doc, node) {
+  const info = { stylesheet: append_empty_stylesheet(node), rules: {} };
+  managed_styles.set(doc, info);
+  return info;
+}
+function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+  const step = 16.666 / duration;
+  let keyframes = "{\n";
+  for (let p = 0; p <= 1; p += step) {
+    const t = a + (b - a) * ease(p);
+    keyframes += p * 100 + `%{${fn(t, 1 - t)}}
+`;
+  }
+  const rule = keyframes + `100% {${fn(b, 1 - b)}}
+}`;
+  const name = `__svelte_${hash(rule)}_${uid}`;
+  const doc = get_root_for_style(node);
+  const { stylesheet, rules } = managed_styles.get(doc) || create_style_information(doc, node);
+  if (!rules[name]) {
+    rules[name] = true;
+    stylesheet.insertRule(`@keyframes ${name} ${rule}`, stylesheet.cssRules.length);
+  }
+  const animation = node.style.animation || "";
+  node.style.animation = `${animation ? `${animation}, ` : ""}${name} ${duration}ms linear ${delay}ms 1 both`;
+  active += 1;
+  return name;
+}
+function delete_rule(node, name) {
+  const previous = (node.style.animation || "").split(", ");
+  const next = previous.filter(
+    name ? (anim) => anim.indexOf(name) < 0 : (anim) => anim.indexOf("__svelte") === -1
+  );
+  const deleted = previous.length - next.length;
+  if (deleted) {
+    node.style.animation = next.join(", ");
+    active -= deleted;
+    if (!active)
+      clear_rules();
+  }
+}
+function clear_rules() {
+  raf(() => {
+    if (active)
+      return;
+    managed_styles.forEach((info) => {
+      const { stylesheet } = info;
+      let i = stylesheet.cssRules.length;
+      while (i--)
+        stylesheet.deleteRule(i);
+      info.rules = {};
+    });
+    managed_styles.clear();
+  });
+}
 let current_component;
 function set_current_component(component) {
   current_component = component;
@@ -373,6 +486,20 @@ function onMount(fn) {
 }
 function afterUpdate(fn) {
   get_current_component().$$.after_update.push(fn);
+}
+function createEventDispatcher() {
+  const component = get_current_component();
+  return (type, detail, { cancelable = false } = {}) => {
+    const callbacks = component.$$.callbacks[type];
+    if (callbacks) {
+      const event = custom_event(type, detail, { cancelable });
+      callbacks.slice().forEach((fn) => {
+        fn.call(component, event);
+      });
+      return !event.defaultPrevented;
+    }
+    return true;
+  };
 }
 function setContext(key, context) {
   get_current_component().$$.context.set(key, context);
@@ -442,6 +569,19 @@ function update($$) {
     $$.after_update.forEach(add_render_callback);
   }
 }
+let promise;
+function wait() {
+  if (!promise) {
+    promise = Promise.resolve();
+    promise.then(() => {
+      promise = null;
+    });
+  }
+  return promise;
+}
+function dispatch(node, direction, kind) {
+  node.dispatchEvent(custom_event(`${direction ? "intro" : "outro"}${kind}`));
+}
 const outroing = /* @__PURE__ */ new Set();
 let outros;
 function group_outros() {
@@ -480,6 +620,101 @@ function transition_out(block, local, detach2, callback) {
   } else if (callback) {
     callback();
   }
+}
+const null_transition = { duration: 0 };
+function create_bidirectional_transition(node, fn, params, intro) {
+  let config = fn(node, params);
+  let t = intro ? 0 : 1;
+  let running_program = null;
+  let pending_program = null;
+  let animation_name = null;
+  function clear_animation() {
+    if (animation_name)
+      delete_rule(node, animation_name);
+  }
+  function init2(program, duration) {
+    const d = program.b - t;
+    duration *= Math.abs(d);
+    return {
+      a: t,
+      b: program.b,
+      d,
+      duration,
+      start: program.start,
+      end: program.start + duration,
+      group: program.group
+    };
+  }
+  function go(b) {
+    const { delay = 0, duration = 300, easing = identity, tick: tick2 = noop, css } = config || null_transition;
+    const program = {
+      start: now() + delay,
+      b
+    };
+    if (!b) {
+      program.group = outros;
+      outros.r += 1;
+    }
+    if (running_program || pending_program) {
+      pending_program = program;
+    } else {
+      if (css) {
+        clear_animation();
+        animation_name = create_rule(node, t, b, duration, delay, easing, css);
+      }
+      if (b)
+        tick2(0, 1);
+      running_program = init2(program, duration);
+      add_render_callback(() => dispatch(node, b, "start"));
+      loop((now2) => {
+        if (pending_program && now2 > pending_program.start) {
+          running_program = init2(pending_program, duration);
+          pending_program = null;
+          dispatch(node, running_program.b, "start");
+          if (css) {
+            clear_animation();
+            animation_name = create_rule(node, t, running_program.b, running_program.duration, 0, easing, config.css);
+          }
+        }
+        if (running_program) {
+          if (now2 >= running_program.end) {
+            tick2(t = running_program.b, 1 - t);
+            dispatch(node, running_program.b, "end");
+            if (!pending_program) {
+              if (running_program.b) {
+                clear_animation();
+              } else {
+                if (!--running_program.group.r)
+                  run_all(running_program.group.c);
+              }
+            }
+            running_program = null;
+          } else if (now2 >= running_program.start) {
+            const p = now2 - running_program.start;
+            t = running_program.a + running_program.d * easing(p / running_program.duration);
+            tick2(t, 1 - t);
+          }
+        }
+        return !!(running_program || pending_program);
+      });
+    }
+  }
+  return {
+    run(b) {
+      if (is_function(config)) {
+        wait().then(() => {
+          config = config();
+          go(b);
+        });
+      } else {
+        go(b);
+      }
+    },
+    end() {
+      clear_animation();
+      running_program = pending_program = null;
+    }
+  };
 }
 const globals = typeof window !== "undefined" ? window : typeof globalThis !== "undefined" ? globalThis : global;
 function destroy_block(block, lookup) {
@@ -729,6 +964,8 @@ export {
   claim_space,
   claim_svg_element,
   claim_text,
+  createEventDispatcher,
+  create_bidirectional_transition,
   create_component,
   create_slot,
   destroy_block,
@@ -745,6 +982,7 @@ export {
   group_outros,
   init,
   insert_hydration,
+  is_function,
   listen,
   mount_component,
   noop,
@@ -766,4 +1004,4 @@ export {
   update_slot_base,
   xlink_attr
 };
-//# sourceMappingURL=index-277b37a2.js.map
+//# sourceMappingURL=index-d0ae24fe.js.map
