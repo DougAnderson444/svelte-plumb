@@ -32,7 +32,7 @@ QED, as my high school math teacher would say.
 ### Basic Use
 
 ```svelte
-import { Canvas } from '@douganderson444/svelte-plumb';
+import {Canvas} from '@douganderson444/svelte-plumb';
 
 <Canvas bind:data let:connectable>
 	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
@@ -44,10 +44,10 @@ import { Canvas } from '@douganderson444/svelte-plumb';
 ### Use with optional EndPoints
 
 ```svelte
-import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
+import {Canvas, EndPoint} from '@douganderson444/svelte-plumb';
 
 <Canvas bind:data let:connectable>
-	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
+	<div use:connectable={options}>This HTMLElement is now connectable for drag and drop</div>
 
 	<!-- OPTION: use end points, absolutely positioned against a relative positioned parent  -->
 	<div class="relative" style="position: relative">
@@ -63,9 +63,9 @@ import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
 ### Use with optional styling
 
 ```svelte
-import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
+import {Canvas, EndPoint} from '@douganderson444/svelte-plumb';
 
-<Canvas bind:data let:connectable>
+<Canvas bind:data let:connectable on:connected={handleConnected}>
 	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
 
 	<!-- OPTIONS -->
@@ -74,7 +74,7 @@ import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
 	<!-- OPTION, style your endpoint -->
 	<div class="relative" style="position: relative">
 		I like my endpoints like I like my donuts.
-		<EndPoint position={'left'} {connectable}>
+		<EndPoint position={'left'} {connectable} {options}>
 			<div
 				class="h-4 w-4 bg-white rounded-full border-4 border-black hover:ring hover:ring-green-800"
 			/>
@@ -91,6 +91,40 @@ import { Canvas, EndPoint } from '@douganderson444/svelte-plumb';
 
 So, anything within the Canvas component with a `use:connectable` action directive will be connectable. The SVG lines will be drawn relative to the Canvas component, and away you go. Everything else is done behind the scenes by Svelte.
 
+# All Options
+
+Configure your connectable further with the following options:
+
+```js
+options = {
+	dataset: {
+		// object you want added to <HTMLElement data-attribute-* >
+		color: 'blue', // adds data-color="blue"
+		yourObject: 'any'
+	},
+	restrictions: {
+		// restriction put on source and target abilities and quantities
+		// defaults are false for all
+		dropOnly: false, // set true if drop zone only, can't start a connection from here
+		startOnly: false // set true if start zone only, can't drop a connection to here
+	}
+};
+```
+
+# Events
+
+When a connection is made, an event is fired which passes along details of the connectable node:
+
+```svelte
+<Canvas bind:data let:connectable={options} on:connected={handleConnected}>
+
+function handleConnected(e){
+	console.log("Source's color", e.detail.source.dataset.color) // color set in source connectable's options.dataset.color
+	console.log("Target's color", e.detail.target.dataset.color) // color set in target  connectable's options.dataset.color
+}
+
+```
+
 # REPO Demo
 
 `npm run dev`
@@ -101,10 +135,11 @@ https://svelte.dev/repl/cf05fb3c64674978a717ce1f861a82c0?version=3.49.0
 
 # TODO
 
-- [] CRUD link paths
-- [] Move end points
-- [] Add option: number of connectiosn allowed
-- [] Disable duplicate links
+- [ ] CRUD link paths & text
+- [ ] Move end points
+- [ ] Add option: number of connectiosn allowed
+- [ ] Disable duplicate links
+- [ ] Restrictive options for connectables (can't be source, can't be target, number of connections, etc)
 
 # Inspiration
 
