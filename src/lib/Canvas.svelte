@@ -7,7 +7,7 @@
 	 * 2. dispatch event to node via directive
 	 * 3. bind the data through a prop
 	 */
-
+	import { createEventDispatcher } from 'svelte';
 	import PointerTracker from '@douganderson444/pointer-tracker';
 	import { nanoid } from 'nanoid';
 
@@ -18,6 +18,8 @@
 
 	export let data;
 	export let opts = {};
+
+	const dispatch = createEventDispatcher();
 
 	let highlighters = {};
 
@@ -57,12 +59,8 @@
 		return { x: sourceOffsetLeftDiff, y: sourceOffsetTopDiff };
 	}
 
-	function connectable(node, bar) {
+	function connectable(node, options) {
 		if (!node.id) node.id = nanoid();
-
-		if (!node.dataset['dropzone']) {
-			node.dataset.dropzone = true;
-		}
 
 		// TODO: Handle absolute nodes, create a relative child?
 		if (!node.style.position) node.style.position = 'relative';
@@ -73,91 +71,111 @@
 		// add to list of nodes to highlight when connecting
 		highlighters[node.id] = { node, highlight };
 
-		let pointerTracker = new PointerTracker(node, {
-			start(pointer, event) {
-				// track only 1 pointer at a time
-				if (pointerTracker.currentPointers.length === 1) return false;
+		// Applying Restrictions
+		// limit source count (single, multiples), target count, etc. # of connections per connectable
+		let pointerTracker;
 
-				connecting = true;
-				handler(pointer, event);
+		// Add data-* attriutes to connectable node
+		if (options?.dataset) node.dataset.dataset = JSON.stringify(options.dataset);
 
-				return true;
-			},
-			move(previousPointers, changedPointers, event) {
-				handler(pointerTracker.currentPointers[0], event);
+		if (!options?.restrictions?.startOnly) node.dataset.dropzone = true;
 
-				tempLink = {
-					id: node.id + '-to-',
-					source: { id: node.id },
-					target: { id: MARKER },
-					opts: {
-						label: {
-							enabled: true,
-							value: generateLinkLabel(data.nodes, node.id)
-						}
-					}
-				};
+		if (!options?.restrictions?.dropOnly)
+			pointerTracker = new PointerTracker(node, {
+				start(pointer, event) {
+					// track only 1 pointer at a time
+					if (pointerTracker.currentPointers.length === 1) return false;
 
-				// unhightlight prev
-				if (overZone) highlighters[overZone.id].highlight = false;
+					connecting = true;
+					handler(pointer, event);
 
-				// simulate mouseover for mobile
-				overZone =
-					document
-						.elementFromPoint(
-							pointerTracker.currentPointers[0].clientX,
-							pointerTracker.currentPointers[0].clientY
-						)
-						?.closest(`[data-dropzone]`) || null;
+					return true;
+				},
+				move(previousPointers, changedPointers, event) {
+					handler(pointerTracker.currentPointers[0], event);
 
-				if (overZone?.id) {
-					highlighters[overZone.id].highlight = true;
-				}
-			},
-			end: (pointer, event, cancelled) => {
-				marker.style.display = 'none'; // so elementFromPoint gets what is underneath instead
-				// marker = null; // this may be overkill?
-
-				connecting = false;
-
-				// reset
-				if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
-					highlighters[overZone.id].highlight = false;
-				}
-				overZone = null;
-
-				// get closest dropzone target
-				let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
-				let zone = drop.closest(`[data-dropzone]`);
-
-				// remove temp tempLink
-				tempLink = null;
-
-				if (!zone || !zone?.id) return;
-
-				// get dropzone target id
-				data.links = [
-					...data.links,
-					{
-						id: node.id + '-to-' + zone.id,
+					tempLink = {
+						id: node.id + '-to-',
 						source: { id: node.id },
-						target: { id: zone.id },
+						target: { id: MARKER },
 						opts: {
 							label: {
 								enabled: true,
-								value: generateLinkLabel(data.nodes, node.id, zone.id)
+								value: generateLinkLabel(data.nodes, node.id)
 							}
 						}
+					};
+
+					// unhightlight prev
+					if (overZone) highlighters[overZone.id].highlight = false;
+
+					// simulate mouseover for mobile
+					overZone =
+						document
+							.elementFromPoint(
+								pointerTracker.currentPointers[0].clientX,
+								pointerTracker.currentPointers[0].clientY
+							)
+							?.closest(`[data-dropzone]`) || null;
+
+					if (overZone?.id) {
+						highlighters[overZone.id].highlight = true;
 					}
-				]; // add latest link
-			},
-			avoidPointerEvents: true, // mkaes mobile work better
-			eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
-		});
+				},
+				end: (pointer, event, cancelled) => {
+					marker.style.display = 'none'; // so elementFromPoint gets what is underneath instead
+					// marker = null; // this may be overkill?
+
+					connecting = false;
+
+					// reset
+					if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
+						highlighters[overZone.id].highlight = false;
+					}
+					overZone = null;
+
+					// get closest dropzone target
+					let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
+					let zone = drop.closest(`[data-dropzone]`);
+
+					// remove temp tempLink
+					tempLink = null;
+
+					if (!zone || !zone?.id) return;
+
+					// get dropzone target id
+					data.links = [
+						...data.links,
+						{
+							id: node.id + '-to-' + zone.id,
+							source: { id: node.id },
+							target: { id: zone.id },
+							opts: {
+								label: {
+									enabled: true,
+									value: generateLinkLabel(data.nodes, node.id, zone.id)
+								}
+							}
+						}
+					]; // add latest link
+
+					if (options?.dataset || zone?.dataset?.dataset) {
+						const detail = {
+							source: { dataset: options?.dataset || null },
+							target: { dataset: zone?.dataset?.dataset ? JSON.parse(zone.dataset.dataset) : null }
+						};
+						console.log(detail);
+
+						dispatch('connected', detail);
+					}
+				},
+				avoidPointerEvents: true, // mkaes mobile work better
+				eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
+			});
 
 		return {
-			update(bar) {
-				// the value of `bar` has changed
+			update(params) {
+				// the value of `params` has changed
 			},
 
 			destroy() {
