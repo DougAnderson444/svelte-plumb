@@ -24,6 +24,7 @@
 	let canvas;
 	let connecting;
 	let marker;
+	let tempLink = null; // connecting, temp tempLink from node to marker
 
 	const MARKER = 'marker';
 	const DROPZONE = 'dropzone';
@@ -66,8 +67,6 @@
 		// TODO: Handle absolute nodes, create a relative child?
 		if (!node.style.position) node.style.position = 'relative';
 
-		// link from node to marker
-		let link;
 		let highlight = false;
 		let overZone;
 
@@ -87,7 +86,7 @@
 			move(previousPointers, changedPointers, event) {
 				handler(pointerTracker.currentPointers[0], event);
 
-				link = {
+				tempLink = {
 					id: node.id + '-to-',
 					source: { id: node.id },
 					target: { id: MARKER },
@@ -109,21 +108,16 @@
 							pointerTracker.currentPointers[0].clientX,
 							pointerTracker.currentPointers[0].clientY
 						)
-						.closest(`[data-dropzone]`) || null;
+						?.closest(`[data-dropzone]`) || null;
 
 				if (overZone?.id) {
 					highlighters[overZone.id].highlight = true;
 				}
-
-				// Prevent duplicate links
-				const check = data.links.find((el) => el.source.id == node.id && el.target.id == MARKER);
-				if (check == undefined) data.links = [...data.links, link]; // add latest link
-				else data.links = data.links; // simply refresh Svelte UI <Links />
 			},
 			end: (pointer, event, cancelled) => {
 				marker.style.display = 'none'; // so elementFromPoint gets what is underneath instead
+				// marker = null; // this may be overkill?
 
-				// marker = null;
 				connecting = false;
 
 				// reset
@@ -136,10 +130,8 @@
 				let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
 				let zone = drop.closest(`[data-dropzone]`);
 
-				// remove temp link
-				data.links = data.links
-					.map((el) => (el.source.id == node.id && el.target.id == MARKER ? null : el))
-					.filter((r) => r);
+				// remove temp tempLink
+				tempLink = null;
 
 				if (!zone || !zone?.id) return;
 
@@ -181,13 +173,9 @@
 	}}
 />
 
-<div
-	bind:this={canvas}
-	class="relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4 p-4 z-50"
->
-	<div class="text-black font-bold">Directive is available within the slot as a slot prop</div>
-
+<div bind:this={canvas} class="relative">
 	{#if connecting}
+		<!-- Show where the mouse/touch pointer is -->
 		<CursorMarker bind:marker {left} {top} id={MARKER}>
 			<slot name="marker">
 				<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
@@ -199,9 +187,13 @@
 	{/if}
 
 	{#if canvas}
+		<!-- The area where the connectable directive may be used (the "let: connectable" area) -->
 		<slot {connectable} />
 	{/if}
 
+	<!-- TODO: Tempoary Link while connecting -->
+	<Links links={[tempLink]} {calcOffsetFromCanvas} {...opts?.links} />
+	<!-- All connected links ("permanent") -->
 	<Links links={data.links} {calcOffsetFromCanvas} {...opts?.links} />
 
 	<!-- highlighters -->
