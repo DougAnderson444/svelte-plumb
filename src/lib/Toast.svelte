@@ -36,10 +36,10 @@
 {#if visible}
 	<div
 		transition:fly={{ delay: 100, duration: 800, x: 0, y: -200, opacity: 0.1, easing: quintOut }}
-		class="flex flex-col items-center fixed top-0 left-0 m-4 w-5/6 p-4 text-neutral-800 dark:text-gray-400 dark:bg-gray-800"
+		class="flex flex-col items-center fixed top-0 left-0 m-4 w-5/6 p-4 text-neutral-800 bg-transparent"
 	>
 		<div
-			class="flex-1 flex max-w-fit items-center py-4 px-8 bg-yellow-300/90 rounded-lg shadow-2xl drop-shadow-2xl "
+			class="flex-1 flex max-w-fit items-center py-4 px-8 bg-yellow-300/90 rounded-lg shadow-2xl drop-shadow-2xl"
 		>
 			<div class="text-lg font-normal w-full">
 				<slot />

@@ -15,11 +15,12 @@ const config = {
 		// postcss: true,
 		sourceMap: process.env.NODE_ENV !== 'development',
 		postcss: {
-			configFilePath: path.resolve(__dirname, './postcss.config.js'),
-			prependData:
-				process.env.NODE_ENV !== 'development'
-					? `@import '${path.resolve('./src/utilities.css')}';`
-					: ''
+			configFilePath: path.resolve(__dirname, './postcss.config.js')
+			// ,
+			// prependData:
+			// 	process.env.NODE_ENV !== 'development'
+			// 		? `@import '${path.resolve('./src/utilities.css')}';`
+			// 		: ''
 		}
 	}),
 

@@ -787,9 +787,9 @@ const __vitePreload = function preload(baseModule, deps, importerUrl) {
 };
 const matchers = {};
 const components = [
-  () => __vitePreload(() => import("./pages/__layout.svelte-56106ef3.js"), true ? ["_app/immutable/pages/__layout.svelte-56106ef3.js","_app/immutable/assets/__layout-82ff0ef2.css","_app/immutable/chunks/index-d0ae24fe.js"] : void 0),
+  () => __vitePreload(() => import("./pages/__layout.svelte-56106ef3.js"), true ? ["_app/immutable/pages/__layout.svelte-56106ef3.js","_app/immutable/assets/__layout-e615a731.css","_app/immutable/chunks/index-d0ae24fe.js"] : void 0),
   () => __vitePreload(() => import("./error.svelte-0287ce72.js"), true ? ["_app/immutable/error.svelte-0287ce72.js","_app/immutable/chunks/index-d0ae24fe.js"] : void 0),
-  () => __vitePreload(() => import("./pages/index.svelte-e27b36d6.js"), true ? ["_app/immutable/pages/index.svelte-e27b36d6.js","_app/immutable/assets/index-6466544d.css","_app/immutable/chunks/index-d0ae24fe.js"] : void 0)
+  () => __vitePreload(() => import("./pages/index.svelte-e1ff7b08.js"), true ? ["_app/immutable/pages/index.svelte-e1ff7b08.js","_app/immutable/assets/index-313256ae.css","_app/immutable/chunks/index-d0ae24fe.js"] : void 0)
 ];
 const dictionary = {
   "": [[0, 2], [1]]
@@ -938,7 +938,7 @@ function create_updated_store() {
     });
     if (res.ok) {
       const { version } = await res.json();
-      const updated = version !== "1660331689321";
+      const updated = version !== "1660772730701";
       if (updated) {
         set(true);
         clearTimeout(timeout);
@@ -1970,4 +1970,4 @@ export {
   set_public_env,
   start
 };
-//# sourceMappingURL=start-ccb2c598.js.map
+//# sourceMappingURL=start-bee40d55.js.map

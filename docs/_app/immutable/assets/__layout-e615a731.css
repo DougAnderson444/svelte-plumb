@@ -712,6 +712,9 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(254 249 195 / var(--tw-bg-opacity));
 }
+.bg-transparent {
+  background-color: transparent;
+}
 .bg-yellow-300\/90 {
   background-color: rgb(253 224 71 / 0.9);
 }
@@ -983,11 +986,6 @@ video {
   .dark\:text-yellow-200 {
     --tw-text-opacity: 1;
     color: rgb(254 240 138 / var(--tw-text-opacity));
-  }
-
-  .dark\:text-gray-400 {
-    --tw-text-opacity: 1;
-    color: rgb(156 163 175 / var(--tw-text-opacity));
   }
 }
 @media (min-width: 768px) {
