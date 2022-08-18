@@ -42,6 +42,7 @@
 	}
 
 	function calcOffsetFromCanvas(child) {
+		if (!child) return;
 		if (child == canvas) return { x: child.offsetLeft, y: child.offsetTop };
 		// need to get the offetTop from canvas, which may be different from the sourceEl offetTop
 		// get different between bounding rect top between sourceEl and canvas
@@ -141,24 +142,26 @@
 					// remove temp tempLink
 					tempLink = null;
 
-					if (!zone || !zone?.id) return;
+					if (!zone || !zone?.id || !node || !node?.id) return;
 
-					// get dropzone target id
-					data.links = [
-						...data.links,
-						{
-							id: node.id + '-to-' + zone.id,
-							source: { id: node.id },
-							target: { id: zone.id },
-							opts: {
-								label: {
-									enabled: true,
-									value: generateLinkLabel(data.nodes, node.id, zone.id)
-								}
+					// update links
+					const newLink = {
+						id: node.id + '-to-' + zone.id,
+						source: { id: node.id },
+						target: { id: zone.id },
+						opts: {
+							label: {
+								enabled: true,
+								value: generateLinkLabel(data.nodes, node.id, zone.id)
 							}
 						}
-					]; // add latest link
+					};
 
+					console.log({ newLink });
+
+					data.links = [...data.links, newLink];
+
+					// emit data via event
 					if (options?.dataset || zone?.dataset?.dataset) {
 						const detail = {
 							source: { dataset: options?.dataset || null },

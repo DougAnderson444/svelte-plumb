@@ -35,6 +35,8 @@
 		let sourceEl = document.getElementById(link.source.id);
 		let targetEl = document.getElementById(link.target.id);
 
+		if (!sourceEl || !targetEl) return;
+
 		// centered
 		const { x: sx, y: sy } = calcOffsetFromCanvas(sourceEl);
 		const { x: tx, y: ty } = calcOffsetFromCanvas(targetEl);
