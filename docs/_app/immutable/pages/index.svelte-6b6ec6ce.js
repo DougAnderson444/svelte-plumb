@@ -825,6 +825,8 @@ function instance$6($$self, $$props, $$invalidate) {
   function genPath(link2) {
     let sourceEl = document.getElementById(link2.source.id);
     let targetEl = document.getElementById(link2.target.id);
+    if (!sourceEl || !targetEl)
+      return;
     const { x: sx, y: sy } = calcOffsetFromCanvas(sourceEl);
     const { x: tx, y: ty } = calcOffsetFromCanvas(targetEl);
     sourceX = sx + sourceEl.offsetWidth / 2;
@@ -1168,7 +1170,6 @@ const generateLinkLabel = (nodes, sourceID, targetID = false) => {
     return match.value;
   return `${match.value} to ${match2.value}`;
 };
-const Canvas_svelte_svelte_type_style_lang = "";
 const { window: window_1 } = globals;
 function get_each_context$1(ctx, list, i) {
   const child_ctx = ctx.slice();
@@ -1255,7 +1256,7 @@ function fallback_block$1(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em]  svelte-rhklme");
+      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] ");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -1493,7 +1494,7 @@ function create_fragment$4(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "relative svelte-rhklme");
+      attr(div, "class", "relative");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -1654,6 +1655,8 @@ function instance$4($$self, $$props, $$invalidate) {
     $$invalidate(8, top = p.pageY - canvas.offsetTop);
   }
   function calcOffsetFromCanvas(child) {
+    if (!child)
+      return;
     if (child == canvas)
       return { x: child.offsetLeft, y: child.offsetTop };
     let sourceOffsetTop = child.getBoundingClientRect().top;
@@ -1724,26 +1727,21 @@ function instance$4($$self, $$props, $$invalidate) {
             let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
             let zone = drop.closest(`[data-dropzone]`);
             $$invalidate(6, tempLink = null);
-            if (!zone || !(zone == null ? void 0 : zone.id))
+            if (!zone || !(zone == null ? void 0 : zone.id) || !node || !(node == null ? void 0 : node.id))
               return;
-            $$invalidate(
-              0,
-              data.links = [
-                ...data.links,
-                {
-                  id: node.id + "-to-" + zone.id,
-                  source: { id: node.id },
-                  target: { id: zone.id },
-                  opts: {
-                    label: {
-                      enabled: true,
-                      value: generateLinkLabel(data.nodes, node.id, zone.id)
-                    }
-                  }
+            const newLink = {
+              id: node.id + "-to-" + zone.id,
+              source: { id: node.id },
+              target: { id: zone.id },
+              opts: {
+                label: {
+                  enabled: true,
+                  value: generateLinkLabel(data.nodes, node.id, zone.id)
                 }
-              ],
-              data
-            );
+              }
+            };
+            console.log({ newLink });
+            $$invalidate(0, data.links = [...data.links, newLink], data);
             if ((options == null ? void 0 : options.dataset) || ((_a2 = zone == null ? void 0 : zone.dataset) == null ? void 0 : _a2.dataset)) {
               const detail = {
                 source: { dataset: (options == null ? void 0 : options.dataset) || null },
@@ -1812,7 +1810,6 @@ class Canvas extends SvelteComponent {
     init(this, options, instance$4, create_fragment$4, safe_not_equal, { data: 0, opts: 1 });
   }
 }
-const EndPoint_svelte_svelte_type_style_lang = "";
 function fallback_block(ctx) {
   let div;
   return {
@@ -1826,7 +1823,7 @@ function fallback_block(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "flex h-4 w-4 border-2 bg-blue-500 rounded-full border-blue-300 hover:ring hover:ring-blue-800 svelte-rhklme");
+      attr(div, "class", "flex h-4 w-4 border-2 bg-blue-500 rounded-full border-blue-300 hover:ring hover:ring-blue-800");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -1870,8 +1867,8 @@ function create_fragment$3(ctx) {
       this.h();
     },
     h() {
-      attr(div0, "class", "relative svelte-rhklme");
-      attr(div1, "class", "flex absolute EndPoint svelte-rhklme");
+      attr(div0, "class", "relative");
+      attr(div1, "class", "flex absolute EndPoint");
       attr(div1, "style", div1_style_value = "top: " + ctx[8] + "px; " + (ctx[0] == "right" ? `right: ${ctx[7]}px;` : `left: ${ctx[6]}px;`));
       add_render_callback(() => ctx[14].call(div1));
     },
@@ -2124,7 +2121,6 @@ function fly(node, { delay = 0, duration = 400, easing = cubicOut, x: x2 = 0, y:
 			opacity: ${target_opacity - od * u}`
   };
 }
-const Toast_svelte_svelte_type_style_lang = "";
 const get_extra_slot_changes = (dirty) => ({});
 const get_extra_slot_context = (ctx) => ({});
 function create_if_block$1(ctx) {
@@ -2182,10 +2178,10 @@ function create_if_block$1(ctx) {
       this.h();
     },
     h() {
-      attr(span, "class", "opacity-40 svelte-rhklme");
-      attr(div0, "class", "text-lg font-normal w-full svelte-rhklme");
-      attr(div1, "class", "flex-1 flex max-w-fit items-center py-4 px-8 bg-yellow-300/90 rounded-lg shadow-2xl drop-shadow-2xl svelte-rhklme");
-      attr(div2, "class", "flex flex-col items-center fixed top-0 left-0 m-4 w-5/6 p-4 text-neutral-800 bg-transparent svelte-rhklme");
+      attr(span, "class", "opacity-40");
+      attr(div0, "class", "text-lg font-normal w-full");
+      attr(div1, "class", "flex-1 flex max-w-fit items-center py-4 px-8 bg-yellow-300/90 rounded-lg shadow-2xl drop-shadow-2xl");
+      attr(div2, "class", "flex flex-col items-center fixed top-0 left-0 m-4 w-5/6 p-4 text-neutral-800 bg-transparent");
     },
     m(target, anchor) {
       insert_hydration(target, div2, anchor);
@@ -3429,4 +3425,4 @@ class Routes extends SvelteComponent {
 export {
   Routes as default
 };
-//# sourceMappingURL=index.svelte-e1ff7b08.js.map
+//# sourceMappingURL=index.svelte-6b6ec6ce.js.map
