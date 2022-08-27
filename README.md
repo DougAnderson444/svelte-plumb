@@ -8,6 +8,7 @@ Going for the simplest svg drawing API _ever_.
 - [x] Defaults + Customization
 - [x] Connect Elements and EndPoints
 - [x] Touch/Mobile friendly
+- [x] Restrictive options for connectables (start only, drop only)
 
 ![Demo](static/thumb.png)
 
@@ -159,7 +160,6 @@ https://svelte.dev/repl/cf05fb3c64674978a717ce1f861a82c0?version=3.49.0
 - [ ] Move end points
 - [ ] Add option: number of connectiosn allowed
 - [ ] Disable duplicate links
-- [ ] Restrictive options for connectables (can't be source, can't be target, number of connections, etc)
 
 # Inspiration
 
