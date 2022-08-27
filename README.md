@@ -44,7 +44,7 @@ import {Canvas} from '@douganderson444/svelte-plumb';
 ### Use with optional EndPoints
 
 ```svelte
-import {Canvas, EndPoint} from '@douganderson444/svelte-plumb';
+import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
 
 <Canvas bind:data let:connectable>
 	<div use:connectable={options}>This HTMLElement is now connectable for drag and drop</div>
@@ -63,7 +63,7 @@ import {Canvas, EndPoint} from '@douganderson444/svelte-plumb';
 ### Use with optional styling
 
 ```svelte
-import {Canvas, EndPoint} from '@douganderson444/svelte-plumb';
+import {(Canvas, EndPoint)} from '@douganderson444/svelte-plumb';
 
 <Canvas bind:data let:connectable on:connected={handleConnected}>
 	<div use:connectable>This HTMLElement is now connectable for drag and drop</div>
@@ -91,7 +91,27 @@ import {Canvas, EndPoint} from '@douganderson444/svelte-plumb';
 
 So, anything within the Canvas component with a `use:connectable` action directive will be connectable. The SVG lines will be drawn relative to the Canvas component, and away you go. Everything else is done behind the scenes by Svelte.
 
-# All Options
+### Use with optional data
+
+You can also pass data to the `on:connected` event by setting options on the `use:connected={option}` directive.
+
+```svelte
+<script>
+import {Canvas} from '@douganderson444/svelte-plumb';
+
+function handleConnected(e) {
+	console.log(e.detail.source?.dataset?.point + ' to ' + e.detail.target?.dataset?.point); // A to B
+}
+</script>
+
+<Canvas bind:data let:connectable on:connected={e=>console.log()}>
+	<div use:connectable{{ dataset: { point: 'A' }, restrictions: { startOnly: true } }}>Point A</div>
+	<div use:connectable{{ dataset: { point: 'B' }, restrictions: { dropOnly: true } }}>Point B</div>
+</Canvas>;
+
+```
+
+### All Options
 
 Configure your connectable further with the following options:
 
