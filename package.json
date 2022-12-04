@@ -34,6 +34,7 @@
 	"dependencies": {
 		"@douganderson444/pointer-tracker": "github:DougAnderson444/pointer-tracker",
 		"d3-shape": "^3.1.0",
-		"nanoid": "^4.0.0"
+		"nanoid": "^4.0.0",
+		"perfect-arrows": "^0.3.7"
 	}
 }

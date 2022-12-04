@@ -23,7 +23,7 @@
 >
 	<slot>
 		<div
-			class="h-16 w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[2em] border-pink-500/50"
+			class="h-4 w-4 p-8 rounded-full shadow-xl opacity-80 select-none border-[2em] border-pink-500/50"
 		/>
 	</slot>
 </div>

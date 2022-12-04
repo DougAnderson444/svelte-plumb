@@ -194,14 +194,14 @@
 	}}
 />
 
-<div bind:this={canvas} class="relative">
+<div bind:this={canvas} class="relative" data-canvas>
 	{#if connecting}
 		<!-- Show where the mouse/touch pointer is -->
 		<CursorMarker bind:marker {left} {top} id={MARKER}>
 			<slot name="marker">
 				<!-- Default cursor indicator marker below can be overriden in Parent Component slot -->
 				<div
-					class="h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] "
+					class="h-4 w-4 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[1em] md:border-[1em]"
 				/>
 			</slot>
 		</CursorMarker>
