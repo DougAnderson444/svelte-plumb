@@ -1,4 +1,4 @@
-import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$1, empty, onMount, svg_element, claim_svg_element, destroy_each, text, space, claim_text, claim_space, xlink_attr, append_hydration, set_data, listen, group_outros, check_outros, run_all, assign, create_component, claim_component, mount_component, get_spread_update, get_spread_object, destroy_component, createEventDispatcher, globals, bind, add_flush_callback, action_destroyer, is_function, create_bidirectional_transition, set_input_value, to_number, update_keyed_each, destroy_block } from "../chunks/index-d0ae24fe.js";
+import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$1, empty, onMount, svg_element, claim_svg_element, append_hydration, text, claim_text, set_data, xlink_attr, group_outros, check_outros, destroy_each, create_component, claim_component, mount_component, destroy_component, listen, run_all, assign, space, claim_space, get_spread_update, get_spread_object, createEventDispatcher, globals, bind, add_flush_callback, action_destroyer, is_function, create_bidirectional_transition, set_input_value, to_number, update_keyed_each, destroy_block } from "../chunks/index-d0ae24fe.js";
 class Pointer {
   constructor(nativePointer) {
     this.id = -1;
@@ -173,7 +173,7 @@ function fallback_block$3(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "h-16 w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[2em] border-pink-500/50");
+      attr(div, "class", "h-4 w-4 p-8 rounded-full shadow-xl opacity-80 select-none border-[2em] border-pink-500/50");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -185,7 +185,7 @@ function fallback_block$3(ctx) {
     }
   };
 }
-function create_fragment$7(ctx) {
+function create_fragment$8(ctx) {
   let div;
   let div_resize_listener;
   let current;
@@ -266,9 +266,9 @@ function create_fragment$7(ctx) {
     }
   };
 }
-function instance$7($$self, $$props, $$invalidate) {
-  let x2;
-  let y2;
+function instance$8($$self, $$props, $$invalidate) {
+  let x;
+  let y;
   let { $$slots: slots = {}, $$scope } = $$props;
   let { marker } = $$props;
   let { id } = $$props;
@@ -302,10 +302,10 @@ function instance$7($$self, $$props, $$invalidate) {
   };
   $$self.$$.update = () => {
     if ($$self.$$.dirty & 68) {
-      $$invalidate(5, x2 = left - offsetWidth / 2);
+      $$invalidate(5, x = left - offsetWidth / 2);
     }
     if ($$self.$$.dirty & 136) {
-      $$invalidate(4, y2 = top - offsetHeight / 2);
+      $$invalidate(4, y = top - offsetHeight / 2);
     }
   };
   return [
@@ -313,8 +313,8 @@ function instance$7($$self, $$props, $$invalidate) {
     id,
     offsetWidth,
     offsetHeight,
-    y2,
-    x2,
+    y,
+    x,
     left,
     top,
     $$scope,
@@ -326,199 +326,700 @@ function instance$7($$self, $$props, $$invalidate) {
 class CursorMarker extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$7, create_fragment$7, safe_not_equal, { marker: 0, id: 1, left: 6, top: 7 });
+    init(this, options, instance$8, create_fragment$8, safe_not_equal, { marker: 0, id: 1, left: 6, top: 7 });
   }
 }
-const pi = Math.PI, tau = 2 * pi, epsilon = 1e-6, tauEpsilon = tau - epsilon;
-function Path() {
-  this._x0 = this._y0 = this._x1 = this._y1 = null;
-  this._ = "";
-}
-function path() {
-  return new Path();
-}
-Path.prototype = path.prototype = {
-  constructor: Path,
-  moveTo: function(x2, y2) {
-    this._ += "M" + (this._x0 = this._x1 = +x2) + "," + (this._y0 = this._y1 = +y2);
-  },
-  closePath: function() {
-    if (this._x1 !== null) {
-      this._x1 = this._x0, this._y1 = this._y0;
-      this._ += "Z";
-    }
-  },
-  lineTo: function(x2, y2) {
-    this._ += "L" + (this._x1 = +x2) + "," + (this._y1 = +y2);
-  },
-  quadraticCurveTo: function(x1, y1, x2, y2) {
-    this._ += "Q" + +x1 + "," + +y1 + "," + (this._x1 = +x2) + "," + (this._y1 = +y2);
-  },
-  bezierCurveTo: function(x1, y1, x2, y2, x3, y3) {
-    this._ += "C" + +x1 + "," + +y1 + "," + +x2 + "," + +y2 + "," + (this._x1 = +x3) + "," + (this._y1 = +y3);
-  },
-  arcTo: function(x1, y1, x2, y2, r) {
-    x1 = +x1, y1 = +y1, x2 = +x2, y2 = +y2, r = +r;
-    var x0 = this._x1, y0 = this._y1, x21 = x2 - x1, y21 = y2 - y1, x01 = x0 - x1, y01 = y0 - y1, l01_2 = x01 * x01 + y01 * y01;
-    if (r < 0)
-      throw new Error("negative radius: " + r);
-    if (this._x1 === null) {
-      this._ += "M" + (this._x1 = x1) + "," + (this._y1 = y1);
-    } else if (!(l01_2 > epsilon))
-      ;
-    else if (!(Math.abs(y01 * x21 - y21 * x01) > epsilon) || !r) {
-      this._ += "L" + (this._x1 = x1) + "," + (this._y1 = y1);
+var PI = Math.PI;
+function modulate(value, rangeA, rangeB, clamp) {
+  if (clamp === void 0) {
+    clamp = false;
+  }
+  var fromLow = rangeA[0], fromHigh = rangeA[1];
+  var toLow = rangeB[0], toHigh = rangeB[1];
+  var result = toLow + (value - fromLow) / (fromHigh - fromLow) * (toHigh - toLow);
+  if (clamp === true) {
+    if (toLow < toHigh) {
+      if (result < toLow) {
+        return toLow;
+      }
+      if (result > toHigh) {
+        return toHigh;
+      }
     } else {
-      var x20 = x2 - x0, y20 = y2 - y0, l21_2 = x21 * x21 + y21 * y21, l20_2 = x20 * x20 + y20 * y20, l21 = Math.sqrt(l21_2), l01 = Math.sqrt(l01_2), l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2), t01 = l / l01, t21 = l / l21;
-      if (Math.abs(t01 - 1) > epsilon) {
-        this._ += "L" + (x1 + t01 * x01) + "," + (y1 + t01 * y01);
+      if (result > toLow) {
+        return toLow;
       }
-      this._ += "A" + r + "," + r + ",0,0," + +(y01 * x20 > x01 * y20) + "," + (this._x1 = x1 + t21 * x21) + "," + (this._y1 = y1 + t21 * y21);
+      if (result < toHigh) {
+        return toHigh;
+      }
     }
-  },
-  arc: function(x2, y2, r, a0, a1, ccw) {
-    x2 = +x2, y2 = +y2, r = +r, ccw = !!ccw;
-    var dx = r * Math.cos(a0), dy = r * Math.sin(a0), x0 = x2 + dx, y0 = y2 + dy, cw = 1 ^ ccw, da = ccw ? a0 - a1 : a1 - a0;
-    if (r < 0)
-      throw new Error("negative radius: " + r);
-    if (this._x1 === null) {
-      this._ += "M" + x0 + "," + y0;
-    } else if (Math.abs(this._x1 - x0) > epsilon || Math.abs(this._y1 - y0) > epsilon) {
-      this._ += "L" + x0 + "," + y0;
+  }
+  return result;
+}
+function rotatePoint(x, y, cx, cy, angle) {
+  var s = Math.sin(angle);
+  var c = Math.cos(angle);
+  var px = x - cx;
+  var py = y - cy;
+  var nx = px * c - py * s;
+  var ny = px * s + py * c;
+  return [nx + cx, ny + cy];
+}
+function getDistance(x0, y0, x1, y1) {
+  return Math.hypot(y1 - y0, x1 - x0);
+}
+function getAngle(x0, y0, x1, y1) {
+  return Math.atan2(y1 - y0, x1 - x0);
+}
+function getPointBetween(x0, y0, x1, y1, d) {
+  if (d === void 0) {
+    d = 0.5;
+  }
+  return [x0 + (x1 - x0) * d, y0 + (y1 - y0) * d];
+}
+function getSector(a, s) {
+  if (s === void 0) {
+    s = 8;
+  }
+  return Math.floor(s * (0.5 + a / (PI * 2) % s));
+}
+function doRectanglesCollide(x0, y0, w0, h0, x1, y1, w1, h1) {
+  return !(x0 >= x1 + w1 || x1 >= x0 + w0 || y0 >= y1 + h1 || y1 >= y0 + h0);
+}
+function getSegmentCircleIntersections(cx, cy, r, x0, y0, x1, y1) {
+  var b, c, d, u1, u2, ret, retP1, retP2, v1 = [x1 - x0, y1 - y0], v2 = [x0 - cx, y0 - cy];
+  b = v1[0] * v2[0] + v1[1] * v2[1];
+  c = 2 * (v1[0] * v1[0] + v1[1] * v1[1]);
+  b *= -2;
+  d = Math.sqrt(b * b - 2 * c * (v2[0] * v2[0] + v2[1] * v2[1] - r * r));
+  if (isNaN(d)) {
+    return [];
+  }
+  u1 = (b - d) / c;
+  u2 = (b + d) / c;
+  retP1 = [];
+  retP2 = [];
+  ret = [];
+  if (u1 <= 1 && u1 >= 0) {
+    retP1[0] = x0 + v1[0] * u1;
+    retP1[1] = y0 + v1[1] * u1;
+    ret[0] = retP1;
+  }
+  if (u2 <= 1 && u2 >= 0) {
+    retP2[0] = x0 + v1[0] * u2;
+    retP2[1] = y0 + v1[1] * u2;
+    ret[ret.length] = retP2;
+  }
+  return ret;
+}
+function normalizeAngle(radians) {
+  return radians - PI * 2 * Math.floor(radians / (PI * 2));
+}
+function getRaySegmentIntersection(x, y, dx, dy, x0, y0, x1, y1) {
+  var r, s, d;
+  if (dy * (x1 - x0) !== dx * (y1 - y0)) {
+    d = dx * (y1 - y0) - dy * (x1 - x0);
+    if (d !== 0) {
+      r = ((y - y0) * (x1 - x0) - (x - x0) * (y1 - y0)) / d;
+      s = ((y - y0) * dx - (x - x0) * dy) / d;
+      if (r >= 0 && s >= 0 && s <= 1) {
+        return [x + r * dx, y + r * dy];
+      }
     }
-    if (!r)
+  }
+  return void 0;
+}
+function getDelta(angle) {
+  return [Math.cos(angle), Math.sin(angle)];
+}
+function getIntermediate(angle) {
+  return Math.abs(Math.abs(angle % (PI / 2)) - PI / 4) / (PI / 4);
+}
+function getLineBetweenRoundedRectangles(x0, y0, w0, h0, r0, x1, y1, w1, h1, r1) {
+  var cx0 = x0 + w0 / 2, cy0 = y0 + h0 / 2, cx1 = x1 + w1 / 2, cy1 = y1 + h1 / 2, _ref3 = getRayRoundedRectangleIntersection(cx0, cy0, cx1 - cx0, cy1 - cy0, x0, y0, w0, h0, r0) || [[cx0, cy0]], _ref3$ = _ref3[0], di0x = _ref3$[0], di0y = _ref3$[1], _ref4 = getRayRoundedRectangleIntersection(cx1, cy1, cx0 - cx1, cy0 - cy1, x1, y1, w1, h1, r1) || [[cx1, cy1]], _ref4$ = _ref4[0], di1x = _ref4$[0], di1y = _ref4$[1];
+  return [di0x, di0y, di1x, di1y];
+}
+function getRayRoundedRectangleIntersection(ox, oy, dx, dy, x, y, w, h, r) {
+  var mx = x + w, my = y + h, rx = x + r - 1, ry = y + r - 1, mrx = x + w - r + 1, mry = y + h - r + 1;
+  var segments = [[x, mry, x, ry], [rx, y, mrx, y], [mx, ry, mx, mry], [mrx, my, rx, my]];
+  var corners = [[rx, ry, Math.PI, Math.PI * 1.5], [mrx, ry, Math.PI * 1.5, Math.PI * 2], [mrx, mry, 0, Math.PI * 0.5], [rx, mry, Math.PI * 0.5, Math.PI]];
+  var points = [];
+  segments.forEach(function(segment, i) {
+    var px0 = segment[0], py0 = segment[1], px1 = segment[2], py1 = segment[3];
+    var _corners$i2 = corners[i], cx = _corners$i2[0], cy = _corners$i2[1], as = _corners$i2[2], ae = _corners$i2[3];
+    var intersections = getRayCircleIntersection(cx, cy, r, ox, oy, dx, dy);
+    intersections && intersections.filter(function(pt) {
+      var pointAngle = normalizeAngle(getAngle(cx, cy, pt[0], pt[1]));
+      return pointAngle > as && pointAngle < ae;
+    }).forEach(function(pt) {
+      return points.push(pt);
+    });
+    var segmentInt = getRaySegmentIntersection(ox, oy, dx, dy, px0, py0, px1, py1);
+    if (!!segmentInt) {
+      points.push(segmentInt);
+    }
+  });
+  return points;
+}
+function getRectangleSegmentIntersectedByRay(x, y, w, h, ox, oy, dx, dy) {
+  return getRectangleSegments(x, y, w, h).find(function(_ref5) {
+    var sx0 = _ref5[0], sy0 = _ref5[1], sx1 = _ref5[2], sy1 = _ref5[3];
+    return getRaySegmentIntersection(ox, oy, dx, dy, sx0, sy0, sx1, sy1);
+  });
+}
+function getRectangleSegments(x, y, w, h) {
+  return [[x, y, x + w, y], [x + w, y, x + w, y + h], [x + w, y + h, x, y + h], [x, y + h, x, y]];
+}
+function getRayCircleIntersection(cx, cy, r, ox, oy, dx, dy) {
+  return getSegmentCircleIntersections(cx, cy, r, ox, oy, dx * 999999, dy * 999999);
+}
+var PI$1 = Math.PI;
+var PI2 = PI$1 * 2;
+var MIN_ANGLE = PI$1 / 24;
+function getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options) {
+  if (options === void 0) {
+    options = {};
+  }
+  var sx, sy, ex, ey;
+  var _options = options, _options$bow = _options.bow, bow = _options$bow === void 0 ? 0 : _options$bow, _options$stretch = _options.stretch, stretch = _options$stretch === void 0 ? 0.25 : _options$stretch, _options$stretchMin = _options.stretchMin, stretchMin = _options$stretchMin === void 0 ? 50 : _options$stretchMin, _options$stretchMax = _options.stretchMax, stretchMax = _options$stretchMax === void 0 ? 420 : _options$stretchMax, _options$padStart = _options.padStart, padStart = _options$padStart === void 0 ? 0 : _options$padStart, _options$padEnd = _options.padEnd, padEnd = _options$padEnd === void 0 ? 20 : _options$padEnd, _options$flip = _options.flip, flip = _options$flip === void 0 ? false : _options$flip, _options$straights = _options.straights, straights = _options$straights === void 0 ? true : _options$straights;
+  var px0 = x0 - padStart, py0 = y0 - padStart, pw0 = w0 + padStart * 2, ph0 = h0 + padStart * 2, px1 = x1 - padEnd, py1 = y1 - padEnd, pw1 = w1 + padEnd * 2, ph1 = h1 + padEnd * 2, cx0 = x0 + w0 / 2, cy0 = y0 + h0 / 2, cx1 = x1 + w1 / 2, cy1 = y1 + h1 / 2;
+  var angle = normalizeAngle(getAngle(cx0, cy0, cx1, cy1));
+  var distance = getDistance(cx0, cy0, cx1, cy1);
+  if (distance === 0) {
+    var _sx = cx0, _sy = py0;
+    var _ex = cx1, _ey = py1;
+    var _getPointBetween = getPointBetween(_sx, _sy, _ex, _ey, 0.5), cx = _getPointBetween[0], cy = _getPointBetween[1];
+    var ca = getAngle(_sx, _sy, _ex, _ey);
+    return [_sx, _sy, cx, cy, _ex, _ey, ca, ca, ca];
+  }
+  var rot = (getSector(angle) % 2 === 0 ? -1 : 1) * (flip ? -1 : 1);
+  var card = getIntermediate(angle);
+  if (card < 1 && card > 0.85)
+    card = 0.99;
+  var isColliding = doRectanglesCollide(px0, py0, pw0, ph0, px1, py1, pw1, ph1);
+  var _getLineBetweenRounde = getLineBetweenRoundedRectangles(px0, py0, pw0, ph0, padStart, px1, py1, pw1, ph1, padEnd), dix0 = _getLineBetweenRounde[0], diy0 = _getLineBetweenRounde[1], dix1 = _getLineBetweenRounde[2], diy1 = _getLineBetweenRounde[3];
+  var distanceBetween = getDistance(dix0, diy0, dix1, diy1);
+  if (!isColliding && straights && card % 0.5 === 0) {
+    var _getPointBetween2 = getPointBetween(dix0, diy0, dix1, diy1, 0.5), mpdx = _getPointBetween2[0], mpdy = _getPointBetween2[1];
+    return [dix0, diy0, mpdx, mpdy, dix1, diy1, angle, angle - PI$1, angle];
+  }
+  var overlapEffect = isColliding ? modulate(distanceBetween, [0, distance], [0, 1], true) : 0;
+  var distEffect = 1 - distanceBetween / distance;
+  var stretchEffect = modulate(distanceBetween, [stretchMin, stretchMax], [1, 0], true);
+  var arc = bow + stretchEffect * stretch;
+  var angleOffset = modulate(
+    card * card,
+    [0, 1],
+    [PI$1 * 0.125, 0],
+    true
+  );
+  var distOffset = isColliding ? PI$1 * 0.5 * card : modulate(
+    distEffect,
+    [0.75, 1],
+    [0, PI$1 * 0.5],
+    true
+  ) * card;
+  var combinedOffset = distOffset + angleOffset * (isColliding ? 1 - overlapEffect : 1);
+  var finalAngle0 = overlapEffect >= 0.5 ? angle + PI$1 * rot : angle + Math.max(MIN_ANGLE, combinedOffset) * rot;
+  var _getDelta = getDelta(+(finalAngle0 % PI2).toPrecision(3)), dx0 = _getDelta[0], dy0 = _getDelta[1];
+  var _getRayRoundedRectang = getRayRoundedRectangleIntersection(cx0, cy0, dx0, dy0, px0, py0, pw0, ph0, padStart), _getRayRoundedRectang2 = _getRayRoundedRectang[0], tsx = _getRayRoundedRectang2[0], tsy = _getRayRoundedRectang2[1];
+  var startSeg = getRectangleSegmentIntersectedByRay(px0, py0, pw0, ph0, cx0, cy0, dx0, dy0);
+  if (!startSeg)
+    throw Error;
+  var ssx0 = startSeg[0], ssy0 = startSeg[1], ssx1 = startSeg[2], ssy1 = startSeg[3];
+  var _getPointBetween3 = getPointBetween(ssx0, ssy0, ssx1, ssy1, 0.5), smpx = _getPointBetween3[0], smpy = _getPointBetween3[1];
+  var _getPointBetween4 = getPointBetween(tsx, tsy, smpx, smpy, isColliding ? Math.max(overlapEffect, 0.15) : 0.15);
+  sx = _getPointBetween4[0];
+  sy = _getPointBetween4[1];
+  arc *= 1 + (Math.max(-2, Math.min(distEffect, 2)) * card - overlapEffect) / 2;
+  if (isColliding) {
+    arc = arc < 0 ? Math.min(arc, -0.5) : Math.max(arc, 0.5);
+  }
+  if (overlapEffect >= 0.5) {
+    var rayAngle = getAngle(cx0, cy0, smpx, smpy);
+    var _getDelta2 = getDelta(rayAngle), dx1 = _getDelta2[0], dy1 = _getDelta2[1];
+    var _getRayRoundedRectang3 = getRayRoundedRectangleIntersection(cx1, cy1, dx1, dy1, px1, py1, pw1, ph1, padEnd);
+    var _getRayRoundedRectang4 = _getRayRoundedRectang3[0];
+    ex = _getRayRoundedRectang4[0];
+    ey = _getRayRoundedRectang4[1];
+  } else {
+    var distOffset1 = modulate(distEffect, [0.75, 1], [0, 1], true);
+    var overlapEffect1 = isColliding ? modulate(overlapEffect, [0, 1], [0, PI$1 / 8], true) : 0;
+    var cardEffect1 = modulate(card * distOffset1, [0, 1], [0, PI$1 / 16], true);
+    var _combinedOffset = distEffect * (PI$1 / 12) + (cardEffect1 + overlapEffect1) + (distOffset + angleOffset) / 2;
+    var finalAngle1 = overlapEffect >= 0.5 ? angle + PI$1 * rot : angle + PI$1 - Math.max(_combinedOffset, MIN_ANGLE) * rot;
+    var _getDelta3 = getDelta(+(finalAngle1 % PI2).toPrecision(3)), _dx = _getDelta3[0], _dy = _getDelta3[1];
+    var _getRayRoundedRectang5 = getRayRoundedRectangleIntersection(cx1, cy1, _dx, _dy, px1, py1, pw1, ph1, padEnd), _getRayRoundedRectang6 = _getRayRoundedRectang5[0], tex = _getRayRoundedRectang6[0], tey = _getRayRoundedRectang6[1];
+    var endSeg = getRectangleSegmentIntersectedByRay(px1, py1, pw1, ph1, cx1, cy1, _dx, _dy);
+    if (!endSeg)
+      throw Error;
+    var sex0 = endSeg[0], sey0 = endSeg[1], sex1 = endSeg[2], sey1 = endSeg[3];
+    var _getPointBetween5 = getPointBetween(sex0, sey0, sex1, sey1, 0.5), empx = _getPointBetween5[0], empy = _getPointBetween5[1];
+    var _getPointBetween6 = getPointBetween(tex, tey, empx, empy, 0.25 + overlapEffect * 0.25);
+    ex = _getPointBetween6[0];
+    ey = _getPointBetween6[1];
+  }
+  var _getPointBetween7 = getPointBetween(sx, sy, ex, ey, 0.5), mx1 = _getPointBetween7[0], my1 = _getPointBetween7[1];
+  var _getPointBetween8 = getPointBetween(
+    sx,
+    sy,
+    ex,
+    ey,
+    Math.max(-1, Math.min(1, 0.5 + arc))
+  ), tix = _getPointBetween8[0], tiy = _getPointBetween8[1];
+  var _rotatePoint = rotatePoint(tix, tiy, mx1, my1, PI$1 / 2 * rot), cixA = _rotatePoint[0], ciyA = _rotatePoint[1];
+  var _rotatePoint2 = rotatePoint(tix, tiy, mx1, my1, PI$1 / 2 * -rot), cixB = _rotatePoint2[0], ciyB = _rotatePoint2[1];
+  var _ref = isColliding && getDistance(cixA, ciyA, cx1, cy1) < getDistance(cixB, ciyB, cx1, cy1) ? [cixB, ciyB] : [cixA, ciyA], cix = _ref[0], ciy = _ref[1];
+  var as = getAngle(cix, ciy, sx, sy);
+  var ae = getAngle(cix, ciy, ex, ey);
+  return [sx, sy, cix, ciy, ex, ey, ae, as, getAngle(sx, sy, ex, ey)];
+}
+const Link_svelte_svelte_type_style_lang = "";
+function create_if_block$5(ctx) {
+  let g;
+  let circle;
+  let path;
+  let path_id_value;
+  let if_block0_anchor;
+  let if_block0 = ctx[10] && create_if_block_2(ctx);
+  function select_block_type(ctx2, dirty) {
+    if (ctx2[11] < ctx2[15])
+      return create_if_block_1$2;
+    return create_else_block;
+  }
+  let current_block_type = select_block_type(ctx);
+  let if_block1 = current_block_type(ctx);
+  return {
+    c() {
+      g = svg_element("g");
+      circle = svg_element("circle");
+      path = svg_element("path");
+      if (if_block0)
+        if_block0.c();
+      if_block0_anchor = empty();
+      if_block1.c();
+      this.h();
+    },
+    l(nodes) {
+      g = claim_svg_element(nodes, "g", { stroke: true, "stroke-opacity": true });
+      var g_nodes = children(g);
+      circle = claim_svg_element(g_nodes, "circle", { cx: true, cy: true, r: true });
+      children(circle).forEach(detach);
+      path = claim_svg_element(g_nodes, "path", {
+        d: true,
+        id: true,
+        "stroke-width": true,
+        stroke: true,
+        fill: true,
+        "stroke-linecap": true,
+        "stroke-opacity": true
+      });
+      children(path).forEach(detach);
+      if (if_block0)
+        if_block0.l(g_nodes);
+      if_block0_anchor = empty();
+      if_block1.l(g_nodes);
+      g_nodes.forEach(detach);
+      this.h();
+    },
+    h() {
+      attr(circle, "cx", ctx[11]);
+      attr(circle, "cy", ctx[12]);
+      attr(circle, "r", 4);
+      attr(path, "d", ctx[9]);
+      attr(path, "id", path_id_value = ctx[0].id);
+      attr(path, "stroke-width", ctx[2]);
+      attr(path, "stroke", ctx[1]);
+      attr(path, "fill", "none");
+      attr(path, "stroke-linecap", "round");
+      attr(path, "stroke-opacity", ctx[4]);
+      attr(g, "stroke", ctx[6]);
+      attr(g, "stroke-opacity", ctx[5]);
+    },
+    m(target, anchor) {
+      insert_hydration(target, g, anchor);
+      append_hydration(g, circle);
+      append_hydration(g, path);
+      if (if_block0)
+        if_block0.m(g, null);
+      append_hydration(g, if_block0_anchor);
+      if_block1.m(g, null);
+    },
+    p(ctx2, dirty) {
+      if (dirty & 2048) {
+        attr(circle, "cx", ctx2[11]);
+      }
+      if (dirty & 4096) {
+        attr(circle, "cy", ctx2[12]);
+      }
+      if (dirty & 512) {
+        attr(path, "d", ctx2[9]);
+      }
+      if (dirty & 1 && path_id_value !== (path_id_value = ctx2[0].id)) {
+        attr(path, "id", path_id_value);
+      }
+      if (dirty & 4) {
+        attr(path, "stroke-width", ctx2[2]);
+      }
+      if (dirty & 2) {
+        attr(path, "stroke", ctx2[1]);
+      }
+      if (dirty & 16) {
+        attr(path, "stroke-opacity", ctx2[4]);
+      }
+      if (ctx2[10]) {
+        if (if_block0) {
+          if_block0.p(ctx2, dirty);
+        } else {
+          if_block0 = create_if_block_2(ctx2);
+          if_block0.c();
+          if_block0.m(g, if_block0_anchor);
+        }
+      } else if (if_block0) {
+        if_block0.d(1);
+        if_block0 = null;
+      }
+      if (current_block_type === (current_block_type = select_block_type(ctx2)) && if_block1) {
+        if_block1.p(ctx2, dirty);
+      } else {
+        if_block1.d(1);
+        if_block1 = current_block_type(ctx2);
+        if (if_block1) {
+          if_block1.c();
+          if_block1.m(g, null);
+        }
+      }
+      if (dirty & 64) {
+        attr(g, "stroke", ctx2[6]);
+      }
+      if (dirty & 32) {
+        attr(g, "stroke-opacity", ctx2[5]);
+      }
+    },
+    d(detaching) {
+      if (detaching)
+        detach(g);
+      if (if_block0)
+        if_block0.d();
+      if_block1.d();
+    }
+  };
+}
+function create_if_block_2(ctx) {
+  let polygon;
+  return {
+    c() {
+      polygon = svg_element("polygon");
+      this.h();
+    },
+    l(nodes) {
+      polygon = claim_svg_element(nodes, "polygon", {
+        points: true,
+        transform: true,
+        fill: true
+      });
+      children(polygon).forEach(detach);
+      this.h();
+    },
+    h() {
+      attr(polygon, "points", "0,-6 12,0, 0,6");
+      attr(polygon, "transform", ctx[10]);
+      attr(polygon, "fill", ctx[3]);
+    },
+    m(target, anchor) {
+      insert_hydration(target, polygon, anchor);
+    },
+    p(ctx2, dirty) {
+      if (dirty & 1024) {
+        attr(polygon, "transform", ctx2[10]);
+      }
+      if (dirty & 8) {
+        attr(polygon, "fill", ctx2[3]);
+      }
+    },
+    d(detaching) {
+      if (detaching)
+        detach(polygon);
+    }
+  };
+}
+function create_else_block(ctx) {
+  var _a, _b, _c, _d, _e, _f;
+  let text_1;
+  let tspan;
+  let t_value = (((_c = (_b = (_a = ctx[0]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[0]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
+  let t;
+  return {
+    c() {
+      text_1 = svg_element("text");
+      tspan = svg_element("tspan");
+      t = text(t_value);
+      this.h();
+    },
+    l(nodes) {
+      text_1 = claim_svg_element(nodes, "text", { x: true, y: true, class: true });
+      var text_1_nodes = children(text_1);
+      tspan = claim_svg_element(text_1_nodes, "tspan", { fill: true, class: true });
+      var tspan_nodes = children(tspan);
+      t = claim_text(tspan_nodes, t_value);
+      tspan_nodes.forEach(detach);
+      text_1_nodes.forEach(detach);
+      this.h();
+    },
+    h() {
+      attr(tspan, "fill", "black");
+      attr(tspan, "class", "svelte-1fj6p42");
+      attr(text_1, "x", ctx[13]);
+      attr(text_1, "y", ctx[14]);
+      attr(text_1, "class", "svelte-1fj6p42");
+    },
+    m(target, anchor) {
+      insert_hydration(target, text_1, anchor);
+      append_hydration(text_1, tspan);
+      append_hydration(tspan, t);
+    },
+    p(ctx2, dirty) {
+      var _a2, _b2, _c2, _d2, _e2, _f2;
+      if (dirty & 1 && t_value !== (t_value = (((_c2 = (_b2 = (_a2 = ctx2[0]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[0]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
+        set_data(t, t_value);
+      if (dirty & 8192) {
+        attr(text_1, "x", ctx2[13]);
+      }
+      if (dirty & 16384) {
+        attr(text_1, "y", ctx2[14]);
+      }
+    },
+    d(detaching) {
+      if (detaching)
+        detach(text_1);
+    }
+  };
+}
+function create_if_block_1$2(ctx) {
+  var _a, _b, _c, _d, _e, _f;
+  let text_1;
+  let textPath;
+  let tspan;
+  let t_value = (((_c = (_b = (_a = ctx[0]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[0]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
+  let t;
+  let textPath_xlink_href_value;
+  let textPath_startOffset_value;
+  return {
+    c() {
+      text_1 = svg_element("text");
+      textPath = svg_element("textPath");
+      tspan = svg_element("tspan");
+      t = text(t_value);
+      this.h();
+    },
+    l(nodes) {
+      text_1 = claim_svg_element(nodes, "text", { class: true });
+      var text_1_nodes = children(text_1);
+      textPath = claim_svg_element(text_1_nodes, "textPath", { "xlink:href": true, startOffset: true });
+      var textPath_nodes = children(textPath);
+      tspan = claim_svg_element(textPath_nodes, "tspan", { fill: true, class: true });
+      var tspan_nodes = children(tspan);
+      t = claim_text(tspan_nodes, t_value);
+      tspan_nodes.forEach(detach);
+      textPath_nodes.forEach(detach);
+      text_1_nodes.forEach(detach);
+      this.h();
+    },
+    h() {
+      attr(tspan, "fill", "black");
+      attr(tspan, "class", "svelte-1fj6p42");
+      xlink_attr(textPath, "xlink:href", textPath_xlink_href_value = "#" + ctx[0].id);
+      attr(textPath, "startOffset", textPath_startOffset_value = ctx[7] + "%");
+      attr(text_1, "class", "svelte-1fj6p42");
+    },
+    m(target, anchor) {
+      insert_hydration(target, text_1, anchor);
+      append_hydration(text_1, textPath);
+      append_hydration(textPath, tspan);
+      append_hydration(tspan, t);
+    },
+    p(ctx2, dirty) {
+      var _a2, _b2, _c2, _d2, _e2, _f2;
+      if (dirty & 1 && t_value !== (t_value = (((_c2 = (_b2 = (_a2 = ctx2[0]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[0]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
+        set_data(t, t_value);
+      if (dirty & 1 && textPath_xlink_href_value !== (textPath_xlink_href_value = "#" + ctx2[0].id)) {
+        xlink_attr(textPath, "xlink:href", textPath_xlink_href_value);
+      }
+      if (dirty & 128 && textPath_startOffset_value !== (textPath_startOffset_value = ctx2[7] + "%")) {
+        attr(textPath, "startOffset", textPath_startOffset_value);
+      }
+    },
+    d(detaching) {
+      if (detaching)
+        detach(text_1);
+    }
+  };
+}
+function create_fragment$7(ctx) {
+  let if_block_anchor;
+  let if_block = ctx[0] && ctx[8] && create_if_block$5(ctx);
+  return {
+    c() {
+      if (if_block)
+        if_block.c();
+      if_block_anchor = empty();
+    },
+    l(nodes) {
+      if (if_block)
+        if_block.l(nodes);
+      if_block_anchor = empty();
+    },
+    m(target, anchor) {
+      if (if_block)
+        if_block.m(target, anchor);
+      insert_hydration(target, if_block_anchor, anchor);
+    },
+    p(ctx2, [dirty]) {
+      if (ctx2[0] && ctx2[8]) {
+        if (if_block) {
+          if_block.p(ctx2, dirty);
+        } else {
+          if_block = create_if_block$5(ctx2);
+          if_block.c();
+          if_block.m(if_block_anchor.parentNode, if_block_anchor);
+        }
+      } else if (if_block) {
+        if_block.d(1);
+        if_block = null;
+      }
+    },
+    i: noop$1,
+    o: noop$1,
+    d(detaching) {
+      if (if_block)
+        if_block.d(detaching);
+      if (detaching)
+        detach(if_block_anchor);
+    }
+  };
+}
+function getCoords(elem) {
+  let box = elem.getBoundingClientRect();
+  return {
+    top: box.top + window.pageYOffset,
+    right: box.right + window.pageXOffset,
+    bottom: box.bottom + window.pageYOffset,
+    left: box.left + window.pageXOffset
+  };
+}
+function instance$7($$self, $$props, $$invalidate) {
+  let { link } = $$props;
+  let { strokeColor = link == null ? void 0 : link.strokeColor } = $$props;
+  let { strokeWidth = 1 } = $$props;
+  let { arrowColor = "green" } = $$props;
+  let { strokeOpacity = "0.3" } = $$props;
+  let { groupStrokeOpacity = "0.1" } = $$props;
+  let { groupStrokeColor = "white" } = $$props;
+  let { textStartOffset = 20 } = $$props;
+  let mounted = false;
+  onMount(() => {
+    $$invalidate(8, mounted = true);
+  });
+  let d, pointer;
+  let options = {};
+  let x0, y0, w0, h0, x1, y1, w1, h1;
+  let sx, sy, cx, cy, ex, ey, ae, as, ec;
+  function genArrow(link2) {
+    let sourceEl = document.getElementById(link2.source.id);
+    let targetEl = document.getElementById(link2.target.id);
+    let canvasEl = document.querySelector(`[data-canvas]`);
+    if (!sourceEl || !targetEl)
       return;
-    if (da < 0)
-      da = da % tau + tau;
-    if (da > tauEpsilon) {
-      this._ += "A" + r + "," + r + ",0,1," + cw + "," + (x2 - dx) + "," + (y2 - dy) + "A" + r + "," + r + ",0,1," + cw + "," + (this._x1 = x0) + "," + (this._y1 = y0);
-    } else if (da > epsilon) {
-      this._ += "A" + r + "," + r + ",0," + +(da >= pi) + "," + cw + "," + (this._x1 = x2 + r * Math.cos(a1)) + "," + (this._y1 = y2 + r * Math.sin(a1));
+    x0 = getCoords(sourceEl).left - (canvasEl.offsetLeft || 0);
+    y0 = getCoords(sourceEl).top - (canvasEl.offsetTop || 0);
+    x1 = getCoords(targetEl).left - (canvasEl.offsetLeft || 0);
+    y1 = getCoords(targetEl).top - (canvasEl.offsetTop || 0);
+    w0 = sourceEl.offsetWidth;
+    h0 = sourceEl.offsetHeight;
+    w1 = targetEl.offsetWidth;
+    h1 = targetEl.offsetHeight;
+    const arrow = getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options);
+    $$invalidate(11, [sx, sy, cx, cy, ex, ey, ae, as, ec] = arrow, sx, $$invalidate(12, sy), $$invalidate(13, cx), $$invalidate(14, cy), $$invalidate(15, ex));
+    $$invalidate(9, d = `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`);
+    let endAngleAsDegrees = ae * (180 / Math.PI);
+    $$invalidate(10, pointer = `translate(${ex},${ey}) rotate(${endAngleAsDegrees})`);
+  }
+  $$self.$$set = ($$props2) => {
+    if ("link" in $$props2)
+      $$invalidate(0, link = $$props2.link);
+    if ("strokeColor" in $$props2)
+      $$invalidate(1, strokeColor = $$props2.strokeColor);
+    if ("strokeWidth" in $$props2)
+      $$invalidate(2, strokeWidth = $$props2.strokeWidth);
+    if ("arrowColor" in $$props2)
+      $$invalidate(3, arrowColor = $$props2.arrowColor);
+    if ("strokeOpacity" in $$props2)
+      $$invalidate(4, strokeOpacity = $$props2.strokeOpacity);
+    if ("groupStrokeOpacity" in $$props2)
+      $$invalidate(5, groupStrokeOpacity = $$props2.groupStrokeOpacity);
+    if ("groupStrokeColor" in $$props2)
+      $$invalidate(6, groupStrokeColor = $$props2.groupStrokeColor);
+    if ("textStartOffset" in $$props2)
+      $$invalidate(7, textStartOffset = $$props2.textStartOffset);
+  };
+  $$self.$$.update = () => {
+    if ($$self.$$.dirty & 1) {
+      if (link)
+        genArrow(link);
     }
-  },
-  rect: function(x2, y2, w, h) {
-    this._ += "M" + (this._x0 = this._x1 = +x2) + "," + (this._y0 = this._y1 = +y2) + "h" + +w + "v" + +h + "h" + -w + "Z";
-  },
-  toString: function() {
-    return this._;
-  }
-};
-function constant(x2) {
-  return function constant2() {
-    return x2;
   };
+  return [
+    link,
+    strokeColor,
+    strokeWidth,
+    arrowColor,
+    strokeOpacity,
+    groupStrokeOpacity,
+    groupStrokeColor,
+    textStartOffset,
+    mounted,
+    d,
+    pointer,
+    sx,
+    sy,
+    cx,
+    cy,
+    ex
+  ];
 }
-var slice = Array.prototype.slice;
-function x(p) {
-  return p[0];
-}
-function y(p) {
-  return p[1];
-}
-class Bump {
-  constructor(context, x2) {
-    this._context = context;
-    this._x = x2;
+class Link extends SvelteComponent {
+  constructor(options) {
+    super();
+    init(this, options, instance$7, create_fragment$7, safe_not_equal, {
+      link: 0,
+      strokeColor: 1,
+      strokeWidth: 2,
+      arrowColor: 3,
+      strokeOpacity: 4,
+      groupStrokeOpacity: 5,
+      groupStrokeColor: 6,
+      textStartOffset: 7
+    });
   }
-  areaStart() {
-    this._line = 0;
-  }
-  areaEnd() {
-    this._line = NaN;
-  }
-  lineStart() {
-    this._point = 0;
-  }
-  lineEnd() {
-    if (this._line || this._line !== 0 && this._point === 1)
-      this._context.closePath();
-    this._line = 1 - this._line;
-  }
-  point(x2, y2) {
-    x2 = +x2, y2 = +y2;
-    switch (this._point) {
-      case 0: {
-        this._point = 1;
-        if (this._line)
-          this._context.lineTo(x2, y2);
-        else
-          this._context.moveTo(x2, y2);
-        break;
-      }
-      case 1:
-        this._point = 2;
-      default: {
-        if (this._x)
-          this._context.bezierCurveTo(this._x0 = (this._x0 + x2) / 2, this._y0, this._x0, y2, x2, y2);
-        else
-          this._context.bezierCurveTo(this._x0, this._y0 = (this._y0 + y2) / 2, x2, this._y0, x2, y2);
-        break;
-      }
-    }
-    this._x0 = x2, this._y0 = y2;
-  }
-}
-function bumpX(context) {
-  return new Bump(context, true);
-}
-function linkSource(d) {
-  return d.source;
-}
-function linkTarget(d) {
-  return d.target;
-}
-function link(curve) {
-  let source = linkSource;
-  let target = linkTarget;
-  let x$1 = x;
-  let y$1 = y;
-  let context = null;
-  let output = null;
-  function link2() {
-    let buffer;
-    const argv = slice.call(arguments);
-    const s = source.apply(this, argv);
-    const t = target.apply(this, argv);
-    if (context == null)
-      output = curve(buffer = path());
-    output.lineStart();
-    argv[0] = s, output.point(+x$1.apply(this, argv), +y$1.apply(this, argv));
-    argv[0] = t, output.point(+x$1.apply(this, argv), +y$1.apply(this, argv));
-    output.lineEnd();
-    if (buffer)
-      return output = null, buffer + "" || null;
-  }
-  link2.source = function(_) {
-    return arguments.length ? (source = _, link2) : source;
-  };
-  link2.target = function(_) {
-    return arguments.length ? (target = _, link2) : target;
-  };
-  link2.x = function(_) {
-    return arguments.length ? (x$1 = typeof _ === "function" ? _ : constant(+_), link2) : x$1;
-  };
-  link2.y = function(_) {
-    return arguments.length ? (y$1 = typeof _ === "function" ? _ : constant(+_), link2) : y$1;
-  };
-  link2.context = function(_) {
-    return arguments.length ? (_ == null ? context = output = null : output = curve(context = _), link2) : context;
-  };
-  return link2;
 }
 const Links_svelte_svelte_type_style_lang = "";
 function get_each_context$2(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[17] = list[i];
-  child_ctx[19] = i;
+  child_ctx[10] = list[i];
+  child_ctx[12] = i;
   return child_ctx;
 }
 function create_if_block$4(ctx) {
   let svg;
+  let current;
   let each_value = ctx[0];
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
     each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
   }
+  const out = (i) => transition_out(each_blocks[i], 1, 1, () => {
+    each_blocks[i] = null;
+  });
   return {
     c() {
       svg = svg_element("svg");
@@ -538,33 +1039,52 @@ function create_if_block$4(ctx) {
     },
     h() {
       set_style(svg, "pointer-events", "none");
-      attr(svg, "class", "svelte-1pvwyqr");
+      attr(svg, "class", "svelte-1l7iwp0");
     },
     m(target, anchor) {
       insert_hydration(target, svg, anchor);
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].m(svg, null);
       }
+      current = true;
     },
     p(ctx2, dirty) {
-      if (dirty & 2047) {
+      if (dirty & 1023) {
         each_value = ctx2[0];
         let i;
         for (i = 0; i < each_value.length; i += 1) {
           const child_ctx = get_each_context$2(ctx2, each_value, i);
           if (each_blocks[i]) {
             each_blocks[i].p(child_ctx, dirty);
+            transition_in(each_blocks[i], 1);
           } else {
             each_blocks[i] = create_each_block$2(child_ctx);
             each_blocks[i].c();
+            transition_in(each_blocks[i], 1);
             each_blocks[i].m(svg, null);
           }
         }
-        for (; i < each_blocks.length; i += 1) {
-          each_blocks[i].d(1);
+        group_outros();
+        for (i = each_value.length; i < each_blocks.length; i += 1) {
+          out(i);
         }
-        each_blocks.length = each_value.length;
+        check_outros();
       }
+    },
+    i(local) {
+      if (current)
+        return;
+      for (let i = 0; i < each_value.length; i += 1) {
+        transition_in(each_blocks[i]);
+      }
+      current = true;
+    },
+    o(local) {
+      each_blocks = each_blocks.filter(Boolean);
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        transition_out(each_blocks[i]);
+      }
+      current = false;
     },
     d(detaching) {
       if (detaching)
@@ -574,156 +1094,73 @@ function create_if_block$4(ctx) {
   };
 }
 function create_if_block_1$1(ctx) {
-  var _a, _b, _c, _d, _e, _f;
-  let g;
-  let path2;
-  let path_d_value;
-  let path_id_value;
-  let text_1;
-  let textPath0;
-  let tspan;
-  let t0_value = (((_c = (_b = (_a = ctx[17]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[17]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
-  let t0;
-  let t1;
-  let textPath0_xlink_href_value;
-  let textPath0_startOffset_value;
-  let textPath1;
-  let t2;
-  let textPath1_xlink_href_value;
-  let textPath1_opacity_value;
+  let link;
+  let current;
+  link = new Link({
+    props: {
+      link: ctx[10],
+      strokeColor: ctx[1],
+      strokeWidth: ctx[2],
+      arrowColor: ctx[3],
+      strokeOpacity: ctx[4],
+      groupStrokeOpacity: ctx[5],
+      groupStrokeColor: ctx[6],
+      textStartOffset: ctx[7],
+      arrowStartOffset: ctx[8]
+    }
+  });
   return {
     c() {
-      g = svg_element("g");
-      path2 = svg_element("path");
-      text_1 = svg_element("text");
-      textPath0 = svg_element("textPath");
-      tspan = svg_element("tspan");
-      t0 = text(t0_value);
-      t1 = space();
-      textPath1 = svg_element("textPath");
-      t2 = text("\u27A4");
-      this.h();
+      create_component(link.$$.fragment);
     },
     l(nodes) {
-      g = claim_svg_element(nodes, "g", { stroke: true, "stroke-opacity": true });
-      var g_nodes = children(g);
-      path2 = claim_svg_element(g_nodes, "path", {
-        d: true,
-        id: true,
-        "stroke-width": true,
-        stroke: true,
-        fill: true,
-        "stroke-linecap": true,
-        "stroke-opacity": true
-      });
-      children(path2).forEach(detach);
-      text_1 = claim_svg_element(g_nodes, "text", { class: true });
-      var text_1_nodes = children(text_1);
-      textPath0 = claim_svg_element(text_1_nodes, "textPath", { "xlink:href": true, startOffset: true });
-      var textPath0_nodes = children(textPath0);
-      tspan = claim_svg_element(textPath0_nodes, "tspan", { fill: true, class: true });
-      var tspan_nodes = children(tspan);
-      t0 = claim_text(tspan_nodes, t0_value);
-      tspan_nodes.forEach(detach);
-      t1 = claim_space(textPath0_nodes);
-      textPath0_nodes.forEach(detach);
-      textPath1 = claim_svg_element(text_1_nodes, "textPath", {
-        "xlink:href": true,
-        startOffset: true,
-        fill: true,
-        opacity: true
-      });
-      var textPath1_nodes = children(textPath1);
-      t2 = claim_text(textPath1_nodes, "\u27A4");
-      textPath1_nodes.forEach(detach);
-      text_1_nodes.forEach(detach);
-      g_nodes.forEach(detach);
-      this.h();
-    },
-    h() {
-      attr(path2, "d", path_d_value = ctx[10](ctx[17]));
-      attr(path2, "id", path_id_value = ctx[17].id);
-      attr(path2, "stroke-width", ctx[2]);
-      attr(path2, "stroke", ctx[1]);
-      attr(path2, "fill", "none");
-      attr(path2, "stroke-linecap", "round");
-      attr(path2, "stroke-opacity", ctx[4]);
-      attr(tspan, "fill", "black");
-      attr(tspan, "class", "svelte-1pvwyqr");
-      xlink_attr(textPath0, "xlink:href", textPath0_xlink_href_value = "#" + ctx[17].id);
-      attr(textPath0, "startOffset", textPath0_startOffset_value = ctx[7] + "%");
-      xlink_attr(textPath1, "xlink:href", textPath1_xlink_href_value = "#" + ctx[17].id);
-      attr(textPath1, "startOffset", ctx[8]);
-      attr(textPath1, "fill", ctx[3]);
-      attr(textPath1, "opacity", textPath1_opacity_value = ctx[4] * 1.3);
-      attr(text_1, "class", "svelte-1pvwyqr");
-      attr(g, "stroke", ctx[6]);
-      attr(g, "stroke-opacity", ctx[5]);
+      claim_component(link.$$.fragment, nodes);
     },
     m(target, anchor) {
-      insert_hydration(target, g, anchor);
-      append_hydration(g, path2);
-      append_hydration(g, text_1);
-      append_hydration(text_1, textPath0);
-      append_hydration(textPath0, tspan);
-      append_hydration(tspan, t0);
-      append_hydration(textPath0, t1);
-      append_hydration(text_1, textPath1);
-      append_hydration(textPath1, t2);
+      mount_component(link, target, anchor);
+      current = true;
     },
     p(ctx2, dirty) {
-      var _a2, _b2, _c2, _d2, _e2, _f2;
-      if (dirty & 1 && path_d_value !== (path_d_value = ctx2[10](ctx2[17]))) {
-        attr(path2, "d", path_d_value);
-      }
-      if (dirty & 1 && path_id_value !== (path_id_value = ctx2[17].id)) {
-        attr(path2, "id", path_id_value);
-      }
-      if (dirty & 4) {
-        attr(path2, "stroke-width", ctx2[2]);
-      }
-      if (dirty & 2) {
-        attr(path2, "stroke", ctx2[1]);
-      }
-      if (dirty & 16) {
-        attr(path2, "stroke-opacity", ctx2[4]);
-      }
-      if (dirty & 1 && t0_value !== (t0_value = (((_c2 = (_b2 = (_a2 = ctx2[17]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[17]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
-        set_data(t0, t0_value);
-      if (dirty & 1 && textPath0_xlink_href_value !== (textPath0_xlink_href_value = "#" + ctx2[17].id)) {
-        xlink_attr(textPath0, "xlink:href", textPath0_xlink_href_value);
-      }
-      if (dirty & 128 && textPath0_startOffset_value !== (textPath0_startOffset_value = ctx2[7] + "%")) {
-        attr(textPath0, "startOffset", textPath0_startOffset_value);
-      }
-      if (dirty & 1 && textPath1_xlink_href_value !== (textPath1_xlink_href_value = "#" + ctx2[17].id)) {
-        xlink_attr(textPath1, "xlink:href", textPath1_xlink_href_value);
-      }
-      if (dirty & 256) {
-        attr(textPath1, "startOffset", ctx2[8]);
-      }
-      if (dirty & 8) {
-        attr(textPath1, "fill", ctx2[3]);
-      }
-      if (dirty & 16 && textPath1_opacity_value !== (textPath1_opacity_value = ctx2[4] * 1.3)) {
-        attr(textPath1, "opacity", textPath1_opacity_value);
-      }
-      if (dirty & 64) {
-        attr(g, "stroke", ctx2[6]);
-      }
-      if (dirty & 32) {
-        attr(g, "stroke-opacity", ctx2[5]);
-      }
+      const link_changes = {};
+      if (dirty & 1)
+        link_changes.link = ctx2[10];
+      if (dirty & 2)
+        link_changes.strokeColor = ctx2[1];
+      if (dirty & 4)
+        link_changes.strokeWidth = ctx2[2];
+      if (dirty & 8)
+        link_changes.arrowColor = ctx2[3];
+      if (dirty & 16)
+        link_changes.strokeOpacity = ctx2[4];
+      if (dirty & 32)
+        link_changes.groupStrokeOpacity = ctx2[5];
+      if (dirty & 64)
+        link_changes.groupStrokeColor = ctx2[6];
+      if (dirty & 128)
+        link_changes.textStartOffset = ctx2[7];
+      if (dirty & 256)
+        link_changes.arrowStartOffset = ctx2[8];
+      link.$set(link_changes);
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(link.$$.fragment, local);
+      current = true;
+    },
+    o(local) {
+      transition_out(link.$$.fragment, local);
+      current = false;
     },
     d(detaching) {
-      if (detaching)
-        detach(g);
+      destroy_component(link, detaching);
     }
   };
 }
 function create_each_block$2(ctx) {
   let if_block_anchor;
-  let if_block = ctx[17] && ctx[9] && create_if_block_1$1(ctx);
+  let current;
+  let if_block = ctx[10] && ctx[9] && create_if_block_1$1(ctx);
   return {
     c() {
       if (if_block)
@@ -739,20 +1176,38 @@ function create_each_block$2(ctx) {
       if (if_block)
         if_block.m(target, anchor);
       insert_hydration(target, if_block_anchor, anchor);
+      current = true;
     },
     p(ctx2, dirty) {
-      if (ctx2[17] && ctx2[9]) {
+      if (ctx2[10] && ctx2[9]) {
         if (if_block) {
           if_block.p(ctx2, dirty);
+          if (dirty & 513) {
+            transition_in(if_block, 1);
+          }
         } else {
           if_block = create_if_block_1$1(ctx2);
           if_block.c();
+          transition_in(if_block, 1);
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
         }
       } else if (if_block) {
-        if_block.d(1);
-        if_block = null;
+        group_outros();
+        transition_out(if_block, 1, 1, () => {
+          if_block = null;
+        });
+        check_outros();
       }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
     },
     d(detaching) {
       if (if_block)
@@ -764,6 +1219,7 @@ function create_each_block$2(ctx) {
 }
 function create_fragment$6(ctx) {
   let if_block_anchor;
+  let current;
   let if_block = ctx[9] && ctx[0] && ctx[0].length > 0 && create_if_block$4(ctx);
   return {
     c() {
@@ -780,23 +1236,39 @@ function create_fragment$6(ctx) {
       if (if_block)
         if_block.m(target, anchor);
       insert_hydration(target, if_block_anchor, anchor);
+      current = true;
     },
     p(ctx2, [dirty]) {
       if (ctx2[9] && ctx2[0] && ctx2[0].length > 0) {
         if (if_block) {
           if_block.p(ctx2, dirty);
+          if (dirty & 513) {
+            transition_in(if_block, 1);
+          }
         } else {
           if_block = create_if_block$4(ctx2);
           if_block.c();
+          transition_in(if_block, 1);
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
         }
       } else if (if_block) {
-        if_block.d(1);
-        if_block = null;
+        group_outros();
+        transition_out(if_block, 1, 1, () => {
+          if_block = null;
+        });
+        check_outros();
       }
     },
-    i: noop$1,
-    o: noop$1,
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
+    },
     d(detaching) {
       if (if_block)
         if_block.d(detaching);
@@ -807,43 +1279,21 @@ function create_fragment$6(ctx) {
 }
 function instance$6($$self, $$props, $$invalidate) {
   let { links } = $$props;
-  let { calcOffsetFromCanvas } = $$props;
-  let { strokeColor = "green" } = $$props;
+  let { strokeColor = "currentColor" } = $$props;
   let { strokeWidth = 1 } = $$props;
-  let { arrowColor = "green" } = $$props;
+  let { arrowColor = "currentColor" } = $$props;
   let { strokeOpacity = "0.3" } = $$props;
   let { groupStrokeOpacity = "0.1" } = $$props;
   let { groupStrokeColor = "white" } = $$props;
   let { textStartOffset = 20 } = $$props;
   let { arrowStartOffset = "40%" } = $$props;
-  const generateXcurve = link(bumpX);
   let mounted;
-  let sourceX, sourceY, targetX, targetY;
   onMount(() => {
     $$invalidate(9, mounted = true);
   });
-  function genPath(link2) {
-    let sourceEl = document.getElementById(link2.source.id);
-    let targetEl = document.getElementById(link2.target.id);
-    if (!sourceEl || !targetEl)
-      return;
-    const { x: sx, y: sy } = calcOffsetFromCanvas(sourceEl);
-    const { x: tx, y: ty } = calcOffsetFromCanvas(targetEl);
-    sourceX = sx + sourceEl.offsetWidth / 2;
-    sourceY = sy + sourceEl.offsetHeight / 2;
-    targetX = tx + targetEl.offsetWidth / 2;
-    targetY = ty + targetEl.offsetHeight / 2;
-    let d = generateXcurve({
-      source: [sourceX, sourceY],
-      target: [targetX, targetY]
-    });
-    return d;
-  }
   $$self.$$set = ($$props2) => {
     if ("links" in $$props2)
       $$invalidate(0, links = $$props2.links);
-    if ("calcOffsetFromCanvas" in $$props2)
-      $$invalidate(11, calcOffsetFromCanvas = $$props2.calcOffsetFromCanvas);
     if ("strokeColor" in $$props2)
       $$invalidate(1, strokeColor = $$props2.strokeColor);
     if ("strokeWidth" in $$props2)
@@ -871,9 +1321,7 @@ function instance$6($$self, $$props, $$invalidate) {
     groupStrokeColor,
     textStartOffset,
     arrowStartOffset,
-    mounted,
-    genPath,
-    calcOffsetFromCanvas
+    mounted
   ];
 }
 class Links extends SvelteComponent {
@@ -881,7 +1329,6 @@ class Links extends SvelteComponent {
     super();
     init(this, options, instance$6, create_fragment$6, safe_not_equal, {
       links: 0,
-      calcOffsetFromCanvas: 11,
       strokeColor: 1,
       strokeWidth: 2,
       arrowColor: 3,
@@ -1256,7 +1703,7 @@ function fallback_block$1(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em] ");
+      attr(div, "class", "h-4 w-4 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[1em] md:border-[1em]");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -1475,7 +1922,7 @@ function create_fragment$4(ctx) {
       this.h();
     },
     l(nodes) {
-      div = claim_element(nodes, "DIV", { class: true });
+      div = claim_element(nodes, "DIV", { class: true, "data-canvas": true });
       var div_nodes = children(div);
       if (if_block0)
         if_block0.l(div_nodes);
@@ -1495,6 +1942,7 @@ function create_fragment$4(ctx) {
     },
     h() {
       attr(div, "class", "relative");
+      attr(div, "data-canvas", "");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -2107,7 +2555,7 @@ function cubicOut(t) {
 function quintOut(t) {
   return --t * t * t * t * t + 1;
 }
-function fly(node, { delay = 0, duration = 400, easing = cubicOut, x: x2 = 0, y: y2 = 0, opacity = 0 } = {}) {
+function fly(node, { delay = 0, duration = 400, easing = cubicOut, x = 0, y = 0, opacity = 0 } = {}) {
   const style = getComputedStyle(node);
   const target_opacity = +style.opacity;
   const transform = style.transform === "none" ? "" : style.transform;
@@ -2117,7 +2565,7 @@ function fly(node, { delay = 0, duration = 400, easing = cubicOut, x: x2 = 0, y:
     duration,
     easing,
     css: (t, u) => `
-			transform: ${transform} translate(${(1 - t) * x2}px, ${(1 - t) * y2}px);
+			transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
 			opacity: ${target_opacity - od * u}`
   };
 }
@@ -2980,7 +3428,7 @@ function create_marker_slot(ctx) {
     },
     h() {
       attr(div, "slot", "marker");
-      attr(div, "class", "h-32 w-32 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[4em] md:border-[2em]");
+      attr(div, "class", "h-4 w-4 md:h-16 md:w-16 p-8 rounded-full shadow-xl opacity-80 select-none border-[1em] md:border-[1em]");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -3425,4 +3873,4 @@ class Routes extends SvelteComponent {
 export {
   Routes as default
 };
-//# sourceMappingURL=index.svelte-6b6ec6ce.js.map
+//# sourceMappingURL=index.svelte-b7d4caca.js.map
