@@ -42,7 +42,19 @@
 					{groupStrokeColor}
 					{textStartOffset}
 					{arrowStartOffset}
-				/>
+				>
+					<svelte:fragment slot="startPoint" let:sx let:sy let:ex let:ey let:as>
+						{#if link?.source?.startPoint}
+							<!-- foreignObject alows us to put HTML inside an SVG element -->
+							<foreignObject class="overflow-visible pointer-events-auto relative" x={sx} y={sy}>
+								<svelte:component this={link.source.startPoint} {sx} {sy} {ex} {ey} {as} />
+							</foreignObject>
+						{:else}
+							<!-- default to plain circle -->
+							<circle cx={sx} cy={sy} r={4} />
+						{/if}
+					</svelte:fragment>
+				</Link>
 			{/if}
 		{/each}
 	</svg>

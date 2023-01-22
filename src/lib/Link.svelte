@@ -68,7 +68,6 @@
 
 {#if link && mounted}
 	<g stroke={groupStrokeColor} stroke-opacity={groupStrokeOpacity}>
-		<circle cx={sx} cy={sy} r={4} />
 		<path
 			{d}
 			id={link.id}
@@ -78,9 +77,6 @@
 			stroke-linecap="round"
 			stroke-opacity={strokeOpacity}
 		/>
-		{#if pointer}
-			<polygon points="0,-6 12,0, 0,6" transform={pointer} fill={arrowColor} />
-		{/if}
 		<!-- Always have text left to right (English) -->
 		{#if sx < ex}
 			<text>
@@ -93,6 +89,18 @@
 				<tspan fill="black">{link?.opts?.label?.enabled ? link?.opts?.label?.value : ''}</tspan>
 			</text>
 		{/if}
+		<!-- Optional endpoint Components -->
+		<slot name="startPoint" {sx} {sy} {ex} {ey} {as}>
+			<!-- default to plain circle -->
+			<circle cx={sx} cy={sy} r={4} />
+		</slot>
+		<slot name="endPoint" {sx} {sy} {ex} {ey}>
+			<!-- Default if no named slot endPoint included in Parent component -->
+			{#if pointer}
+				<!-- Arrow Pointer -->
+				<polygon points="0,-6 12,0, 0,6" transform={pointer} fill={arrowColor} />
+			{/if}
+		</slot>
 	</g>
 {/if}
 

@@ -15,6 +15,7 @@
 	import Links from './Links.svelte';
 	import Highlighter from './Highlighter.svelte';
 	import { generateLinkLabel } from './utils.js';
+	import { DELEGATOR, DROPZONE, MARKER } from './constants.js';
 
 	export let data;
 	export let opts = {};
@@ -27,9 +28,6 @@
 	let connecting;
 	let marker;
 	let tempLink = null; // connecting, temp tempLink from node to marker
-
-	const MARKER = 'marker';
-	const DROPZONE = 'dropzone';
 
 	let left = 0;
 	let top = 0;
@@ -64,7 +62,11 @@
 		if (!node.id) node.id = nanoid();
 
 		// TODO: Handle absolute nodes, create a relative child?
-		if (!node.style.position) node.style.position = 'relative';
+		if (
+			!node.style.position ||
+			(node.style.position !== 'absolute' && node.style.position !== 'relative')
+		)
+			node.style.position = 'relative';
 
 		let highlight = false;
 		let overZone;
@@ -76,113 +78,143 @@
 		// limit source count (single, multiples), target count, etc. # of connections per connectable
 		let pointerTracker;
 
+		let startPoint;
+		// if there is a startPoint, then add that to the nodeElement
+		if (options?.startPoint) {
+			node.dataset[DELEGATOR] = true;
+			// startPoint is a svelte component which is mounte to the node as target
+			// and is used to start the connection
+			startPoint = new options.startPoint({
+				target: node,
+				props: {
+					trigger: (handle) => {
+						return createHandleTracker(node, handle);
+					}
+				}
+			});
+		} else {
+			// if no startPoint, then add the whole node as the startPoint
+			createHandleTracker(node);
+		}
+
 		// Add data-* attriutes to connectable node
 		if (options?.dataset) node.dataset.dataset = JSON.stringify(options.dataset);
 
-		if (!options?.restrictions?.startOnly) node.dataset.dropzone = true;
+		if (!options?.restrictions?.startOnly) node.dataset[DROPZONE] = true;
 
-		if (!options?.restrictions?.dropOnly)
-			pointerTracker = new PointerTracker(node, {
-				start(pointer, event) {
-					// track only 1 pointer at a time
-					if (pointerTracker.currentPointers.length === 1) return false;
+		function createHandleTracker(node, handle = false) {
+			if (!options?.restrictions?.dropOnly) {
+				pointerTracker = new PointerTracker(node, {
+					start(pointer, event) {
+						// track only 1 pointer at a time
+						if (pointerTracker.currentPointers.length === 1) return false;
 
-					connecting = true;
-					handler(pointer, event);
+						// if (options?.startPoint) constrain connectable to only this child element
+						if (options?.startPoint && event.target !== handle) return false;
 
-					return true;
-				},
-				move(previousPointers, changedPointers, event) {
-					handler(pointerTracker.currentPointers[0], event);
+						connecting = true;
+						handler(pointer, event);
 
-					tempLink = {
-						id: node.id + '-to-',
-						source: { id: node.id },
-						target: { id: MARKER },
-						opts: {
-							label: {
-								enabled: true,
-								value: generateLinkLabel(data.nodes, node.id)
+						return true;
+					},
+					move(previousPointers, changedPointers, event) {
+						handler(pointerTracker.currentPointers[0], event);
+
+						tempLink = {
+							id: node.id + '-to-',
+							source: { id: node.id, startPoint: options?.startPoint || false },
+							target: { id: MARKER },
+							opts: {
+								label: {
+									enabled: true,
+									value: generateLinkLabel(data.nodes, node.id)
+								}
 							}
-						}
-					};
-
-					// unhightlight prev
-					if (overZone) highlighters[overZone.id].highlight = false;
-
-					// simulate mouseover for mobile
-					overZone =
-						document
-							.elementFromPoint(
-								pointerTracker.currentPointers[0].clientX,
-								pointerTracker.currentPointers[0].clientY
-							)
-							?.closest(`[data-dropzone]`) || null;
-
-					if (overZone?.id) {
-						highlighters[overZone.id].highlight = true;
-					}
-				},
-				end: (pointer, event, cancelled) => {
-					marker.style.display = 'none'; // so elementFromPoint gets what is underneath instead
-					// marker = null; // this may be overkill?
-
-					connecting = false;
-
-					// reset
-					if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
-						highlighters[overZone.id].highlight = false;
-					}
-					overZone = null;
-
-					// get closest dropzone target
-					let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
-					let zone = drop.closest(`[data-dropzone]`);
-
-					// remove temp tempLink
-					tempLink = null;
-
-					if (!zone || !zone?.id || !node || !node?.id) return;
-
-					// update links
-					const newLink = {
-						id: node.id + '-to-' + zone.id,
-						source: { id: node.id },
-						target: { id: zone.id },
-						opts: {
-							label: {
-								enabled: true,
-								value: generateLinkLabel(data.nodes, node.id, zone.id)
-							}
-						}
-					};
-
-					console.log({ newLink });
-
-					data.links = [...data.links, newLink];
-
-					// emit data via event
-					if (options?.dataset || zone?.dataset?.dataset) {
-						const detail = {
-							source: { dataset: options?.dataset || null },
-							target: { dataset: zone?.dataset?.dataset ? JSON.parse(zone.dataset.dataset) : null }
 						};
-						console.log(detail);
 
-						dispatch('connected', detail);
-					}
-				},
-				avoidPointerEvents: true, // mkaes mobile work better
-				eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
-			});
+						// unhightlight prev
+						if (overZone) highlighters[overZone.id].highlight = false;
+
+						// simulate mouseover for mobile
+						overZone =
+							document
+								.elementFromPoint(
+									pointerTracker.currentPointers[0].clientX,
+									pointerTracker.currentPointers[0].clientY
+								)
+								?.closest(`[data-${DROPZONE}]`) || null;
+
+						if (overZone?.id) {
+							highlighters[overZone.id].highlight = true;
+						}
+					},
+					end: (pointer, event, cancelled) => {
+						marker.style.display = 'none'; // so elementFromPoint gets what is underneath instead
+						// marker = null; // this may be overkill?
+
+						connecting = false;
+
+						// reset
+						if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
+							highlighters[overZone.id].highlight = false;
+						}
+						overZone = null;
+
+						// get closest drop zone target
+						let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
+						let zone = drop?.closest(`[data-${DROPZONE}]`);
+
+						// remove temp tempLink
+						tempLink = null;
+
+						if (!zone || !zone?.id || !node || !node?.id) return;
+
+						// update links
+						const newLink = {
+							id: node.id + '-to-' + zone.id,
+							source: { id: node.id, startPoint: options?.startPoint || false },
+							target: { id: zone.id },
+							opts: {
+								label: {
+									enabled: true,
+									value: generateLinkLabel(data.nodes, node.id, zone.id)
+								}
+							}
+						};
+
+						console.log({ newLink });
+
+						data.links = [...data.links, newLink];
+
+						// emit data via event
+						if (options?.dataset || zone?.dataset?.dataset) {
+							const detail = {
+								source: { dataset: options?.dataset || null },
+								target: {
+									dataset: zone?.dataset?.dataset ? JSON.parse(zone.dataset.dataset) : null
+								}
+							};
+							console.log(detail);
+
+							dispatch('connected', detail);
+						}
+					},
+					avoidPointerEvents: true, // mkaes mobile work better
+					eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
+				});
+			}
+		}
 
 		return {
 			update(params) {
 				// the value of `params` has changed
+				options = params;
 			},
 
 			destroy() {
 				// the node has been removed from the DOM
+				pointerTracker?.stop();
+				if (startPoint) startPoint.$destroy();
 			}
 		};
 	}

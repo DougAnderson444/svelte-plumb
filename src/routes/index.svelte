@@ -2,10 +2,9 @@
 	// @ts-nocheck
 
 	import { Canvas, EndPoint, generateLinkLabel } from '@douganderson444/svelte-plumb';
-
 	import Skew from '$lib/Skew.svelte';
-
 	import Toast from '$lib/Toast.svelte';
+	import Delegate from '$lib/Delegate.svelte';
 
 	import { quintOut } from 'svelte/easing';
 	import { crossfade } from 'svelte/transition';
@@ -85,6 +84,22 @@
 				</div>
 			{/each}
 		</div>
+
+		<div class="flex flex-row justify-around ">
+			<div
+				class="flex flex-col border rounded-lg m-4 p-4 items-center"
+				use:connectable={{ startPoint: Delegate }}
+				id={'From'}
+			>
+				<div class="block m-2 select-none w-fit">Fixed start endpoint, moves once connected.</div>
+			</div>
+			<div class="flex flex-col border rounded-lg m-4 p-4 items-center" use:connectable id={'To'}>
+				<div class="block m-2 cursor-pointer select-none w-fit">
+					Fixed plumb point, movable endpoint.
+				</div>
+			</div>
+		</div>
+
 		<div class="flex flex-row flex-wrap border rounded-lg m-4 p-4 justify-between bg-neutral-50">
 			<div class="inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100">
 				Can we also have an external endpoint?
