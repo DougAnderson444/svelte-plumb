@@ -113,7 +113,9 @@ function handleConnected(e) {
 
 ```
 
-## Use with Optional Delegated Connect Component
+### Use with Optional Delegated Connect Component
+
+![Demo](static/demo-delegated.png)
 
 You can make a component connectable by wrapping it in the `Delegate` component. This is useful if you want to make a label connectable, but don't want to make the whole component connectable.
 
@@ -126,17 +128,19 @@ First, make the component by wrapping it in the `Delegate` componentwith the `mo
 <script>
 	import Delegate from '@douganderson444/svelte-plumb';
 	export let mounted;
+	export let as; // angleStart, if you want the position of the component to adjust above or below the component
 </script>
 
 <!-- Wrap in Delegate Component, with mounted prop and on:ready listener -->
-<Delegate {mounted} on:ready>Connect Me</Delegate>
+<Delegate {mounted} {as} on:ready>Connect Me</Delegate>
 ```
 
 Once your custom delegated component is wrapped, you can use it in the `use:connectable` directive.
 
 ```svelte
+<!-- ./App.svelte -->
 <script>
-	import DemoDelegated from  ./DemoDelegated.svelte
+	import DemoDelegated from './DemoDelegated.svelte';
 </script>
 
 <div use:connectable={{ startPoint: DemoDelegated }}>Has a connect component</div>
