@@ -2,10 +2,10 @@
 	// @ts-nocheck
 
 	import { Canvas, EndPoint, generateLinkLabel } from '@douganderson444/svelte-plumb';
-	import Skew from '$lib/Skew.svelte';
-	import Toast from '$lib/Toast.svelte';
-	import Delegate from '$lib/Delegate.svelte';
-	import DemoDelegated from '$lib/DemoDelegated.svelte';
+	import Skew from '$lib/components/Skew.svelte';
+	import Toast from '$lib/components/Toast.svelte';
+	import Delegate from '$lib/components/Delegate.svelte';
+	import DemoDelegated from '$lib/components/DemoDelegated.svelte';
 
 	let types = { emojii: 'emojii', description: 'description' };
 
