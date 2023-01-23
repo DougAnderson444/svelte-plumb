@@ -73,12 +73,12 @@
 		};
 	}
 	function handleMouseOver(e) {
-		console.log('over', strokeWidth);
+		selected = true;
 		strokeWidth = initialStrokeWidth * 20; // jump
 	}
 	function handleMouseOut(e) {
 		stroke = tweened(strokeWidth, {
-			duration: 1750
+			duration: 1000
 		});
 		$stroke = initialStrokeWidth; // shrink
 	}
@@ -141,8 +141,9 @@
 			<foreignObject class="overflow-visible pointer-events-auto relative" x={cx} y={cy}>
 				<div
 					on:click={() => dispatch('removeLink', link.id)}
-					class="w-24 h-24 font-mono text-red-500 text-2xl cursor-pointer"
+					class="w-fit h-fit font-mono text-red-500 text-2xl cursor-pointer select-none"
 					style="font-family: 'Luckiest Guy';"
+					style:transform="translate(180deg)"
 				>
 					X
 				</div>
