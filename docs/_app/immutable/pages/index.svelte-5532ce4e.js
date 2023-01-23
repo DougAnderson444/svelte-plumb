@@ -1,5 +1,5 @@
-import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$1, assign, now, loop, identity, empty, group_outros, check_outros, createEventDispatcher, onMount, svg_element, claim_svg_element, append_hydration, listen, action_destroyer, is_function, run_all, text, claim_text, set_store_value, space, claim_space, set_data, xlink_attr, subscribe, update_keyed_each, outro_and_destroy_block, bubble, create_component, claim_component, mount_component, destroy_component, destroy_each, globals, bind, add_flush_callback, get_spread_update, get_spread_object, flush, onDestroy, create_bidirectional_transition, set_input_value, to_number, destroy_block } from "../chunks/index-082b18d7.js";
-import { writable } from "../chunks/index-002f4856.js";
+import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$1, assign, now, loop, identity, empty, group_outros, check_outros, createEventDispatcher, onMount, svg_element, claim_svg_element, append_hydration, listen, action_destroyer, is_function, run_all, text, claim_text, set_store_value, space, claim_space, set_data, xlink_attr, subscribe, update_keyed_each, outro_and_destroy_block, bubble, create_component, claim_component, mount_component, destroy_component, destroy_each, globals, bind, add_flush_callback, get_spread_update, get_spread_object, flush, create_bidirectional_transition, set_input_value, to_number, destroy_block } from "../chunks/index-c4dc6e20.js";
+import { writable } from "../chunks/index-679a6cd0.js";
 class Pointer {
   constructor(nativePointer) {
     this.id = -1;
@@ -1215,8 +1215,9 @@ function create_if_block_1$2(ctx) {
       attr(circle, "r", 12);
       attr(circle, "fill", "none");
       attr(circle, "stroke", "blue");
-      attr(div, "class", "w-24 h-24 font-mono text-red-500 text-2xl cursor-pointer");
+      attr(div, "class", "w-fit h-fit font-mono text-red-500 text-2xl cursor-pointer select-none");
       set_style(div, "font-family", "'Luckiest Guy'");
+      set_style(div, "transform", `translate(180deg)`, false);
       attr(foreignObject, "class", "overflow-visible pointer-events-auto relative");
       attr(foreignObject, "x", ctx[15]);
       attr(foreignObject, "y", ctx[16]);
@@ -1369,11 +1370,11 @@ function instance$9($$self, $$props, $$invalidate) {
     $$invalidate(12, pointer = `translate(${ex},${ey}) rotate(${endAngleAsDegrees})`);
   }
   function handleMouseOver(e) {
-    console.log("over", strokeWidth);
+    $$invalidate(9, selected = true);
     $$invalidate(0, strokeWidth = initialStrokeWidth * 20);
   }
   function handleMouseOut(e) {
-    $$subscribe_stroke($$invalidate(8, stroke = tweened(strokeWidth, { duration: 1750 })));
+    $$subscribe_stroke($$invalidate(8, stroke = tweened(strokeWidth, { duration: 1e3 })));
     set_store_value(stroke, $stroke = initialStrokeWidth, $stroke);
   }
   function handleUnselect(e) {
@@ -2564,6 +2565,8 @@ class Highlighter extends SvelteComponent {
   }
 }
 const generateLinkLabel = (nodes, sourceID, targetID = false) => {
+  if (!nodes)
+    return "";
   const match = nodes.find((el) => el.id == sourceID);
   if (!match || !match.value)
     return "";
@@ -3206,7 +3209,7 @@ function instance$6($$self, $$props, $$invalidate) {
                 opts: {
                   label: {
                     enabled: true,
-                    value: generateLinkLabel(data.nodes, sourceid)
+                    value: generateLinkLabel(data == null ? void 0 : data.nodes, sourceid)
                   }
                 }
               });
@@ -3240,7 +3243,7 @@ function instance$6($$self, $$props, $$invalidate) {
                 opts: {
                   label: {
                     enabled: true,
-                    value: generateLinkLabel(data.nodes, sourceid, zone.id)
+                    value: generateLinkLabel(data == null ? void 0 : data.nodes, sourceid, zone.id)
                   }
                 }
               };
@@ -3538,8 +3541,8 @@ function fallback_block(ctx) {
 function create_fragment$4(ctx) {
   let div;
   let current;
-  const default_slot_template = ctx[11].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[10], null);
+  const default_slot_template = ctx[10].default;
+  const default_slot = create_slot(default_slot_template, ctx, ctx[9], null);
   const default_slot_or_fallback = default_slot || fallback_block();
   return {
     c() {
@@ -3559,7 +3562,7 @@ function create_fragment$4(ctx) {
     h() {
       attr(div, "class", "cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50");
       set_style(div, "position", "absolute");
-      set_style(div, "left", ctx[1] + "px");
+      set_style(div, "right", ctx[1] + "px");
       set_style(div, "top", ctx[2] + "px");
     },
     m(target, anchor) {
@@ -3567,24 +3570,24 @@ function create_fragment$4(ctx) {
       if (default_slot_or_fallback) {
         default_slot_or_fallback.m(div, null);
       }
-      ctx[12](div);
+      ctx[11](div);
       current = true;
     },
     p(ctx2, [dirty]) {
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 1024)) {
+        if (default_slot.p && (!current || dirty & 512)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
-            ctx2[10],
-            !current ? get_all_dirty_from_scope(ctx2[10]) : get_slot_changes(default_slot_template, ctx2[10], dirty, null),
+            ctx2[9],
+            !current ? get_all_dirty_from_scope(ctx2[9]) : get_slot_changes(default_slot_template, ctx2[9], dirty, null),
             null
           );
         }
       }
       if (!current || dirty & 2) {
-        set_style(div, "left", ctx2[1] + "px");
+        set_style(div, "right", ctx2[1] + "px");
       }
       if (!current || dirty & 4) {
         set_style(div, "top", ctx2[2] + "px");
@@ -3605,7 +3608,7 @@ function create_fragment$4(ctx) {
         detach(div);
       if (default_slot_or_fallback)
         default_slot_or_fallback.d(detaching);
-      ctx[12](null);
+      ctx[11](null);
     }
   };
 }
@@ -3621,11 +3624,6 @@ function instance$4($$self, $$props, $$invalidate) {
   const dispatch = createEventDispatcher();
   let x = 0;
   let y = 0;
-  let tracker;
-  let width;
-  onDestroy(() => {
-    tracker == null ? void 0 : tracker.stop();
-  });
   function div_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](() => {
       handle = $$value;
@@ -3646,32 +3644,23 @@ function instance$4($$self, $$props, $$invalidate) {
     if ("mounted" in $$props2)
       $$invalidate(8, mounted = $$props2.mounted);
     if ("$$scope" in $$props2)
-      $$invalidate(10, $$scope = $$props2.$$scope);
+      $$invalidate(9, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty & 769) {
-      if (mounted && handle && (handle == null ? void 0 : handle.parentNode)) {
-        $$invalidate(9, { width } = handle.parentNode.getBoundingClientRect(), width);
-        $$invalidate(1, x = width);
+    if ($$self.$$.dirty & 257) {
+      if (mounted && handle && (handle == null ? void 0 : handle.offsetWidth)) {
+        $$invalidate(1, x = -(handle == null ? void 0 : handle.offsetWidth));
         dispatch("ready", { handle });
       }
     }
     if ($$self.$$.dirty & 129) {
-      if (handle && as > 0) {
-        $$invalidate(2, y = -(handle == null ? void 0 : handle.offsetHeight));
-      } else {
-        $$invalidate(2, y = 0);
-      }
+      $$invalidate(2, y = handle && as > 0 ? -(handle == null ? void 0 : handle.offsetHeight) : 0);
     }
     if ($$self.$$.dirty & 153) {
-      if (handle && (!!sy || !!sx) && as < 0.6 && as > -0.6) {
-        $$invalidate(1, x = -(handle == null ? void 0 : handle.offsetWidth));
-      } else if (!!sy || !!sx) {
-        $$invalidate(1, x = 0);
-      }
+      $$invalidate(1, x = handle && (!!sy || !!sx) && as < 0.6 && as > -0.6 ? 0 : -(handle == null ? void 0 : handle.offsetWidth));
     }
   };
-  return [handle, x, y, sx, sy, ex, ey, as, mounted, width, $$scope, slots, div_binding];
+  return [handle, x, y, sx, sy, ex, ey, as, mounted, $$scope, slots, div_binding];
 }
 class Delegate extends SvelteComponent {
   constructor(options) {
@@ -5348,4 +5337,4 @@ class Routes extends SvelteComponent {
 export {
   Routes as default
 };
-//# sourceMappingURL=index.svelte-54752021.js.map
+//# sourceMappingURL=index.svelte-5532ce4e.js.map

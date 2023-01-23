@@ -1,4 +1,4 @@
-import { SvelteComponent, init, safe_not_equal, element, text, space, empty, claim_element, children, claim_text, detach, claim_space, insert_hydration, append_hydration, set_data, noop } from "./chunks/index-082b18d7.js";
+import { SvelteComponent, init, safe_not_equal, element, text, space, empty, claim_element, children, claim_text, detach, claim_space, insert_hydration, append_hydration, set_data, noop } from "./chunks/index-c4dc6e20.js";
 function create_if_block_1(ctx) {
   let pre;
   let t_value = ctx[1].frame + "";
@@ -192,4 +192,4 @@ export {
   Error as default,
   load
 };
-//# sourceMappingURL=error.svelte-871ec588.js.map
+//# sourceMappingURL=error.svelte-8187b40d.js.map

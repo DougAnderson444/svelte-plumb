@@ -498,9 +498,6 @@ function onMount(fn) {
 function afterUpdate(fn) {
   get_current_component().$$.after_update.push(fn);
 }
-function onDestroy(fn) {
-  get_current_component().$$.on_destroy.push(fn);
-}
 function createEventDispatcher() {
   const component = get_current_component();
   return (type, detail, { cancelable = false } = {}) => {
@@ -1016,7 +1013,6 @@ export {
   mount_component,
   noop,
   now,
-  onDestroy,
   onMount,
   outro_and_destroy_block,
   run_all,
@@ -1038,4 +1034,4 @@ export {
   update_slot_base,
   xlink_attr
 };
-//# sourceMappingURL=index-082b18d7.js.map
+//# sourceMappingURL=index-c4dc6e20.js.map
