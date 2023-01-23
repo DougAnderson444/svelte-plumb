@@ -14,8 +14,8 @@
 	import CursorMarker from './CursorMarker.svelte';
 	import Links from './Links.svelte';
 	import Highlighter from './Highlighter.svelte';
-	import { generateLinkLabel } from './utils.js';
-	import { DELEGATOR, DROPZONE, MARKER } from './constants.js';
+	import { generateLinkLabel } from '$lib/utils.js';
+	import { DELEGATOR, DROPZONE, MARKER } from '$lib/constants.js';
 
 	export let data;
 	export let opts = {};

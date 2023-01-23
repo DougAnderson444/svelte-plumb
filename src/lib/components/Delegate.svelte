@@ -5,7 +5,7 @@
 
 	// The delegated start point component is on the top right hand side of the parent element
 	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-	import { DROPZONE } from './constants.js';
+	import { DROPZONE } from '$lib/constants.js';
 
 	export let sx = 0; // starting x
 	export let sy = 0;
