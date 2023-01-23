@@ -22,39 +22,20 @@
 	let x = 0;
 	let y = 0;
 
-	let tracker; // pointer-tracker
-	let width;
-
-	$: if (mounted && handle && handle?.parentNode) {
+	$: if (mounted && handle && handle?.offsetWidth) {
 		// console.log(handle?.parentNode, `[data-${DROPZONE}]`, handle?.closest(`[data-${DROPZONE}]`));
-		({ width } = handle.parentNode.getBoundingClientRect());
-		x = width; // initialize position to far right corner
+		x = -handle?.offsetWidth; // initialize position to far right corner
 		dispatch('ready', { handle }); // let the parent know we're ready to track
 	}
 
-	// update if sy or ey changes
-	$: if (handle && as > 0) {
-		y = -handle?.offsetHeight; // above if on top
-	} else {
-		y = 0; // below if on bottom
-	}
-
-	// update x offset to the left if sx is on the far left of the handle element
-	$: if (handle && (!!sy || !!sx) && as < 0.6 && as > -0.6) {
-		x = -handle?.offsetWidth;
-	} else if (!!sy || !!sx) {
-		x = 0;
-	}
-
-	onDestroy(() => {
-		tracker?.stop(); // stop tracking pointer movements, save memory
-	});
+	$: y = handle && as > 0 ? -handle?.offsetHeight : 0; // above if on top
+	$: x = handle && (!!sy || !!sx) && as < 0.6 && as > -0.6 ? 0 : -handle?.offsetWidth;
 </script>
 
 <div
 	bind:this={handle}
 	class="cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50"
-	style="position: absolute; left:{x}px; top:{y}px;"
+	style="position: absolute; right:{x}px; top:{y}px;"
 >
 	<slot
 		>Connect
