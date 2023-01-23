@@ -1,4 +1,5 @@
-import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$1, empty, group_outros, check_outros, onMount, svg_element, claim_svg_element, append_hydration, text, space, claim_text, claim_space, set_data, xlink_attr, destroy_each, create_component, claim_component, mount_component, destroy_component, listen, run_all, assign, get_spread_update, get_spread_object, createEventDispatcher, globals, bind, add_flush_callback, action_destroyer, is_function, create_bidirectional_transition, onDestroy, set_input_value, to_number, update_keyed_each, destroy_block } from "../chunks/index-9bdb6fb4.js";
+import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$1, assign, now, loop, identity, empty, group_outros, check_outros, createEventDispatcher, onMount, svg_element, claim_svg_element, append_hydration, listen, action_destroyer, is_function, run_all, text, claim_text, set_store_value, space, claim_space, set_data, xlink_attr, subscribe, update_keyed_each, outro_and_destroy_block, bubble, create_component, claim_component, mount_component, destroy_component, destroy_each, globals, bind, add_flush_callback, get_spread_update, get_spread_object, flush, onDestroy, create_bidirectional_transition, set_input_value, to_number, destroy_block } from "../chunks/index-082b18d7.js";
+import { writable } from "../chunks/index-002f4856.js";
 class Pointer {
   constructor(nativePointer) {
     this.id = -1;
@@ -185,7 +186,7 @@ function fallback_block$5(ctx) {
     }
   };
 }
-function create_fragment$9(ctx) {
+function create_fragment$a(ctx) {
   let div;
   let div_resize_listener;
   let current;
@@ -266,7 +267,7 @@ function create_fragment$9(ctx) {
     }
   };
 }
-function instance$9($$self, $$props, $$invalidate) {
+function instance$a($$self, $$props, $$invalidate) {
   let x;
   let y;
   let { $$slots: slots = {}, $$scope } = $$props;
@@ -326,7 +327,7 @@ function instance$9($$self, $$props, $$invalidate) {
 class CursorMarker extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$9, create_fragment$9, safe_not_equal, { marker: 0, id: 1, left: 6, top: 7 });
+    init(this, options, instance$a, create_fragment$a, safe_not_equal, { marker: 0, id: 1, left: 6, top: 7 });
   }
 }
 var PI = Math.PI;
@@ -574,68 +575,202 @@ function getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options) {
   var ae = getAngle(cix, ciy, ex, ey);
   return [sx, sy, cix, ciy, ex, ey, ae, as, getAngle(sx, sy, ex, ey)];
 }
+function cubicOut(t) {
+  const f = t - 1;
+  return f * f * f + 1;
+}
+function quintOut(t) {
+  return --t * t * t * t * t + 1;
+}
+function is_date(obj) {
+  return Object.prototype.toString.call(obj) === "[object Date]";
+}
+function get_interpolator(a, b) {
+  if (a === b || a !== a)
+    return () => a;
+  const type = typeof a;
+  if (type !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
+    throw new Error("Cannot interpolate values of different type");
+  }
+  if (Array.isArray(a)) {
+    const arr = b.map((bi, i) => {
+      return get_interpolator(a[i], bi);
+    });
+    return (t) => arr.map((fn) => fn(t));
+  }
+  if (type === "object") {
+    if (!a || !b)
+      throw new Error("Object cannot be null");
+    if (is_date(a) && is_date(b)) {
+      a = a.getTime();
+      b = b.getTime();
+      const delta = b - a;
+      return (t) => new Date(a + t * delta);
+    }
+    const keys = Object.keys(b);
+    const interpolators = {};
+    keys.forEach((key) => {
+      interpolators[key] = get_interpolator(a[key], b[key]);
+    });
+    return (t) => {
+      const result = {};
+      keys.forEach((key) => {
+        result[key] = interpolators[key](t);
+      });
+      return result;
+    };
+  }
+  if (type === "number") {
+    const delta = b - a;
+    return (t) => a + t * delta;
+  }
+  throw new Error(`Cannot interpolate ${type} values`);
+}
+function tweened(value, defaults = {}) {
+  const store = writable(value);
+  let task;
+  let target_value = value;
+  function set(new_value, opts) {
+    if (value == null) {
+      store.set(value = new_value);
+      return Promise.resolve();
+    }
+    target_value = new_value;
+    let previous_task = task;
+    let started = false;
+    let { delay = 0, duration = 400, easing = identity, interpolate = get_interpolator } = assign(assign({}, defaults), opts);
+    if (duration === 0) {
+      if (previous_task) {
+        previous_task.abort();
+        previous_task = null;
+      }
+      store.set(value = target_value);
+      return Promise.resolve();
+    }
+    const start = now() + delay;
+    let fn;
+    task = loop((now2) => {
+      if (now2 < start)
+        return true;
+      if (!started) {
+        fn = interpolate(value, new_value);
+        if (typeof duration === "function")
+          duration = duration(value, new_value);
+        started = true;
+      }
+      if (previous_task) {
+        previous_task.abort();
+        previous_task = null;
+      }
+      const elapsed = now2 - start;
+      if (elapsed > duration) {
+        store.set(value = new_value);
+        return false;
+      }
+      store.set(value = fn(easing(elapsed / duration)));
+      return true;
+    });
+    return task.promise;
+  }
+  return {
+    set,
+    update: (fn, opts) => set(fn(target_value, value), opts),
+    subscribe: store.subscribe
+  };
+}
+function clickOutside(node, { enabled: initialEnabled, handleUnselect }) {
+  const handleOutsideClick = ({ target }) => {
+    if (node !== target && node.parentElement != target.parentElement && !node.contains(target)) {
+      console.log("handleUnselect", node !== target, node.parentElement != target.parentElement);
+      handleUnselect();
+    }
+  };
+  function update({ enabled }) {
+    if (enabled) {
+      window.addEventListener("click", handleOutsideClick);
+    } else {
+      window.removeEventListener("click", handleOutsideClick);
+    }
+  }
+  update({ enabled: initialEnabled });
+  return {
+    update,
+    destroy() {
+      window.removeEventListener("click", handleOutsideClick);
+    }
+  };
+}
 const Link_svelte_svelte_type_style_lang = "";
 const get_endPoint_slot_changes = (dirty) => ({
-  sx: dirty[0] & 2048,
-  sy: dirty[0] & 4096,
-  ex: dirty[0] & 32768,
-  ey: dirty[0] & 65536
+  sx: dirty[0] & 8192,
+  sy: dirty[0] & 16384,
+  ex: dirty[0] & 131072,
+  ey: dirty[0] & 262144,
+  pointer: dirty[0] & 4096
 });
 const get_endPoint_slot_context = (ctx) => ({
-  sx: ctx[11],
-  sy: ctx[12],
-  ex: ctx[15],
-  ey: ctx[16]
+  sx: ctx[13],
+  sy: ctx[14],
+  ex: ctx[17],
+  ey: ctx[18],
+  pointer: ctx[12]
 });
 const get_startPoint_slot_changes = (dirty) => ({
-  sx: dirty[0] & 2048,
-  sy: dirty[0] & 4096,
-  ex: dirty[0] & 32768,
-  ey: dirty[0] & 65536,
-  as: dirty[0] & 131072
+  sx: dirty[0] & 8192,
+  sy: dirty[0] & 16384,
+  ex: dirty[0] & 131072,
+  ey: dirty[0] & 262144,
+  as: dirty[0] & 524288
 });
 const get_startPoint_slot_context = (ctx) => ({
-  sx: ctx[11],
-  sy: ctx[12],
-  ex: ctx[15],
-  ey: ctx[16],
-  as: ctx[17]
+  sx: ctx[13],
+  sy: ctx[14],
+  ex: ctx[17],
+  ey: ctx[18],
+  as: ctx[19]
 });
-function create_if_block$6(ctx) {
+function create_if_block$5(ctx) {
   let g;
   let path;
   let path_id_value;
-  let if_block_anchor;
+  let clickOutside_action;
+  let if_block0_anchor;
   let current;
+  let mounted;
+  let dispose;
   function select_block_type(ctx2, dirty) {
-    if (ctx2[11] < ctx2[15])
-      return create_if_block_2$1;
+    if (ctx2[13] < ctx2[17])
+      return create_if_block_3$2;
     return create_else_block$1;
   }
   let current_block_type = select_block_type(ctx);
-  let if_block = current_block_type(ctx);
-  const startPoint_slot_template = ctx[19].startPoint;
-  const startPoint_slot = create_slot(startPoint_slot_template, ctx, ctx[18], get_startPoint_slot_context);
+  let if_block0 = current_block_type(ctx);
+  const startPoint_slot_template = ctx[26].startPoint;
+  const startPoint_slot = create_slot(startPoint_slot_template, ctx, ctx[25], get_startPoint_slot_context);
   const startPoint_slot_or_fallback = startPoint_slot || fallback_block_1(ctx);
-  const endPoint_slot_template = ctx[19].endPoint;
-  const endPoint_slot = create_slot(endPoint_slot_template, ctx, ctx[18], get_endPoint_slot_context);
+  const endPoint_slot_template = ctx[26].endPoint;
+  const endPoint_slot = create_slot(endPoint_slot_template, ctx, ctx[25], get_endPoint_slot_context);
   const endPoint_slot_or_fallback = endPoint_slot || fallback_block$4(ctx);
+  let if_block1 = ctx[9] && create_if_block_1$2(ctx);
   return {
     c() {
       g = svg_element("g");
       path = svg_element("path");
-      if_block.c();
-      if_block_anchor = empty();
+      if_block0.c();
+      if_block0_anchor = empty();
       if (startPoint_slot_or_fallback)
         startPoint_slot_or_fallback.c();
       if (endPoint_slot_or_fallback)
         endPoint_slot_or_fallback.c();
+      if (if_block1)
+        if_block1.c();
       this.h();
     },
     l(nodes) {
       g = claim_svg_element(nodes, "g", { stroke: true, "stroke-opacity": true });
       var g_nodes = children(g);
       path = claim_svg_element(g_nodes, "path", {
+        style: true,
         d: true,
         id: true,
         "stroke-width": true,
@@ -645,20 +780,25 @@ function create_if_block$6(ctx) {
         "stroke-opacity": true
       });
       children(path).forEach(detach);
-      if_block.l(g_nodes);
-      if_block_anchor = empty();
+      if_block0.l(g_nodes);
+      if_block0_anchor = empty();
       if (startPoint_slot_or_fallback)
         startPoint_slot_or_fallback.l(g_nodes);
       if (endPoint_slot_or_fallback)
         endPoint_slot_or_fallback.l(g_nodes);
+      if (if_block1)
+        if_block1.l(g_nodes);
       g_nodes.forEach(detach);
       this.h();
     },
     h() {
-      attr(path, "d", ctx[9]);
-      attr(path, "id", path_id_value = ctx[0].id);
-      attr(path, "stroke-width", ctx[2]);
-      attr(path, "stroke", ctx[1]);
+      set_style(path, "pointer-events", "stroke");
+      set_style(path, "user-select", "none");
+      set_style(path, "outline", "none");
+      attr(path, "d", ctx[11]);
+      attr(path, "id", path_id_value = ctx[1].id);
+      attr(path, "stroke-width", ctx[0]);
+      attr(path, "stroke", ctx[2]);
       attr(path, "fill", "none");
       attr(path, "stroke-linecap", "round");
       attr(path, "stroke-opacity", ctx[4]);
@@ -668,73 +808,106 @@ function create_if_block$6(ctx) {
     m(target, anchor) {
       insert_hydration(target, g, anchor);
       append_hydration(g, path);
-      if_block.m(g, null);
-      append_hydration(g, if_block_anchor);
+      if_block0.m(g, null);
+      append_hydration(g, if_block0_anchor);
       if (startPoint_slot_or_fallback) {
         startPoint_slot_or_fallback.m(g, null);
       }
       if (endPoint_slot_or_fallback) {
         endPoint_slot_or_fallback.m(g, null);
       }
+      if (if_block1)
+        if_block1.m(g, null);
       current = true;
+      if (!mounted) {
+        dispose = [
+          listen(path, "click", ctx[27]),
+          listen(path, "mouseover", ctx[21]),
+          listen(path, "mouseout", ctx[22]),
+          listen(path, "focus", ctx[21]),
+          listen(path, "blur", ctx[22]),
+          action_destroyer(clickOutside_action = clickOutside.call(null, path, {
+            enabled: ctx[9],
+            handleUnselect: ctx[23]
+          }))
+        ];
+        mounted = true;
+      }
     },
     p(ctx2, dirty) {
-      if (!current || dirty[0] & 512) {
-        attr(path, "d", ctx2[9]);
+      if (!current || dirty[0] & 2048) {
+        attr(path, "d", ctx2[11]);
       }
-      if (!current || dirty[0] & 1 && path_id_value !== (path_id_value = ctx2[0].id)) {
+      if (!current || dirty[0] & 2 && path_id_value !== (path_id_value = ctx2[1].id)) {
         attr(path, "id", path_id_value);
       }
-      if (!current || dirty[0] & 4) {
-        attr(path, "stroke-width", ctx2[2]);
+      if (!current || dirty[0] & 1) {
+        attr(path, "stroke-width", ctx2[0]);
       }
-      if (!current || dirty[0] & 2) {
-        attr(path, "stroke", ctx2[1]);
+      if (!current || dirty[0] & 4) {
+        attr(path, "stroke", ctx2[2]);
       }
       if (!current || dirty[0] & 16) {
         attr(path, "stroke-opacity", ctx2[4]);
       }
-      if (current_block_type === (current_block_type = select_block_type(ctx2)) && if_block) {
-        if_block.p(ctx2, dirty);
+      if (clickOutside_action && is_function(clickOutside_action.update) && dirty[0] & 512)
+        clickOutside_action.update.call(null, {
+          enabled: ctx2[9],
+          handleUnselect: ctx2[23]
+        });
+      if (current_block_type === (current_block_type = select_block_type(ctx2)) && if_block0) {
+        if_block0.p(ctx2, dirty);
       } else {
-        if_block.d(1);
-        if_block = current_block_type(ctx2);
-        if (if_block) {
-          if_block.c();
-          if_block.m(g, if_block_anchor);
+        if_block0.d(1);
+        if_block0 = current_block_type(ctx2);
+        if (if_block0) {
+          if_block0.c();
+          if_block0.m(g, if_block0_anchor);
         }
       }
       if (startPoint_slot) {
-        if (startPoint_slot.p && (!current || dirty[0] & 497664)) {
+        if (startPoint_slot.p && (!current || dirty[0] & 34496512)) {
           update_slot_base(
             startPoint_slot,
             startPoint_slot_template,
             ctx2,
-            ctx2[18],
-            !current ? get_all_dirty_from_scope(ctx2[18]) : get_slot_changes(startPoint_slot_template, ctx2[18], dirty, get_startPoint_slot_changes),
+            ctx2[25],
+            !current ? get_all_dirty_from_scope(ctx2[25]) : get_slot_changes(startPoint_slot_template, ctx2[25], dirty, get_startPoint_slot_changes),
             get_startPoint_slot_context
           );
         }
       } else {
-        if (startPoint_slot_or_fallback && startPoint_slot_or_fallback.p && (!current || dirty[0] & 6144)) {
+        if (startPoint_slot_or_fallback && startPoint_slot_or_fallback.p && (!current || dirty[0] & 24576)) {
           startPoint_slot_or_fallback.p(ctx2, !current ? [-1, -1] : dirty);
         }
       }
       if (endPoint_slot) {
-        if (endPoint_slot.p && (!current || dirty[0] & 366592)) {
+        if (endPoint_slot.p && (!current || dirty[0] & 33976320)) {
           update_slot_base(
             endPoint_slot,
             endPoint_slot_template,
             ctx2,
-            ctx2[18],
-            !current ? get_all_dirty_from_scope(ctx2[18]) : get_slot_changes(endPoint_slot_template, ctx2[18], dirty, get_endPoint_slot_changes),
+            ctx2[25],
+            !current ? get_all_dirty_from_scope(ctx2[25]) : get_slot_changes(endPoint_slot_template, ctx2[25], dirty, get_endPoint_slot_changes),
             get_endPoint_slot_context
           );
         }
       } else {
-        if (endPoint_slot_or_fallback && endPoint_slot_or_fallback.p && (!current || dirty[0] & 1032)) {
+        if (endPoint_slot_or_fallback && endPoint_slot_or_fallback.p && (!current || dirty[0] & 4104)) {
           endPoint_slot_or_fallback.p(ctx2, !current ? [-1, -1] : dirty);
         }
+      }
+      if (ctx2[9]) {
+        if (if_block1) {
+          if_block1.p(ctx2, dirty);
+        } else {
+          if_block1 = create_if_block_1$2(ctx2);
+          if_block1.c();
+          if_block1.m(g, null);
+        }
+      } else if (if_block1) {
+        if_block1.d(1);
+        if_block1 = null;
       }
       if (!current || dirty[0] & 64) {
         attr(g, "stroke", ctx2[6]);
@@ -758,11 +931,15 @@ function create_if_block$6(ctx) {
     d(detaching) {
       if (detaching)
         detach(g);
-      if_block.d();
+      if_block0.d();
       if (startPoint_slot_or_fallback)
         startPoint_slot_or_fallback.d(detaching);
       if (endPoint_slot_or_fallback)
         endPoint_slot_or_fallback.d(detaching);
+      if (if_block1)
+        if_block1.d();
+      mounted = false;
+      run_all(dispose);
     }
   };
 }
@@ -770,7 +947,7 @@ function create_else_block$1(ctx) {
   var _a, _b, _c, _d, _e, _f;
   let text_1;
   let tspan;
-  let t0_value = (((_c = (_b = (_a = ctx[0]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[0]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
+  let t0_value = (((_c = (_b = (_a = ctx[1]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[1]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
   let t0;
   let t1;
   return {
@@ -795,8 +972,8 @@ function create_else_block$1(ctx) {
     h() {
       attr(tspan, "fill", "black");
       attr(tspan, "class", "svelte-1fj6p42");
-      attr(text_1, "x", ctx[13]);
-      attr(text_1, "y", ctx[14]);
+      attr(text_1, "x", ctx[15]);
+      attr(text_1, "y", ctx[16]);
       attr(text_1, "class", "svelte-1fj6p42");
     },
     m(target, anchor) {
@@ -807,13 +984,13 @@ function create_else_block$1(ctx) {
     },
     p(ctx2, dirty) {
       var _a2, _b2, _c2, _d2, _e2, _f2;
-      if (dirty[0] & 1 && t0_value !== (t0_value = (((_c2 = (_b2 = (_a2 = ctx2[0]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[0]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
+      if (dirty[0] & 2 && t0_value !== (t0_value = (((_c2 = (_b2 = (_a2 = ctx2[1]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[1]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
         set_data(t0, t0_value);
-      if (dirty[0] & 8192) {
-        attr(text_1, "x", ctx2[13]);
+      if (dirty[0] & 32768) {
+        attr(text_1, "x", ctx2[15]);
       }
-      if (dirty[0] & 16384) {
-        attr(text_1, "y", ctx2[14]);
+      if (dirty[0] & 65536) {
+        attr(text_1, "y", ctx2[16]);
       }
     },
     d(detaching) {
@@ -822,12 +999,12 @@ function create_else_block$1(ctx) {
     }
   };
 }
-function create_if_block_2$1(ctx) {
+function create_if_block_3$2(ctx) {
   var _a, _b, _c, _d, _e, _f;
   let text_1;
   let textPath;
   let tspan;
-  let t0_value = (((_c = (_b = (_a = ctx[0]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[0]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
+  let t0_value = (((_c = (_b = (_a = ctx[1]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[1]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
   let t0;
   let t1;
   let textPath_xlink_href_value;
@@ -858,7 +1035,7 @@ function create_if_block_2$1(ctx) {
     h() {
       attr(tspan, "fill", "black");
       attr(tspan, "class", "svelte-1fj6p42");
-      xlink_attr(textPath, "xlink:href", textPath_xlink_href_value = "#" + ctx[0].id);
+      xlink_attr(textPath, "xlink:href", textPath_xlink_href_value = "#" + ctx[1].id);
       attr(textPath, "startOffset", textPath_startOffset_value = ctx[7] + "%");
       attr(text_1, "class", "svelte-1fj6p42");
     },
@@ -871,9 +1048,9 @@ function create_if_block_2$1(ctx) {
     },
     p(ctx2, dirty) {
       var _a2, _b2, _c2, _d2, _e2, _f2;
-      if (dirty[0] & 1 && t0_value !== (t0_value = (((_c2 = (_b2 = (_a2 = ctx2[0]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[0]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
+      if (dirty[0] & 2 && t0_value !== (t0_value = (((_c2 = (_b2 = (_a2 = ctx2[1]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[1]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
         set_data(t0, t0_value);
-      if (dirty[0] & 1 && textPath_xlink_href_value !== (textPath_xlink_href_value = "#" + ctx2[0].id)) {
+      if (dirty[0] & 2 && textPath_xlink_href_value !== (textPath_xlink_href_value = "#" + ctx2[1].id)) {
         xlink_attr(textPath, "xlink:href", textPath_xlink_href_value);
       }
       if (dirty[0] & 128 && textPath_startOffset_value !== (textPath_startOffset_value = ctx2[7] + "%")) {
@@ -899,19 +1076,19 @@ function fallback_block_1(ctx) {
       this.h();
     },
     h() {
-      attr(circle, "cx", ctx[11]);
-      attr(circle, "cy", ctx[12]);
+      attr(circle, "cx", ctx[13]);
+      attr(circle, "cy", ctx[14]);
       attr(circle, "r", 4);
     },
     m(target, anchor) {
       insert_hydration(target, circle, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty[0] & 2048) {
-        attr(circle, "cx", ctx2[11]);
+      if (dirty[0] & 8192) {
+        attr(circle, "cx", ctx2[13]);
       }
-      if (dirty[0] & 4096) {
-        attr(circle, "cy", ctx2[12]);
+      if (dirty[0] & 16384) {
+        attr(circle, "cy", ctx2[14]);
       }
     },
     d(detaching) {
@@ -920,7 +1097,7 @@ function fallback_block_1(ctx) {
     }
   };
 }
-function create_if_block_1$2(ctx) {
+function create_if_block_2$2(ctx) {
   let polygon;
   return {
     c() {
@@ -938,15 +1115,15 @@ function create_if_block_1$2(ctx) {
     },
     h() {
       attr(polygon, "points", "0,-6 12,0, 0,6");
-      attr(polygon, "transform", ctx[10]);
+      attr(polygon, "transform", ctx[12]);
       attr(polygon, "fill", ctx[3]);
     },
     m(target, anchor) {
       insert_hydration(target, polygon, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty[0] & 1024) {
-        attr(polygon, "transform", ctx2[10]);
+      if (dirty[0] & 4096) {
+        attr(polygon, "transform", ctx2[12]);
       }
       if (dirty[0] & 8) {
         attr(polygon, "fill", ctx2[3]);
@@ -960,7 +1137,7 @@ function create_if_block_1$2(ctx) {
 }
 function fallback_block$4(ctx) {
   let if_block_anchor;
-  let if_block = ctx[10] && create_if_block_1$2(ctx);
+  let if_block = ctx[12] && create_if_block_2$2(ctx);
   return {
     c() {
       if (if_block)
@@ -978,11 +1155,11 @@ function fallback_block$4(ctx) {
       insert_hydration(target, if_block_anchor, anchor);
     },
     p(ctx2, dirty) {
-      if (ctx2[10]) {
+      if (ctx2[12]) {
         if (if_block) {
           if_block.p(ctx2, dirty);
         } else {
-          if_block = create_if_block_1$2(ctx2);
+          if_block = create_if_block_2$2(ctx2);
           if_block.c();
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
         }
@@ -999,10 +1176,89 @@ function fallback_block$4(ctx) {
     }
   };
 }
-function create_fragment$8(ctx) {
+function create_if_block_1$2(ctx) {
+  let circle;
+  let foreignObject;
+  let div;
+  let t;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      circle = svg_element("circle");
+      foreignObject = svg_element("foreignObject");
+      div = element("div");
+      t = text("X");
+      this.h();
+    },
+    l(nodes) {
+      circle = claim_svg_element(nodes, "circle", {
+        cx: true,
+        cy: true,
+        r: true,
+        fill: true,
+        stroke: true
+      });
+      children(circle).forEach(detach);
+      foreignObject = claim_svg_element(nodes, "foreignObject", { class: true, x: true, y: true });
+      var foreignObject_nodes = children(foreignObject);
+      div = claim_element(foreignObject_nodes, "DIV", { class: true, style: true });
+      var div_nodes = children(div);
+      t = claim_text(div_nodes, "X");
+      div_nodes.forEach(detach);
+      foreignObject_nodes.forEach(detach);
+      this.h();
+    },
+    h() {
+      attr(circle, "cx", ctx[17]);
+      attr(circle, "cy", ctx[18]);
+      attr(circle, "r", 12);
+      attr(circle, "fill", "none");
+      attr(circle, "stroke", "blue");
+      attr(div, "class", "w-24 h-24 font-mono text-red-500 text-2xl cursor-pointer");
+      set_style(div, "font-family", "'Luckiest Guy'");
+      attr(foreignObject, "class", "overflow-visible pointer-events-auto relative");
+      attr(foreignObject, "x", ctx[15]);
+      attr(foreignObject, "y", ctx[16]);
+    },
+    m(target, anchor) {
+      insert_hydration(target, circle, anchor);
+      insert_hydration(target, foreignObject, anchor);
+      append_hydration(foreignObject, div);
+      append_hydration(div, t);
+      if (!mounted) {
+        dispose = listen(div, "click", ctx[28]);
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & 131072) {
+        attr(circle, "cx", ctx2[17]);
+      }
+      if (dirty[0] & 262144) {
+        attr(circle, "cy", ctx2[18]);
+      }
+      if (dirty[0] & 32768) {
+        attr(foreignObject, "x", ctx2[15]);
+      }
+      if (dirty[0] & 65536) {
+        attr(foreignObject, "y", ctx2[16]);
+      }
+    },
+    d(detaching) {
+      if (detaching)
+        detach(circle);
+      if (detaching)
+        detach(foreignObject);
+      mounted = false;
+      dispose();
+    }
+  };
+}
+function create_fragment$9(ctx) {
   let if_block_anchor;
   let current;
-  let if_block = ctx[0] && ctx[8] && create_if_block$6(ctx);
+  let if_block = ctx[1] && ctx[10] && create_if_block$5(ctx);
   return {
     c() {
       if (if_block)
@@ -1021,14 +1277,14 @@ function create_fragment$8(ctx) {
       current = true;
     },
     p(ctx2, dirty) {
-      if (ctx2[0] && ctx2[8]) {
+      if (ctx2[1] && ctx2[10]) {
         if (if_block) {
           if_block.p(ctx2, dirty);
-          if (dirty[0] & 257) {
+          if (dirty[0] & 1026) {
             transition_in(if_block, 1);
           }
         } else {
-          if_block = create_if_block$6(ctx2);
+          if_block = create_if_block$5(ctx2);
           if_block.c();
           transition_in(if_block, 1);
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -1068,7 +1324,9 @@ function getCoords(elem) {
     left: box.left + window.pageXOffset
   };
 }
-function instance$8($$self, $$props, $$invalidate) {
+function instance$9($$self, $$props, $$invalidate) {
+  let $stroke, $$unsubscribe_stroke = noop$1, $$subscribe_stroke = () => ($$unsubscribe_stroke(), $$unsubscribe_stroke = subscribe(stroke, ($$value) => $$invalidate(24, $stroke = $$value)), stroke);
+  $$self.$$.on_destroy.push(() => $$unsubscribe_stroke());
   let { $$slots: slots = {}, $$scope } = $$props;
   let { link } = $$props;
   let { strokeColor = link == null ? void 0 : link.strokeColor } = $$props;
@@ -1078,14 +1336,18 @@ function instance$8($$self, $$props, $$invalidate) {
   let { groupStrokeOpacity = "0.1" } = $$props;
   let { groupStrokeColor = "white" } = $$props;
   let { textStartOffset = 20 } = $$props;
+  const dispatch = createEventDispatcher();
+  let initialStrokeWidth = strokeWidth;
+  let stroke;
+  let selected = false;
   let mounted = false;
   onMount(() => {
-    $$invalidate(8, mounted = true);
+    $$invalidate(10, mounted = true);
   });
   let d, pointer;
   let options = {};
   let x0, y0, w0, h0, x1, y1, w1, h1;
-  let sx, sy, cx, cy, ex, ey, ae, as, ec;
+  let sx, sy, cx, cy, ex, ey, ae, as, ac;
   function genArrow(link2) {
     let sourceEl = document.getElementById(link2.source.id);
     let targetEl = document.getElementById(link2.target.id);
@@ -1101,18 +1363,31 @@ function instance$8($$self, $$props, $$invalidate) {
     w1 = targetEl.offsetWidth;
     h1 = targetEl.offsetHeight;
     const arrow = getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options);
-    $$invalidate(11, [sx, sy, cx, cy, ex, ey, ae, as, ec] = arrow, sx, $$invalidate(12, sy), $$invalidate(13, cx), $$invalidate(14, cy), $$invalidate(15, ex), $$invalidate(16, ey), $$invalidate(17, as));
-    $$invalidate(9, d = `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`);
+    $$invalidate(13, [sx, sy, cx, cy, ex, ey, ae, as, ac] = arrow, sx, $$invalidate(14, sy), $$invalidate(15, cx), $$invalidate(16, cy), $$invalidate(17, ex), $$invalidate(18, ey), $$invalidate(19, as));
+    $$invalidate(11, d = `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`);
     let endAngleAsDegrees = ae * (180 / Math.PI);
-    $$invalidate(10, pointer = `translate(${ex},${ey}) rotate(${endAngleAsDegrees})`);
+    $$invalidate(12, pointer = `translate(${ex},${ey}) rotate(${endAngleAsDegrees})`);
   }
+  function handleMouseOver(e) {
+    console.log("over", strokeWidth);
+    $$invalidate(0, strokeWidth = initialStrokeWidth * 20);
+  }
+  function handleMouseOut(e) {
+    $$subscribe_stroke($$invalidate(8, stroke = tweened(strokeWidth, { duration: 1750 })));
+    set_store_value(stroke, $stroke = initialStrokeWidth, $stroke);
+  }
+  function handleUnselect(e) {
+    $$invalidate(9, selected = false);
+  }
+  const click_handler = () => $$invalidate(9, selected = !selected);
+  const click_handler_1 = () => dispatch("removeLink", link.id);
   $$self.$$set = ($$props2) => {
     if ("link" in $$props2)
-      $$invalidate(0, link = $$props2.link);
+      $$invalidate(1, link = $$props2.link);
     if ("strokeColor" in $$props2)
-      $$invalidate(1, strokeColor = $$props2.strokeColor);
+      $$invalidate(2, strokeColor = $$props2.strokeColor);
     if ("strokeWidth" in $$props2)
-      $$invalidate(2, strokeWidth = $$props2.strokeWidth);
+      $$invalidate(0, strokeWidth = $$props2.strokeWidth);
     if ("arrowColor" in $$props2)
       $$invalidate(3, arrowColor = $$props2.arrowColor);
     if ("strokeOpacity" in $$props2)
@@ -1124,23 +1399,30 @@ function instance$8($$self, $$props, $$invalidate) {
     if ("textStartOffset" in $$props2)
       $$invalidate(7, textStartOffset = $$props2.textStartOffset);
     if ("$$scope" in $$props2)
-      $$invalidate(18, $$scope = $$props2.$$scope);
+      $$invalidate(25, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty[0] & 1) {
+    if ($$self.$$.dirty[0] & 2) {
       if (link)
         genArrow(link);
     }
+    if ($$self.$$.dirty[0] & 16777216) {
+      if ($stroke > initialStrokeWidth) {
+        $$invalidate(0, strokeWidth = $stroke);
+      }
+    }
   };
   return [
+    strokeWidth,
     link,
     strokeColor,
-    strokeWidth,
     arrowColor,
     strokeOpacity,
     groupStrokeOpacity,
     groupStrokeColor,
     textStartOffset,
+    stroke,
+    selected,
     mounted,
     d,
     pointer,
@@ -1151,8 +1433,15 @@ function instance$8($$self, $$props, $$invalidate) {
     ex,
     ey,
     as,
+    dispatch,
+    handleMouseOver,
+    handleMouseOut,
+    handleUnselect,
+    $stroke,
     $$scope,
-    slots
+    slots,
+    click_handler,
+    click_handler_1
   ];
 }
 class Link extends SvelteComponent {
@@ -1161,13 +1450,13 @@ class Link extends SvelteComponent {
     init(
       this,
       options,
-      instance$8,
-      create_fragment$8,
+      instance$9,
+      create_fragment$9,
       safe_not_equal,
       {
-        link: 0,
-        strokeColor: 1,
-        strokeWidth: 2,
+        link: 1,
+        strokeColor: 2,
+        strokeWidth: 0,
         arrowColor: 3,
         strokeOpacity: 4,
         groupStrokeOpacity: 5,
@@ -1183,20 +1472,20 @@ const Links_svelte_svelte_type_style_lang = "";
 function get_each_context$2(ctx, list, i) {
   const child_ctx = ctx.slice();
   child_ctx[10] = list[i];
-  child_ctx[12] = i;
   return child_ctx;
 }
-function create_if_block$5(ctx) {
+function create_if_block$4(ctx) {
   let svg;
+  let each_blocks = [];
+  let each_1_lookup = /* @__PURE__ */ new Map();
   let current;
   let each_value = ctx[0];
-  let each_blocks = [];
+  const get_key = (ctx2) => ctx2[10].id;
   for (let i = 0; i < each_value.length; i += 1) {
-    each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
+    let child_ctx = get_each_context$2(ctx, each_value, i);
+    let key = get_key(child_ctx);
+    each_1_lookup.set(key, each_blocks[i] = create_each_block$2(key, child_ctx));
   }
-  const out = (i) => transition_out(each_blocks[i], 1, 1, () => {
-    each_blocks[i] = null;
-  });
   return {
     c() {
       svg = svg_element("svg");
@@ -1216,7 +1505,7 @@ function create_if_block$5(ctx) {
     },
     h() {
       set_style(svg, "pointer-events", "none");
-      attr(svg, "class", "svelte-1l7iwp0");
+      attr(svg, "class", "svelte-s6duoo");
     },
     m(target, anchor) {
       insert_hydration(target, svg, anchor);
@@ -1226,25 +1515,10 @@ function create_if_block$5(ctx) {
       current = true;
     },
     p(ctx2, dirty) {
-      if (dirty & 254975) {
+      if (dirty & 516607) {
         each_value = ctx2[0];
-        let i;
-        for (i = 0; i < each_value.length; i += 1) {
-          const child_ctx = get_each_context$2(ctx2, each_value, i);
-          if (each_blocks[i]) {
-            each_blocks[i].p(child_ctx, dirty);
-            transition_in(each_blocks[i], 1);
-          } else {
-            each_blocks[i] = create_each_block$2(child_ctx);
-            each_blocks[i].c();
-            transition_in(each_blocks[i], 1);
-            each_blocks[i].m(svg, null);
-          }
-        }
         group_outros();
-        for (i = each_value.length; i < each_blocks.length; i += 1) {
-          out(i);
-        }
+        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, svg, outro_and_destroy_block, create_each_block$2, null, get_each_context$2);
         check_outros();
       }
     },
@@ -1257,7 +1531,6 @@ function create_if_block$5(ctx) {
       current = true;
     },
     o(local) {
-      each_blocks = each_blocks.filter(Boolean);
       for (let i = 0; i < each_blocks.length; i += 1) {
         transition_out(each_blocks[i]);
       }
@@ -1266,7 +1539,9 @@ function create_if_block$5(ctx) {
     d(detaching) {
       if (detaching)
         detach(svg);
-      destroy_each(each_blocks, detaching);
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        each_blocks[i].d();
+      }
     }
   };
 }
@@ -1283,8 +1558,19 @@ function create_if_block_1$1(ctx) {
       groupStrokeOpacity: ctx[5],
       groupStrokeColor: ctx[6],
       textStartOffset: ctx[7],
-      arrowStartOffset: ctx[8],
       $$slots: {
+        endPoint: [
+          create_endPoint_slot,
+          ({ sx, sy, ex, ey, as, pointer }) => ({
+            13: sx,
+            14: sy,
+            15: ex,
+            16: ey,
+            17: as,
+            18: pointer
+          }),
+          ({ sx, sy, ex, ey, as, pointer }) => (sx ? 8192 : 0) | (sy ? 16384 : 0) | (ex ? 32768 : 0) | (ey ? 65536 : 0) | (as ? 131072 : 0) | (pointer ? 262144 : 0)
+        ],
         startPoint: [
           create_startPoint_slot,
           ({ sx, sy, ex, ey, as }) => ({ 13: sx, 14: sy, 15: ex, 16: ey, 17: as }),
@@ -1294,6 +1580,7 @@ function create_if_block_1$1(ctx) {
       $$scope: { ctx }
     }
   });
+  link.$on("removeLink", ctx[9]);
   return {
     c() {
       create_component(link.$$.fragment);
@@ -1323,9 +1610,7 @@ function create_if_block_1$1(ctx) {
         link_changes.groupStrokeColor = ctx2[6];
       if (dirty & 128)
         link_changes.textStartOffset = ctx2[7];
-      if (dirty & 256)
-        link_changes.arrowStartOffset = ctx2[8];
-      if (dirty & 516097) {
+      if (dirty & 1040393) {
         link_changes.$$scope = { dirty, ctx: ctx2 };
       }
       link.$set(link_changes);
@@ -1345,7 +1630,7 @@ function create_if_block_1$1(ctx) {
     }
   };
 }
-function create_else_block(ctx) {
+function create_else_block_1(ctx) {
   let circle;
   let circle_cx_value;
   let circle_cy_value;
@@ -1383,7 +1668,7 @@ function create_else_block(ctx) {
     }
   };
 }
-function create_if_block_2(ctx) {
+function create_if_block_4(ctx) {
   let foreignObject;
   let switch_instance;
   let foreignObject_x_value;
@@ -1495,11 +1780,268 @@ function create_startPoint_slot(ctx) {
   let if_block;
   let t;
   let current;
-  const if_block_creators = [create_if_block_2, create_else_block];
+  const if_block_creators = [create_if_block_4, create_else_block_1];
+  const if_blocks = [];
+  function select_block_type_1(ctx2, dirty) {
+    var _a, _b;
+    if ((_b = (_a = ctx2[10]) == null ? void 0 : _a.source) == null ? void 0 : _b.startPoint)
+      return 0;
+    return 1;
+  }
+  current_block_type_index = select_block_type_1(ctx);
+  if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  return {
+    c() {
+      if_block.c();
+      t = space();
+    },
+    l(nodes) {
+      if_block.l(nodes);
+      t = claim_space(nodes);
+    },
+    m(target, anchor) {
+      if_blocks[current_block_type_index].m(target, anchor);
+      insert_hydration(target, t, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      let previous_block_index = current_block_type_index;
+      current_block_type_index = select_block_type_1(ctx2);
+      if (current_block_type_index === previous_block_index) {
+        if_blocks[current_block_type_index].p(ctx2, dirty);
+      } else {
+        group_outros();
+        transition_out(if_blocks[previous_block_index], 1, 1, () => {
+          if_blocks[previous_block_index] = null;
+        });
+        check_outros();
+        if_block = if_blocks[current_block_type_index];
+        if (!if_block) {
+          if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
+          if_block.c();
+        } else {
+          if_block.p(ctx2, dirty);
+        }
+        transition_in(if_block, 1);
+        if_block.m(t.parentNode, t);
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
+    },
+    d(detaching) {
+      if_blocks[current_block_type_index].d(detaching);
+      if (detaching)
+        detach(t);
+    }
+  };
+}
+function create_else_block(ctx) {
+  let if_block_anchor;
+  let if_block = ctx[18] && create_if_block_3$1(ctx);
+  return {
+    c() {
+      if (if_block)
+        if_block.c();
+      if_block_anchor = empty();
+    },
+    l(nodes) {
+      if (if_block)
+        if_block.l(nodes);
+      if_block_anchor = empty();
+    },
+    m(target, anchor) {
+      if (if_block)
+        if_block.m(target, anchor);
+      insert_hydration(target, if_block_anchor, anchor);
+    },
+    p(ctx2, dirty) {
+      if (ctx2[18]) {
+        if (if_block) {
+          if_block.p(ctx2, dirty);
+        } else {
+          if_block = create_if_block_3$1(ctx2);
+          if_block.c();
+          if_block.m(if_block_anchor.parentNode, if_block_anchor);
+        }
+      } else if (if_block) {
+        if_block.d(1);
+        if_block = null;
+      }
+    },
+    i: noop$1,
+    o: noop$1,
+    d(detaching) {
+      if (if_block)
+        if_block.d(detaching);
+      if (detaching)
+        detach(if_block_anchor);
+    }
+  };
+}
+function create_if_block_2$1(ctx) {
+  let foreignObject;
+  let switch_instance;
+  let foreignObject_x_value;
+  let foreignObject_y_value;
+  let current;
+  var switch_value = ctx[10].source.startPoint;
+  function switch_props(ctx2) {
+    return {
+      props: {
+        sx: ctx2[13],
+        sy: ctx2[14],
+        ex: ctx2[15],
+        ey: ctx2[16],
+        as: ctx2[17]
+      }
+    };
+  }
+  if (switch_value) {
+    switch_instance = new switch_value(switch_props(ctx));
+  }
+  return {
+    c() {
+      foreignObject = svg_element("foreignObject");
+      if (switch_instance)
+        create_component(switch_instance.$$.fragment);
+      this.h();
+    },
+    l(nodes) {
+      foreignObject = claim_svg_element(nodes, "foreignObject", { class: true, x: true, y: true });
+      var foreignObject_nodes = children(foreignObject);
+      if (switch_instance)
+        claim_component(switch_instance.$$.fragment, foreignObject_nodes);
+      foreignObject_nodes.forEach(detach);
+      this.h();
+    },
+    h() {
+      attr(foreignObject, "class", "overflow-visible pointer-events-auto relative");
+      attr(foreignObject, "x", foreignObject_x_value = ctx[13]);
+      attr(foreignObject, "y", foreignObject_y_value = ctx[14]);
+    },
+    m(target, anchor) {
+      insert_hydration(target, foreignObject, anchor);
+      if (switch_instance) {
+        mount_component(switch_instance, foreignObject, null);
+      }
+      current = true;
+    },
+    p(ctx2, dirty) {
+      const switch_instance_changes = {};
+      if (dirty & 8192)
+        switch_instance_changes.sx = ctx2[13];
+      if (dirty & 16384)
+        switch_instance_changes.sy = ctx2[14];
+      if (dirty & 32768)
+        switch_instance_changes.ex = ctx2[15];
+      if (dirty & 65536)
+        switch_instance_changes.ey = ctx2[16];
+      if (dirty & 131072)
+        switch_instance_changes.as = ctx2[17];
+      if (switch_value !== (switch_value = ctx2[10].source.startPoint)) {
+        if (switch_instance) {
+          group_outros();
+          const old_component = switch_instance;
+          transition_out(old_component.$$.fragment, 1, 0, () => {
+            destroy_component(old_component, 1);
+          });
+          check_outros();
+        }
+        if (switch_value) {
+          switch_instance = new switch_value(switch_props(ctx2));
+          create_component(switch_instance.$$.fragment);
+          transition_in(switch_instance.$$.fragment, 1);
+          mount_component(switch_instance, foreignObject, null);
+        } else {
+          switch_instance = null;
+        }
+      } else if (switch_value) {
+        switch_instance.$set(switch_instance_changes);
+      }
+      if (!current || dirty & 8192 && foreignObject_x_value !== (foreignObject_x_value = ctx2[13])) {
+        attr(foreignObject, "x", foreignObject_x_value);
+      }
+      if (!current || dirty & 16384 && foreignObject_y_value !== (foreignObject_y_value = ctx2[14])) {
+        attr(foreignObject, "y", foreignObject_y_value);
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      if (switch_instance)
+        transition_in(switch_instance.$$.fragment, local);
+      current = true;
+    },
+    o(local) {
+      if (switch_instance)
+        transition_out(switch_instance.$$.fragment, local);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching)
+        detach(foreignObject);
+      if (switch_instance)
+        destroy_component(switch_instance);
+    }
+  };
+}
+function create_if_block_3$1(ctx) {
+  let polygon;
+  let polygon_transform_value;
+  return {
+    c() {
+      polygon = svg_element("polygon");
+      this.h();
+    },
+    l(nodes) {
+      polygon = claim_svg_element(nodes, "polygon", {
+        points: true,
+        transform: true,
+        fill: true
+      });
+      children(polygon).forEach(detach);
+      this.h();
+    },
+    h() {
+      attr(polygon, "points", "0,-6 12,0, 0,6");
+      attr(polygon, "transform", polygon_transform_value = ctx[18]);
+      attr(polygon, "fill", ctx[3]);
+    },
+    m(target, anchor) {
+      insert_hydration(target, polygon, anchor);
+    },
+    p(ctx2, dirty) {
+      if (dirty & 262144 && polygon_transform_value !== (polygon_transform_value = ctx2[18])) {
+        attr(polygon, "transform", polygon_transform_value);
+      }
+      if (dirty & 8) {
+        attr(polygon, "fill", ctx2[3]);
+      }
+    },
+    d(detaching) {
+      if (detaching)
+        detach(polygon);
+    }
+  };
+}
+function create_endPoint_slot(ctx) {
+  let current_block_type_index;
+  let if_block;
+  let t;
+  let current;
+  const if_block_creators = [create_if_block_2$1, create_else_block];
   const if_blocks = [];
   function select_block_type(ctx2, dirty) {
     var _a, _b;
-    if ((_b = (_a = ctx2[10]) == null ? void 0 : _a.source) == null ? void 0 : _b.startPoint)
+    if ((_b = (_a = ctx2[10]) == null ? void 0 : _a.source) == null ? void 0 : _b.endPoint)
       return 0;
     return 1;
   }
@@ -1558,36 +2100,48 @@ function create_startPoint_slot(ctx) {
     }
   };
 }
-function create_each_block$2(ctx) {
+function create_each_block$2(key_1, ctx) {
+  let first;
   let if_block_anchor;
   let current;
-  let if_block = ctx[10] && ctx[9] && create_if_block_1$1(ctx);
+  let if_block = ctx[10] && ctx[8] && create_if_block_1$1(ctx);
   return {
+    key: key_1,
+    first: null,
     c() {
+      first = empty();
       if (if_block)
         if_block.c();
       if_block_anchor = empty();
+      this.h();
     },
     l(nodes) {
+      first = empty();
       if (if_block)
         if_block.l(nodes);
       if_block_anchor = empty();
+      this.h();
+    },
+    h() {
+      this.first = first;
     },
     m(target, anchor) {
+      insert_hydration(target, first, anchor);
       if (if_block)
         if_block.m(target, anchor);
       insert_hydration(target, if_block_anchor, anchor);
       current = true;
     },
-    p(ctx2, dirty) {
-      if (ctx2[10] && ctx2[9]) {
+    p(new_ctx, dirty) {
+      ctx = new_ctx;
+      if (ctx[10] && ctx[8]) {
         if (if_block) {
-          if_block.p(ctx2, dirty);
-          if (dirty & 513) {
+          if_block.p(ctx, dirty);
+          if (dirty & 257) {
             transition_in(if_block, 1);
           }
         } else {
-          if_block = create_if_block_1$1(ctx2);
+          if_block = create_if_block_1$1(ctx);
           if_block.c();
           transition_in(if_block, 1);
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -1611,6 +2165,8 @@ function create_each_block$2(ctx) {
       current = false;
     },
     d(detaching) {
+      if (detaching)
+        detach(first);
       if (if_block)
         if_block.d(detaching);
       if (detaching)
@@ -1618,10 +2174,10 @@ function create_each_block$2(ctx) {
     }
   };
 }
-function create_fragment$7(ctx) {
+function create_fragment$8(ctx) {
   let if_block_anchor;
   let current;
-  let if_block = ctx[9] && ctx[0] && ctx[0].length > 0 && create_if_block$5(ctx);
+  let if_block = ctx[8] && ctx[0] && ctx[0].length > 0 && create_if_block$4(ctx);
   return {
     c() {
       if (if_block)
@@ -1640,14 +2196,14 @@ function create_fragment$7(ctx) {
       current = true;
     },
     p(ctx2, [dirty]) {
-      if (ctx2[9] && ctx2[0] && ctx2[0].length > 0) {
+      if (ctx2[8] && ctx2[0] && ctx2[0].length > 0) {
         if (if_block) {
           if_block.p(ctx2, dirty);
-          if (dirty & 513) {
+          if (dirty & 257) {
             transition_in(if_block, 1);
           }
         } else {
-          if_block = create_if_block$5(ctx2);
+          if_block = create_if_block$4(ctx2);
           if_block.c();
           transition_in(if_block, 1);
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -1678,7 +2234,7 @@ function create_fragment$7(ctx) {
     }
   };
 }
-function instance$7($$self, $$props, $$invalidate) {
+function instance$8($$self, $$props, $$invalidate) {
   let { links } = $$props;
   let { strokeColor = "currentColor" } = $$props;
   let { strokeWidth = 1 } = $$props;
@@ -1687,11 +2243,14 @@ function instance$7($$self, $$props, $$invalidate) {
   let { groupStrokeOpacity = "0.1" } = $$props;
   let { groupStrokeColor = "white" } = $$props;
   let { textStartOffset = 20 } = $$props;
-  let { arrowStartOffset = "40%" } = $$props;
   let mounted;
   onMount(() => {
-    $$invalidate(9, mounted = true);
+    $$invalidate(8, mounted = true);
   });
+  console.log("links", { links });
+  function removeLink_handler(event) {
+    bubble.call(this, $$self, event);
+  }
   $$self.$$set = ($$props2) => {
     if ("links" in $$props2)
       $$invalidate(0, links = $$props2.links);
@@ -1709,8 +2268,6 @@ function instance$7($$self, $$props, $$invalidate) {
       $$invalidate(6, groupStrokeColor = $$props2.groupStrokeColor);
     if ("textStartOffset" in $$props2)
       $$invalidate(7, textStartOffset = $$props2.textStartOffset);
-    if ("arrowStartOffset" in $$props2)
-      $$invalidate(8, arrowStartOffset = $$props2.arrowStartOffset);
   };
   return [
     links,
@@ -1721,14 +2278,14 @@ function instance$7($$self, $$props, $$invalidate) {
     groupStrokeOpacity,
     groupStrokeColor,
     textStartOffset,
-    arrowStartOffset,
-    mounted
+    mounted,
+    removeLink_handler
   ];
 }
 class Links extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$7, create_fragment$7, safe_not_equal, {
+    init(this, options, instance$8, create_fragment$8, safe_not_equal, {
       links: 0,
       strokeColor: 1,
       strokeWidth: 2,
@@ -1736,12 +2293,11 @@ class Links extends SvelteComponent {
       strokeOpacity: 4,
       groupStrokeOpacity: 5,
       groupStrokeColor: 6,
-      textStartOffset: 7,
-      arrowStartOffset: 8
+      textStartOffset: 7
     });
   }
 }
-function create_if_block$4(ctx) {
+function create_if_block$3(ctx) {
   let current;
   const default_slot_template = ctx[7].default;
   const default_slot = create_slot(default_slot_template, ctx, ctx[6], null);
@@ -1826,14 +2382,14 @@ function fallback_block$3(ctx) {
     }
   };
 }
-function create_fragment$6(ctx) {
+function create_fragment$7(ctx) {
   let div;
   let div_id_value;
   let div_class_value;
   let current;
   let mounted;
   let dispose;
-  let if_block = ctx[0] && create_if_block$4(ctx);
+  let if_block = ctx[0] && create_if_block$3(ctx);
   return {
     c() {
       div = element("div");
@@ -1886,7 +2442,7 @@ function create_fragment$6(ctx) {
             transition_in(if_block, 1);
           }
         } else {
-          if_block = create_if_block$4(ctx2);
+          if_block = create_if_block$3(ctx2);
           if_block.c();
           transition_in(if_block, 1);
           if_block.m(div, null);
@@ -1932,7 +2488,7 @@ function create_fragment$6(ctx) {
     }
   };
 }
-function instance$6($$self, $$props, $$invalidate) {
+function instance$7($$self, $$props, $$invalidate) {
   let top;
   let left;
   let { $$slots: slots = {}, $$scope } = $$props;
@@ -2004,7 +2560,7 @@ function instance$6($$self, $$props, $$invalidate) {
 class Highlighter extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$6, create_fragment$6, safe_not_equal, { node: 1, zoneSize: 2, highlight: 0 });
+    init(this, options, instance$7, create_fragment$7, safe_not_equal, { node: 1, zoneSize: 2, highlight: 0 });
   }
 }
 const generateLinkLabel = (nodes, sourceID, targetID = false) => {
@@ -2024,16 +2580,16 @@ const DELEGATOR = "connectdelegator";
 const { window: window_1 } = globals;
 function get_each_context$1(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[18] = list[i][0];
-  child_ctx[19] = list[i][1].node;
-  child_ctx[20] = list[i][1].highlight;
+  child_ctx[19] = list[i][0];
+  child_ctx[20] = list[i][1].node;
+  child_ctx[21] = list[i][1].highlight;
   return child_ctx;
 }
 const get_default_slot_changes = (dirty) => ({});
-const get_default_slot_context = (ctx) => ({ connectable: ctx[10] });
+const get_default_slot_context = (ctx) => ({ connectable: ctx[9] });
 const get_marker_slot_changes = (dirty) => ({});
-const get_marker_slot_context = (ctx) => ({ connectable: ctx[10] });
-function create_if_block_1(ctx) {
+const get_marker_slot_context = (ctx) => ({ connectable: ctx[9] });
+function create_if_block_3(ctx) {
   let cursormarker;
   let updating_marker;
   let current;
@@ -2044,7 +2600,7 @@ function create_if_block_1(ctx) {
     left: ctx[7],
     top: ctx[8],
     id: MARKER,
-    $$slots: { default: [create_default_slot$1] },
+    $$slots: { default: [create_default_slot$2] },
     $$scope: { ctx }
   };
   if (ctx[5] !== void 0) {
@@ -2119,7 +2675,7 @@ function fallback_block$2(ctx) {
     }
   };
 }
-function create_default_slot$1(ctx) {
+function create_default_slot$2(ctx) {
   let current;
   const marker_slot_template = ctx[11].marker;
   const marker_slot = create_slot(marker_slot_template, ctx, ctx[15], get_marker_slot_context);
@@ -2169,7 +2725,7 @@ function create_default_slot$1(ctx) {
     }
   };
 }
-function create_if_block$3(ctx) {
+function create_if_block_2(ctx) {
   let current;
   const default_slot_template = ctx[11].default;
   const default_slot = create_slot(default_slot_template, ctx, ctx[15], get_default_slot_context);
@@ -2218,13 +2774,102 @@ function create_if_block$3(ctx) {
     }
   };
 }
+function create_if_block_1(ctx) {
+  var _a;
+  let links;
+  let current;
+  const links_spread_levels = [{ links: [ctx[6]] }, (_a = ctx[1]) == null ? void 0 : _a.links];
+  let links_props = {};
+  for (let i = 0; i < links_spread_levels.length; i += 1) {
+    links_props = assign(links_props, links_spread_levels[i]);
+  }
+  links = new Links({ props: links_props });
+  return {
+    c() {
+      create_component(links.$$.fragment);
+    },
+    l(nodes) {
+      claim_component(links.$$.fragment, nodes);
+    },
+    m(target, anchor) {
+      mount_component(links, target, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      var _a2;
+      const links_changes = dirty & 66 ? get_spread_update(links_spread_levels, [
+        dirty & 64 && { links: [ctx2[6]] },
+        dirty & 2 && get_spread_object((_a2 = ctx2[1]) == null ? void 0 : _a2.links)
+      ]) : {};
+      links.$set(links_changes);
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(links.$$.fragment, local);
+      current = true;
+    },
+    o(local) {
+      transition_out(links.$$.fragment, local);
+      current = false;
+    },
+    d(detaching) {
+      destroy_component(links, detaching);
+    }
+  };
+}
+function create_if_block$2(ctx) {
+  var _a;
+  let links;
+  let current;
+  const links_spread_levels = [{ links: ctx[0].links }, (_a = ctx[1]) == null ? void 0 : _a.links];
+  let links_props = {};
+  for (let i = 0; i < links_spread_levels.length; i += 1) {
+    links_props = assign(links_props, links_spread_levels[i]);
+  }
+  links = new Links({ props: links_props });
+  links.$on("removeLink", ctx[10]);
+  return {
+    c() {
+      create_component(links.$$.fragment);
+    },
+    l(nodes) {
+      claim_component(links.$$.fragment, nodes);
+    },
+    m(target, anchor) {
+      mount_component(links, target, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      var _a2;
+      const links_changes = dirty & 3 ? get_spread_update(links_spread_levels, [
+        dirty & 1 && { links: ctx2[0].links },
+        dirty & 2 && get_spread_object((_a2 = ctx2[1]) == null ? void 0 : _a2.links)
+      ]) : {};
+      links.$set(links_changes);
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(links.$$.fragment, local);
+      current = true;
+    },
+    o(local) {
+      transition_out(links.$$.fragment, local);
+      current = false;
+    },
+    d(detaching) {
+      destroy_component(links, detaching);
+    }
+  };
+}
 function create_each_block$1(ctx) {
   let highlighter;
   let current;
   highlighter = new Highlighter({
     props: {
-      node: ctx[19],
-      highlight: ctx[20]
+      node: ctx[20],
+      highlight: ctx[21]
     }
   });
   return {
@@ -2241,9 +2886,9 @@ function create_each_block$1(ctx) {
     p(ctx2, dirty) {
       const highlighter_changes = {};
       if (dirty & 4)
-        highlighter_changes.node = ctx2[19];
+        highlighter_changes.node = ctx2[20];
       if (dirty & 4)
-        highlighter_changes.highlight = ctx2[20];
+        highlighter_changes.highlight = ctx2[21];
       highlighter.$set(highlighter_changes);
     },
     i(local) {
@@ -2261,44 +2906,19 @@ function create_each_block$1(ctx) {
     }
   };
 }
-function create_fragment$5(ctx) {
-  var _a, _b;
+function create_fragment$6(ctx) {
   let div;
   let t0;
   let t1;
-  let links0;
   let t2;
-  let links1;
   let t3;
   let current;
   let mounted;
   let dispose;
-  let if_block0 = ctx[4] && create_if_block_1(ctx);
-  let if_block1 = ctx[3] && create_if_block$3(ctx);
-  const links0_spread_levels = [
-    { links: [ctx[6]] },
-    {
-      calcOffsetFromCanvas: ctx[9]
-    },
-    (_a = ctx[1]) == null ? void 0 : _a.links
-  ];
-  let links0_props = {};
-  for (let i = 0; i < links0_spread_levels.length; i += 1) {
-    links0_props = assign(links0_props, links0_spread_levels[i]);
-  }
-  links0 = new Links({ props: links0_props });
-  const links1_spread_levels = [
-    { links: ctx[0].links },
-    {
-      calcOffsetFromCanvas: ctx[9]
-    },
-    (_b = ctx[1]) == null ? void 0 : _b.links
-  ];
-  let links1_props = {};
-  for (let i = 0; i < links1_spread_levels.length; i += 1) {
-    links1_props = assign(links1_props, links1_spread_levels[i]);
-  }
-  links1 = new Links({ props: links1_props });
+  let if_block0 = ctx[4] && create_if_block_3(ctx);
+  let if_block1 = ctx[3] && create_if_block_2(ctx);
+  let if_block2 = ctx[6] && create_if_block_1(ctx);
+  let if_block3 = ctx[0].links && ctx[0].links.length > 0 && create_if_block$2(ctx);
   let each_value = [...Object.entries(ctx[2])];
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
@@ -2316,9 +2936,11 @@ function create_fragment$5(ctx) {
       if (if_block1)
         if_block1.c();
       t1 = space();
-      create_component(links0.$$.fragment);
+      if (if_block2)
+        if_block2.c();
       t2 = space();
-      create_component(links1.$$.fragment);
+      if (if_block3)
+        if_block3.c();
       t3 = space();
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
@@ -2334,9 +2956,11 @@ function create_fragment$5(ctx) {
       if (if_block1)
         if_block1.l(div_nodes);
       t1 = claim_space(div_nodes);
-      claim_component(links0.$$.fragment, div_nodes);
+      if (if_block2)
+        if_block2.l(div_nodes);
       t2 = claim_space(div_nodes);
-      claim_component(links1.$$.fragment, div_nodes);
+      if (if_block3)
+        if_block3.l(div_nodes);
       t3 = claim_space(div_nodes);
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].l(div_nodes);
@@ -2356,9 +2980,11 @@ function create_fragment$5(ctx) {
       if (if_block1)
         if_block1.m(div, null);
       append_hydration(div, t1);
-      mount_component(links0, div, null);
+      if (if_block2)
+        if_block2.m(div, null);
       append_hydration(div, t2);
-      mount_component(links1, div, null);
+      if (if_block3)
+        if_block3.m(div, null);
       append_hydration(div, t3);
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].m(div, null);
@@ -2371,7 +2997,6 @@ function create_fragment$5(ctx) {
       }
     },
     p(ctx2, [dirty]) {
-      var _a2, _b2;
       if (ctx2[4]) {
         if (if_block0) {
           if_block0.p(ctx2, dirty);
@@ -2379,7 +3004,7 @@ function create_fragment$5(ctx) {
             transition_in(if_block0, 1);
           }
         } else {
-          if_block0 = create_if_block_1(ctx2);
+          if_block0 = create_if_block_3(ctx2);
           if_block0.c();
           transition_in(if_block0, 1);
           if_block0.m(div, t0);
@@ -2398,7 +3023,7 @@ function create_fragment$5(ctx) {
             transition_in(if_block1, 1);
           }
         } else {
-          if_block1 = create_if_block$3(ctx2);
+          if_block1 = create_if_block_2(ctx2);
           if_block1.c();
           transition_in(if_block1, 1);
           if_block1.m(div, t1);
@@ -2410,22 +3035,44 @@ function create_fragment$5(ctx) {
         });
         check_outros();
       }
-      const links0_changes = dirty & 578 ? get_spread_update(links0_spread_levels, [
-        dirty & 64 && { links: [ctx2[6]] },
-        dirty & 512 && {
-          calcOffsetFromCanvas: ctx2[9]
-        },
-        dirty & 2 && get_spread_object((_a2 = ctx2[1]) == null ? void 0 : _a2.links)
-      ]) : {};
-      links0.$set(links0_changes);
-      const links1_changes = dirty & 515 ? get_spread_update(links1_spread_levels, [
-        dirty & 1 && { links: ctx2[0].links },
-        dirty & 512 && {
-          calcOffsetFromCanvas: ctx2[9]
-        },
-        dirty & 2 && get_spread_object((_b2 = ctx2[1]) == null ? void 0 : _b2.links)
-      ]) : {};
-      links1.$set(links1_changes);
+      if (ctx2[6]) {
+        if (if_block2) {
+          if_block2.p(ctx2, dirty);
+          if (dirty & 64) {
+            transition_in(if_block2, 1);
+          }
+        } else {
+          if_block2 = create_if_block_1(ctx2);
+          if_block2.c();
+          transition_in(if_block2, 1);
+          if_block2.m(div, t2);
+        }
+      } else if (if_block2) {
+        group_outros();
+        transition_out(if_block2, 1, 1, () => {
+          if_block2 = null;
+        });
+        check_outros();
+      }
+      if (ctx2[0].links && ctx2[0].links.length > 0) {
+        if (if_block3) {
+          if_block3.p(ctx2, dirty);
+          if (dirty & 1) {
+            transition_in(if_block3, 1);
+          }
+        } else {
+          if_block3 = create_if_block$2(ctx2);
+          if_block3.c();
+          transition_in(if_block3, 1);
+          if_block3.m(div, t3);
+        }
+      } else if (if_block3) {
+        group_outros();
+        transition_out(if_block3, 1, 1, () => {
+          if_block3 = null;
+        });
+        check_outros();
+      }
       if (dirty & 4) {
         each_value = [...Object.entries(ctx2[2])];
         let i;
@@ -2453,8 +3100,8 @@ function create_fragment$5(ctx) {
         return;
       transition_in(if_block0);
       transition_in(if_block1);
-      transition_in(links0.$$.fragment, local);
-      transition_in(links1.$$.fragment, local);
+      transition_in(if_block2);
+      transition_in(if_block3);
       for (let i = 0; i < each_value.length; i += 1) {
         transition_in(each_blocks[i]);
       }
@@ -2463,8 +3110,8 @@ function create_fragment$5(ctx) {
     o(local) {
       transition_out(if_block0);
       transition_out(if_block1);
-      transition_out(links0.$$.fragment, local);
-      transition_out(links1.$$.fragment, local);
+      transition_out(if_block2);
+      transition_out(if_block3);
       each_blocks = each_blocks.filter(Boolean);
       for (let i = 0; i < each_blocks.length; i += 1) {
         transition_out(each_blocks[i]);
@@ -2478,8 +3125,10 @@ function create_fragment$5(ctx) {
         if_block0.d();
       if (if_block1)
         if_block1.d();
-      destroy_component(links0);
-      destroy_component(links1);
+      if (if_block2)
+        if_block2.d();
+      if (if_block3)
+        if_block3.d();
       destroy_each(each_blocks, detaching);
       ctx[14](null);
       mounted = false;
@@ -2487,7 +3136,7 @@ function create_fragment$5(ctx) {
     }
   };
 }
-function instance$5($$self, $$props, $$invalidate) {
+function instance$6($$self, $$props, $$invalidate) {
   let { $$slots: slots = {}, $$scope } = $$props;
   let { data } = $$props;
   let { opts = {} } = $$props;
@@ -2495,7 +3144,7 @@ function instance$5($$self, $$props, $$invalidate) {
   let highlighters = {};
   let canvas;
   let connecting;
-  let marker;
+  let marker = null;
   let tempLink = null;
   let left = 0;
   let top = 0;
@@ -2505,49 +3154,29 @@ function instance$5($$self, $$props, $$invalidate) {
     $$invalidate(7, left = p.pageX - canvas.offsetLeft);
     $$invalidate(8, top = p.pageY - canvas.offsetTop);
   }
-  function calcOffsetFromCanvas(child) {
-    if (!child)
-      return;
-    if (child == canvas)
-      return { x: child.offsetLeft, y: child.offsetTop };
-    let sourceOffsetTop = child.getBoundingClientRect().top;
-    let canvasOffsetTop = canvas.getBoundingClientRect().top;
-    let sourceOffsetTopDiff = sourceOffsetTop - canvasOffsetTop;
-    let sourceOffsetLeft = child.getBoundingClientRect().left;
-    let canvasOffsetLeft = canvas.getBoundingClientRect().left;
-    let sourceOffsetLeftDiff = sourceOffsetLeft - canvasOffsetLeft;
-    return {
-      x: sourceOffsetLeftDiff,
-      y: sourceOffsetTopDiff
-    };
-  }
   function connectable(node, options) {
-    var _a;
+    var _a, _b, _c;
     if (!node.id)
       node.id = nanoid();
+    let sourceid = ((_a = node == null ? void 0 : node.dataset) == null ? void 0 : _a.sourceid) ? (_b = node == null ? void 0 : node.dataset) == null ? void 0 : _b.sourceid : node.id;
     if (!node.style.position || node.style.position !== "absolute" && node.style.position !== "relative")
       node.style.position = "relative";
     let highlight = false;
     let overZone;
-    $$invalidate(2, highlighters[node.id] = { node, highlight }, highlighters);
+    $$invalidate(2, highlighters[sourceid] = { node, highlight }, highlighters);
     let pointerTracker;
     let startPoint;
     if (options == null ? void 0 : options.startPoint) {
       node.dataset[DELEGATOR] = true;
-      startPoint = new options.startPoint({
-        target: node,
-        props: {
-          trigger: (handle) => {
-            return createHandleTracker(node, handle);
-          }
-        }
-      });
+      startPoint = new options.startPoint({ target: node });
+      startPoint.$on("ready", (event) => createHandleTracker(node, event.detail.handle));
+      startPoint.$set({ mounted: true });
     } else {
       createHandleTracker(node);
     }
     if (options == null ? void 0 : options.dataset)
       node.dataset.dataset = JSON.stringify(options.dataset);
-    if (!((_a = options == null ? void 0 : options.restrictions) == null ? void 0 : _a.startOnly))
+    if (!((_c = options == null ? void 0 : options.restrictions) == null ? void 0 : _c.startOnly))
       node.dataset[DROPZONE] = true;
     function createHandleTracker(node2, handle = false) {
       var _a2;
@@ -2568,16 +3197,16 @@ function instance$5($$self, $$props, $$invalidate) {
               var _a3;
               handler(pointerTracker.currentPointers[0], event);
               $$invalidate(6, tempLink = {
-                id: node2.id + "-to-",
+                id: sourceid + "-to-",
                 source: {
-                  id: node2.id,
+                  id: sourceid,
                   startPoint: (options == null ? void 0 : options.startPoint) || false
                 },
                 target: { id: MARKER },
                 opts: {
                   label: {
                     enabled: true,
-                    value: generateLinkLabel(data.nodes, node2.id)
+                    value: generateLinkLabel(data.nodes, sourceid)
                   }
                 }
               });
@@ -2589,7 +3218,7 @@ function instance$5($$self, $$props, $$invalidate) {
               }
             },
             end: (pointer, event, cancelled) => {
-              var _a3, _b;
+              var _a3, _b2;
               $$invalidate(5, marker.style.display = "none", marker);
               $$invalidate(4, connecting = false);
               if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
@@ -2602,29 +3231,27 @@ function instance$5($$self, $$props, $$invalidate) {
               if (!zone || !(zone == null ? void 0 : zone.id) || !node2 || !(node2 == null ? void 0 : node2.id))
                 return;
               const newLink = {
-                id: node2.id + "-to-" + zone.id,
+                id: sourceid + "-to-" + zone.id,
                 source: {
-                  id: node2.id,
+                  id: sourceid,
                   startPoint: (options == null ? void 0 : options.startPoint) || false
                 },
                 target: { id: zone.id },
                 opts: {
                   label: {
                     enabled: true,
-                    value: generateLinkLabel(data.nodes, node2.id, zone.id)
+                    value: generateLinkLabel(data.nodes, sourceid, zone.id)
                   }
                 }
               };
-              console.log({ newLink });
               $$invalidate(0, data.links = [...data.links, newLink], data);
               if ((options == null ? void 0 : options.dataset) || ((_a3 = zone == null ? void 0 : zone.dataset) == null ? void 0 : _a3.dataset)) {
                 const detail = {
                   source: { dataset: (options == null ? void 0 : options.dataset) || null },
                   target: {
-                    dataset: ((_b = zone == null ? void 0 : zone.dataset) == null ? void 0 : _b.dataset) ? JSON.parse(zone.dataset.dataset) : null
+                    dataset: ((_b2 = zone == null ? void 0 : zone.dataset) == null ? void 0 : _b2.dataset) ? JSON.parse(zone.dataset.dataset) : null
                   }
                 };
-                console.log(detail);
                 dispatch("connected", detail);
               }
             },
@@ -2645,6 +3272,7 @@ function instance$5($$self, $$props, $$invalidate) {
       }
     };
   }
+  const removeLink = (e) => $$invalidate(0, data.links = data.links.filter((l) => l.id !== e.detail), data);
   const resize_handler = (e) => {
     $$invalidate(0, data);
   };
@@ -2676,8 +3304,8 @@ function instance$5($$self, $$props, $$invalidate) {
     tempLink,
     left,
     top,
-    calcOffsetFromCanvas,
     connectable,
+    removeLink,
     slots,
     resize_handler,
     cursormarker_marker_binding,
@@ -2688,7 +3316,7 @@ function instance$5($$self, $$props, $$invalidate) {
 class Canvas extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$5, create_fragment$5, safe_not_equal, { data: 0, opts: 1 });
+    init(this, options, instance$6, create_fragment$6, safe_not_equal, { data: 0, opts: 1 });
   }
 }
 function fallback_block$1(ctx) {
@@ -2716,7 +3344,7 @@ function fallback_block$1(ctx) {
     }
   };
 }
-function create_fragment$4(ctx) {
+function create_fragment$5(ctx) {
   let div1;
   let div0;
   let connectable_action;
@@ -2811,7 +3439,7 @@ function create_fragment$4(ctx) {
     }
   };
 }
-function instance$4($$self, $$props, $$invalidate) {
+function instance$5($$self, $$props, $$invalidate) {
   let top;
   let right;
   let left;
@@ -2886,7 +3514,218 @@ function instance$4($$self, $$props, $$invalidate) {
 class EndPoint extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$4, create_fragment$4, safe_not_equal, { position: 0, connectable: 1, options: 2 });
+    init(this, options, instance$5, create_fragment$5, safe_not_equal, { position: 0, connectable: 1, options: 2 });
+  }
+}
+function fallback_block(ctx) {
+  let t;
+  return {
+    c() {
+      t = text("Connect");
+    },
+    l(nodes) {
+      t = claim_text(nodes, "Connect");
+    },
+    m(target, anchor) {
+      insert_hydration(target, t, anchor);
+    },
+    d(detaching) {
+      if (detaching)
+        detach(t);
+    }
+  };
+}
+function create_fragment$4(ctx) {
+  let div;
+  let current;
+  const default_slot_template = ctx[11].default;
+  const default_slot = create_slot(default_slot_template, ctx, ctx[10], null);
+  const default_slot_or_fallback = default_slot || fallback_block();
+  return {
+    c() {
+      div = element("div");
+      if (default_slot_or_fallback)
+        default_slot_or_fallback.c();
+      this.h();
+    },
+    l(nodes) {
+      div = claim_element(nodes, "DIV", { class: true, style: true });
+      var div_nodes = children(div);
+      if (default_slot_or_fallback)
+        default_slot_or_fallback.l(div_nodes);
+      div_nodes.forEach(detach);
+      this.h();
+    },
+    h() {
+      attr(div, "class", "cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50");
+      set_style(div, "position", "absolute");
+      set_style(div, "left", ctx[1] + "px");
+      set_style(div, "top", ctx[2] + "px");
+    },
+    m(target, anchor) {
+      insert_hydration(target, div, anchor);
+      if (default_slot_or_fallback) {
+        default_slot_or_fallback.m(div, null);
+      }
+      ctx[12](div);
+      current = true;
+    },
+    p(ctx2, [dirty]) {
+      if (default_slot) {
+        if (default_slot.p && (!current || dirty & 1024)) {
+          update_slot_base(
+            default_slot,
+            default_slot_template,
+            ctx2,
+            ctx2[10],
+            !current ? get_all_dirty_from_scope(ctx2[10]) : get_slot_changes(default_slot_template, ctx2[10], dirty, null),
+            null
+          );
+        }
+      }
+      if (!current || dirty & 2) {
+        set_style(div, "left", ctx2[1] + "px");
+      }
+      if (!current || dirty & 4) {
+        set_style(div, "top", ctx2[2] + "px");
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(default_slot_or_fallback, local);
+      current = true;
+    },
+    o(local) {
+      transition_out(default_slot_or_fallback, local);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching)
+        detach(div);
+      if (default_slot_or_fallback)
+        default_slot_or_fallback.d(detaching);
+      ctx[12](null);
+    }
+  };
+}
+function instance$4($$self, $$props, $$invalidate) {
+  let { $$slots: slots = {}, $$scope } = $$props;
+  let { sx = 0 } = $$props;
+  let { sy = 0 } = $$props;
+  let { ex = 0 } = $$props;
+  let { ey = 0 } = $$props;
+  let { as = 0 } = $$props;
+  let { mounted = false } = $$props;
+  let handle;
+  const dispatch = createEventDispatcher();
+  let x = 0;
+  let y = 0;
+  let tracker;
+  let width;
+  onDestroy(() => {
+    tracker == null ? void 0 : tracker.stop();
+  });
+  function div_binding($$value) {
+    binding_callbacks[$$value ? "unshift" : "push"](() => {
+      handle = $$value;
+      $$invalidate(0, handle);
+    });
+  }
+  $$self.$$set = ($$props2) => {
+    if ("sx" in $$props2)
+      $$invalidate(3, sx = $$props2.sx);
+    if ("sy" in $$props2)
+      $$invalidate(4, sy = $$props2.sy);
+    if ("ex" in $$props2)
+      $$invalidate(5, ex = $$props2.ex);
+    if ("ey" in $$props2)
+      $$invalidate(6, ey = $$props2.ey);
+    if ("as" in $$props2)
+      $$invalidate(7, as = $$props2.as);
+    if ("mounted" in $$props2)
+      $$invalidate(8, mounted = $$props2.mounted);
+    if ("$$scope" in $$props2)
+      $$invalidate(10, $$scope = $$props2.$$scope);
+  };
+  $$self.$$.update = () => {
+    if ($$self.$$.dirty & 769) {
+      if (mounted && handle && (handle == null ? void 0 : handle.parentNode)) {
+        $$invalidate(9, { width } = handle.parentNode.getBoundingClientRect(), width);
+        $$invalidate(1, x = width);
+        dispatch("ready", { handle });
+      }
+    }
+    if ($$self.$$.dirty & 129) {
+      if (handle && as > 0) {
+        $$invalidate(2, y = -(handle == null ? void 0 : handle.offsetHeight));
+      } else {
+        $$invalidate(2, y = 0);
+      }
+    }
+    if ($$self.$$.dirty & 153) {
+      if (handle && (!!sy || !!sx) && as < 0.6 && as > -0.6) {
+        $$invalidate(1, x = -(handle == null ? void 0 : handle.offsetWidth));
+      } else if (!!sy || !!sx) {
+        $$invalidate(1, x = 0);
+      }
+    }
+  };
+  return [handle, x, y, sx, sy, ex, ey, as, mounted, width, $$scope, slots, div_binding];
+}
+class Delegate extends SvelteComponent {
+  constructor(options) {
+    super();
+    init(this, options, instance$4, create_fragment$4, safe_not_equal, {
+      sx: 3,
+      sy: 4,
+      ex: 5,
+      ey: 6,
+      as: 7,
+      mounted: 8
+    });
+  }
+  get sx() {
+    return this.$$.ctx[3];
+  }
+  set sx(sx) {
+    this.$$set({ sx });
+    flush();
+  }
+  get sy() {
+    return this.$$.ctx[4];
+  }
+  set sy(sy) {
+    this.$$set({ sy });
+    flush();
+  }
+  get ex() {
+    return this.$$.ctx[5];
+  }
+  set ex(ex) {
+    this.$$set({ ex });
+    flush();
+  }
+  get ey() {
+    return this.$$.ctx[6];
+  }
+  set ey(ey) {
+    this.$$set({ ey });
+    flush();
+  }
+  get as() {
+    return this.$$.ctx[7];
+  }
+  set as(as) {
+    this.$$set({ as });
+    flush();
+  }
+  get mounted() {
+    return this.$$.ctx[8];
+  }
+  set mounted(mounted) {
+    this.$$set({ mounted });
+    flush();
   }
 }
 function create_fragment$3(ctx) {
@@ -2981,13 +3820,6 @@ class Skew extends SvelteComponent {
     init(this, options, instance$3, create_fragment$3, safe_not_equal, { color: 0 });
   }
 }
-function cubicOut(t) {
-  const f = t - 1;
-  return f * f * f + 1;
-}
-function quintOut(t) {
-  return --t * t * t * t * t + 1;
-}
 function fly(node, { delay = 0, duration = 400, easing = cubicOut, x = 0, y = 0, opacity = 0 } = {}) {
   const style = getComputedStyle(node);
   const target_opacity = +style.opacity;
@@ -3004,7 +3836,7 @@ function fly(node, { delay = 0, duration = 400, easing = cubicOut, x = 0, y = 0,
 }
 const get_extra_slot_changes = (dirty) => ({});
 const get_extra_slot_context = (ctx) => ({});
-function create_if_block$2(ctx) {
+function create_if_block$1(ctx) {
   let div2;
   let div1;
   let div0;
@@ -3169,7 +4001,7 @@ function create_if_block$2(ctx) {
 function create_fragment$2(ctx) {
   let if_block_anchor;
   let current;
-  let if_block = ctx[0] && create_if_block$2(ctx);
+  let if_block = ctx[0] && create_if_block$1(ctx);
   return {
     c() {
       if (if_block)
@@ -3195,7 +4027,7 @@ function create_fragment$2(ctx) {
             transition_in(if_block, 1);
           }
         } else {
-          if_block = create_if_block$2(ctx2);
+          if_block = create_if_block$1(ctx2);
           if_block.c();
           transition_in(if_block, 1);
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -3261,260 +4093,131 @@ class Toast extends SvelteComponent {
     init(this, options, instance$2, create_fragment$2, safe_not_equal, { transition: 2, toast: 3 });
   }
 }
-function create_if_block$1(ctx) {
-  let span;
+function create_default_slot$1(ctx) {
   let t;
   return {
     c() {
-      span = element("span");
-      t = text("\u2192");
-      this.h();
+      t = text("Connect Me");
     },
     l(nodes) {
-      span = claim_element(nodes, "SPAN", { class: true });
-      var span_nodes = children(span);
-      t = claim_text(span_nodes, "\u2192");
-      span_nodes.forEach(detach);
-      this.h();
-    },
-    h() {
-      attr(span, "class", "text-lg font-semibold");
-    },
-    m(target, anchor) {
-      insert_hydration(target, span, anchor);
-      append_hydration(span, t);
-    },
-    d(detaching) {
-      if (detaching)
-        detach(span);
-    }
-  };
-}
-function fallback_block(ctx) {
-  let t;
-  let if_block_anchor;
-  let if_block = ctx[3] && create_if_block$1();
-  return {
-    c() {
-      t = text("Connect");
-      if (if_block)
-        if_block.c();
-      if_block_anchor = empty();
-    },
-    l(nodes) {
-      t = claim_text(nodes, "Connect");
-      if (if_block)
-        if_block.l(nodes);
-      if_block_anchor = empty();
+      t = claim_text(nodes, "Connect Me");
     },
     m(target, anchor) {
       insert_hydration(target, t, anchor);
-      if (if_block)
-        if_block.m(target, anchor);
-      insert_hydration(target, if_block_anchor, anchor);
-    },
-    p(ctx2, dirty) {
-      if (ctx2[3]) {
-        if (if_block)
-          ;
-        else {
-          if_block = create_if_block$1();
-          if_block.c();
-          if_block.m(if_block_anchor.parentNode, if_block_anchor);
-        }
-      } else if (if_block) {
-        if_block.d(1);
-        if_block = null;
-      }
     },
     d(detaching) {
       if (detaching)
         detach(t);
-      if (if_block)
-        if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
     }
   };
 }
 function create_fragment$1(ctx) {
-  let div;
+  let delegate;
   let current;
-  const default_slot_template = ctx[12].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[11], null);
-  const default_slot_or_fallback = default_slot || fallback_block(ctx);
+  delegate = new Delegate({
+    props: {
+      mounted: ctx[0],
+      as: ctx[1],
+      sx: ctx[2],
+      sy: ctx[3],
+      $$slots: { default: [create_default_slot$1] },
+      $$scope: { ctx }
+    }
+  });
+  delegate.$on("ready", ctx[4]);
   return {
     c() {
-      div = element("div");
-      if (default_slot_or_fallback)
-        default_slot_or_fallback.c();
-      this.h();
+      create_component(delegate.$$.fragment);
     },
     l(nodes) {
-      div = claim_element(nodes, "DIV", { class: true, style: true });
-      var div_nodes = children(div);
-      if (default_slot_or_fallback)
-        default_slot_or_fallback.l(div_nodes);
-      div_nodes.forEach(detach);
-      this.h();
-    },
-    h() {
-      attr(div, "class", "cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50");
-      set_style(div, "position", "absolute");
-      set_style(div, "left", ctx[1] + "px");
-      set_style(div, "top", ctx[2] + "px");
+      claim_component(delegate.$$.fragment, nodes);
     },
     m(target, anchor) {
-      insert_hydration(target, div, anchor);
-      if (default_slot_or_fallback) {
-        default_slot_or_fallback.m(div, null);
-      }
-      ctx[13](div);
+      mount_component(delegate, target, anchor);
       current = true;
     },
     p(ctx2, [dirty]) {
-      if (default_slot) {
-        if (default_slot.p && (!current || dirty & 2048)) {
-          update_slot_base(
-            default_slot,
-            default_slot_template,
-            ctx2,
-            ctx2[11],
-            !current ? get_all_dirty_from_scope(ctx2[11]) : get_slot_changes(default_slot_template, ctx2[11], dirty, null),
-            null
-          );
-        }
-      } else {
-        if (default_slot_or_fallback && default_slot_or_fallback.p && (!current || dirty & 8)) {
-          default_slot_or_fallback.p(ctx2, !current ? -1 : dirty);
-        }
+      const delegate_changes = {};
+      if (dirty & 1)
+        delegate_changes.mounted = ctx2[0];
+      if (dirty & 2)
+        delegate_changes.as = ctx2[1];
+      if (dirty & 4)
+        delegate_changes.sx = ctx2[2];
+      if (dirty & 8)
+        delegate_changes.sy = ctx2[3];
+      if (dirty & 32) {
+        delegate_changes.$$scope = { dirty, ctx: ctx2 };
       }
-      if (!current || dirty & 2) {
-        set_style(div, "left", ctx2[1] + "px");
-      }
-      if (!current || dirty & 4) {
-        set_style(div, "top", ctx2[2] + "px");
-      }
+      delegate.$set(delegate_changes);
     },
     i(local) {
       if (current)
         return;
-      transition_in(default_slot_or_fallback, local);
+      transition_in(delegate.$$.fragment, local);
       current = true;
     },
     o(local) {
-      transition_out(default_slot_or_fallback, local);
+      transition_out(delegate.$$.fragment, local);
       current = false;
     },
     d(detaching) {
-      if (detaching)
-        detach(div);
-      if (default_slot_or_fallback)
-        default_slot_or_fallback.d(detaching);
-      ctx[13](null);
+      destroy_component(delegate, detaching);
     }
   };
 }
 function instance$1($$self, $$props, $$invalidate) {
-  let { $$slots: slots = {}, $$scope } = $$props;
-  let { handle } = $$props;
-  let { trigger } = $$props;
+  let { mounted = false } = $$props;
+  let { as = 0 } = $$props;
   let { sx = 0 } = $$props;
   let { sy = 0 } = $$props;
-  let { ex = 0 } = $$props;
-  let { ey = 0 } = $$props;
-  let { as = 0 } = $$props;
-  let x = 0;
-  let y = 0;
-  let tracker;
-  let width;
-  let loaded = true;
-  onDestroy(() => {
-    tracker == null ? void 0 : tracker.stop();
-  });
-  function div_binding($$value) {
-    binding_callbacks[$$value ? "unshift" : "push"](() => {
-      handle = $$value;
-      $$invalidate(0, handle);
-    });
+  function ready_handler(event) {
+    bubble.call(this, $$self, event);
   }
   $$self.$$set = ($$props2) => {
-    if ("handle" in $$props2)
-      $$invalidate(0, handle = $$props2.handle);
-    if ("trigger" in $$props2)
-      $$invalidate(4, trigger = $$props2.trigger);
-    if ("sx" in $$props2)
-      $$invalidate(5, sx = $$props2.sx);
-    if ("sy" in $$props2)
-      $$invalidate(6, sy = $$props2.sy);
-    if ("ex" in $$props2)
-      $$invalidate(7, ex = $$props2.ex);
-    if ("ey" in $$props2)
-      $$invalidate(8, ey = $$props2.ey);
+    if ("mounted" in $$props2)
+      $$invalidate(0, mounted = $$props2.mounted);
     if ("as" in $$props2)
-      $$invalidate(9, as = $$props2.as);
-    if ("$$scope" in $$props2)
-      $$invalidate(11, $$scope = $$props2.$$scope);
+      $$invalidate(1, as = $$props2.as);
+    if ("sx" in $$props2)
+      $$invalidate(2, sx = $$props2.sx);
+    if ("sy" in $$props2)
+      $$invalidate(3, sy = $$props2.sy);
   };
-  $$self.$$.update = () => {
-    if ($$self.$$.dirty & 1) {
-      if (handle && (handle == null ? void 0 : handle.parentNode)) {
-        console.log(handle == null ? void 0 : handle.parentNode);
-        $$invalidate(10, { width } = handle.parentNode.getBoundingClientRect(), width);
-      }
-    }
-    if ($$self.$$.dirty & 1041) {
-      if (width && trigger) {
-        $$invalidate(1, x = width);
-        tracker = trigger(handle);
-      }
-    }
-    if ($$self.$$.dirty & 513) {
-      if (handle && as > 0) {
-        $$invalidate(3, loaded = false);
-        $$invalidate(2, y = -(handle == null ? void 0 : handle.offsetHeight));
-      } else {
-        $$invalidate(2, y = 0);
-      }
-    }
-    if ($$self.$$.dirty & 609) {
-      if (handle && (!!sy || !!sx) && as < 0.6 && as > -0.6) {
-        $$invalidate(3, loaded = false);
-        $$invalidate(1, x = -(handle == null ? void 0 : handle.offsetWidth));
-      } else if (!!sy || !!sx) {
-        $$invalidate(1, x = 0);
-      }
-    }
-  };
-  return [
-    handle,
-    x,
-    y,
-    loaded,
-    trigger,
-    sx,
-    sy,
-    ex,
-    ey,
-    as,
-    width,
-    $$scope,
-    slots,
-    div_binding
-  ];
+  return [mounted, as, sx, sy, ready_handler];
 }
-class Delegate extends SvelteComponent {
+class DemoDelegated extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$1, create_fragment$1, safe_not_equal, {
-      handle: 0,
-      trigger: 4,
-      sx: 5,
-      sy: 6,
-      ex: 7,
-      ey: 8,
-      as: 9
-    });
+    init(this, options, instance$1, create_fragment$1, safe_not_equal, { mounted: 0, as: 1, sx: 2, sy: 3 });
+  }
+  get mounted() {
+    return this.$$.ctx[0];
+  }
+  set mounted(mounted) {
+    this.$$set({ mounted });
+    flush();
+  }
+  get as() {
+    return this.$$.ctx[1];
+  }
+  set as(as) {
+    this.$$set({ as });
+    flush();
+  }
+  get sx() {
+    return this.$$.ctx[2];
+  }
+  set sx(sx) {
+    this.$$set({ sx });
+    flush();
+  }
+  get sy() {
+    return this.$$.ctx[3];
+  }
+  set sy(sy) {
+    this.$$set({ sy });
+    flush();
   }
 }
 function get_each_context(ctx, list, i) {
@@ -3827,28 +4530,32 @@ function create_default_slot(ctx) {
   let div3;
   let div2;
   let t3;
+  let br0;
   let t4;
+  let t5;
   let div5;
   let div4;
-  let t5;
   let t6;
+  let br1;
+  let t7;
+  let t8;
   let div10;
   let div7;
-  let t7;
-  let endpoint0;
-  let t8;
-  let endpoint1;
   let t9;
-  let div8;
+  let endpoint0;
   let t10;
-  let endpoint2;
+  let endpoint1;
   let t11;
-  let div9;
+  let div8;
   let t12;
-  let skew;
+  let endpoint2;
   let t13;
-  let endpoint3;
+  let div9;
   let t14;
+  let skew;
+  let t15;
+  let endpoint3;
+  let t16;
   let if_block_anchor;
   let current;
   let mounted;
@@ -3904,29 +4611,33 @@ function create_default_slot(ctx) {
       div6 = element("div");
       div3 = element("div");
       div2 = element("div");
-      t3 = text("Fixed start endpoint, moves once connected.");
-      t4 = space();
+      t3 = text("Delegated Floating ");
+      br0 = element("br");
+      t4 = text("Label Components");
+      t5 = space();
       div5 = element("div");
       div4 = element("div");
-      t5 = text("Fixed plumb point, movable endpoint.");
-      t6 = space();
+      t6 = text("...Starts out fixed, then switches to");
+      br1 = element("br");
+      t7 = text(" movable endpoint once connected.");
+      t8 = space();
       div10 = element("div");
       div7 = element("div");
-      t7 = text("Can we also have an external endpoint?\n				");
+      t9 = text("Can we also have an external endpoint?\n				");
       create_component(endpoint0.$$.fragment);
-      t8 = space();
+      t10 = space();
       create_component(endpoint1.$$.fragment);
-      t9 = space();
-      div8 = element("div");
-      t10 = text("No, libraries cannot do that. Just kidding.\n				");
-      create_component(endpoint2.$$.fragment);
       t11 = space();
+      div8 = element("div");
+      t12 = text("No, libraries cannot do that. Just kidding.\n				");
+      create_component(endpoint2.$$.fragment);
+      t13 = space();
       div9 = element("div");
-      t12 = text("Yes, pass the connectable directive to the component. They can even be ");
+      t14 = text("Yes, pass the connectable directive to the component. They can even be ");
       create_component(skew.$$.fragment);
-      t13 = text(",\n				like this one.\n				");
+      t15 = text(",\n				like this one.\n				");
       create_component(endpoint3.$$.fragment);
-      t14 = space();
+      t16 = space();
       if (if_block)
         if_block.c();
       if_block_anchor = empty();
@@ -3947,48 +4658,52 @@ function create_default_slot(ctx) {
       t2 = claim_space(nodes);
       div6 = claim_element(nodes, "DIV", { class: true });
       var div6_nodes = children(div6);
-      div3 = claim_element(div6_nodes, "DIV", { class: true, id: true });
+      div3 = claim_element(div6_nodes, "DIV", { class: true });
       var div3_nodes = children(div3);
       div2 = claim_element(div3_nodes, "DIV", { class: true });
       var div2_nodes = children(div2);
-      t3 = claim_text(div2_nodes, "Fixed start endpoint, moves once connected.");
+      t3 = claim_text(div2_nodes, "Delegated Floating ");
+      br0 = claim_element(div2_nodes, "BR", {});
+      t4 = claim_text(div2_nodes, "Label Components");
       div2_nodes.forEach(detach);
       div3_nodes.forEach(detach);
-      t4 = claim_space(div6_nodes);
+      t5 = claim_space(div6_nodes);
       div5 = claim_element(div6_nodes, "DIV", { class: true, id: true });
       var div5_nodes = children(div5);
       div4 = claim_element(div5_nodes, "DIV", { class: true });
       var div4_nodes = children(div4);
-      t5 = claim_text(div4_nodes, "Fixed plumb point, movable endpoint.");
+      t6 = claim_text(div4_nodes, "...Starts out fixed, then switches to");
+      br1 = claim_element(div4_nodes, "BR", {});
+      t7 = claim_text(div4_nodes, " movable endpoint once connected.");
       div4_nodes.forEach(detach);
       div5_nodes.forEach(detach);
       div6_nodes.forEach(detach);
-      t6 = claim_space(nodes);
+      t8 = claim_space(nodes);
       div10 = claim_element(nodes, "DIV", { class: true });
       var div10_nodes = children(div10);
       div7 = claim_element(div10_nodes, "DIV", { class: true });
       var div7_nodes = children(div7);
-      t7 = claim_text(div7_nodes, "Can we also have an external endpoint?\n				");
+      t9 = claim_text(div7_nodes, "Can we also have an external endpoint?\n				");
       claim_component(endpoint0.$$.fragment, div7_nodes);
-      t8 = claim_space(div7_nodes);
+      t10 = claim_space(div7_nodes);
       claim_component(endpoint1.$$.fragment, div7_nodes);
       div7_nodes.forEach(detach);
-      t9 = claim_space(div10_nodes);
+      t11 = claim_space(div10_nodes);
       div8 = claim_element(div10_nodes, "DIV", { class: true });
       var div8_nodes = children(div8);
-      t10 = claim_text(div8_nodes, "No, libraries cannot do that. Just kidding.\n				");
+      t12 = claim_text(div8_nodes, "No, libraries cannot do that. Just kidding.\n				");
       claim_component(endpoint2.$$.fragment, div8_nodes);
       div8_nodes.forEach(detach);
-      t11 = claim_space(div10_nodes);
+      t13 = claim_space(div10_nodes);
       div9 = claim_element(div10_nodes, "DIV", { class: true });
       var div9_nodes = children(div9);
-      t12 = claim_text(div9_nodes, "Yes, pass the connectable directive to the component. They can even be ");
+      t14 = claim_text(div9_nodes, "Yes, pass the connectable directive to the component. They can even be ");
       claim_component(skew.$$.fragment, div9_nodes);
-      t13 = claim_text(div9_nodes, ",\n				like this one.\n				");
+      t15 = claim_text(div9_nodes, ",\n				like this one.\n				");
       claim_component(endpoint3.$$.fragment, div9_nodes);
       div9_nodes.forEach(detach);
       div10_nodes.forEach(detach);
-      t14 = claim_space(nodes);
+      t16 = claim_space(nodes);
       if (if_block)
         if_block.l(nodes);
       if_block_anchor = empty();
@@ -3999,7 +4714,6 @@ function create_default_slot(ctx) {
       attr(div1, "class", "flex flex-row justify-around ");
       attr(div2, "class", "block m-2 select-none w-fit");
       attr(div3, "class", "flex flex-col border rounded-lg m-4 p-4 items-center");
-      attr(div3, "id", "From");
       attr(div4, "class", "block m-2 cursor-pointer select-none w-fit");
       attr(div5, "class", "flex flex-col border rounded-lg m-4 p-4 items-center");
       attr(div5, "id", "To");
@@ -4022,35 +4736,39 @@ function create_default_slot(ctx) {
       append_hydration(div6, div3);
       append_hydration(div3, div2);
       append_hydration(div2, t3);
-      append_hydration(div6, t4);
+      append_hydration(div2, br0);
+      append_hydration(div2, t4);
+      append_hydration(div6, t5);
       append_hydration(div6, div5);
       append_hydration(div5, div4);
-      append_hydration(div4, t5);
-      insert_hydration(target, t6, anchor);
+      append_hydration(div4, t6);
+      append_hydration(div4, br1);
+      append_hydration(div4, t7);
+      insert_hydration(target, t8, anchor);
       insert_hydration(target, div10, anchor);
       append_hydration(div10, div7);
-      append_hydration(div7, t7);
+      append_hydration(div7, t9);
       mount_component(endpoint0, div7, null);
-      append_hydration(div7, t8);
+      append_hydration(div7, t10);
       mount_component(endpoint1, div7, null);
-      append_hydration(div10, t9);
-      append_hydration(div10, div8);
-      append_hydration(div8, t10);
-      mount_component(endpoint2, div8, null);
       append_hydration(div10, t11);
+      append_hydration(div10, div8);
+      append_hydration(div8, t12);
+      mount_component(endpoint2, div8, null);
+      append_hydration(div10, t13);
       append_hydration(div10, div9);
-      append_hydration(div9, t12);
+      append_hydration(div9, t14);
       mount_component(skew, div9, null);
-      append_hydration(div9, t13);
+      append_hydration(div9, t15);
       mount_component(endpoint3, div9, null);
-      insert_hydration(target, t14, anchor);
+      insert_hydration(target, t16, anchor);
       if (if_block)
         if_block.m(target, anchor);
       insert_hydration(target, if_block_anchor, anchor);
       current = true;
       if (!mounted) {
         dispose = [
-          action_destroyer(ctx[11].call(null, div3, { startPoint: Delegate })),
+          action_destroyer(ctx[11].call(null, div3, { startPoint: DemoDelegated })),
           action_destroyer(ctx[11].call(null, div5))
         ];
         mounted = true;
@@ -4152,7 +4870,7 @@ function create_default_slot(ctx) {
       if (detaching)
         detach(div6);
       if (detaching)
-        detach(t6);
+        detach(t8);
       if (detaching)
         detach(div10);
       destroy_component(endpoint0);
@@ -4161,7 +4879,7 @@ function create_default_slot(ctx) {
       destroy_component(skew);
       destroy_component(endpoint3);
       if (detaching)
-        detach(t14);
+        detach(t16);
       if (if_block)
         if_block.d(detaching);
       if (detaching)
@@ -4630,4 +5348,4 @@ class Routes extends SvelteComponent {
 export {
   Routes as default
 };
-//# sourceMappingURL=index.svelte-024c56a9.js.map
+//# sourceMappingURL=index.svelte-54752021.js.map

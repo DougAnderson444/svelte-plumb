@@ -24,6 +24,13 @@ function safe_not_equal(a, b) {
 function is_empty(obj) {
   return Object.keys(obj).length === 0;
 }
+function subscribe(store, ...callbacks) {
+  if (store == null) {
+    return noop;
+  }
+  const unsub = store.subscribe(...callbacks);
+  return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
+}
 function create_slot(definition, ctx, $$scope, fn) {
   if (definition) {
     const slot_ctx = get_slot_context(definition, ctx, $$scope, fn);
@@ -67,6 +74,10 @@ function get_all_dirty_from_scope($$scope) {
     return dirty;
   }
   return -1;
+}
+function set_store_value(store, ret, value) {
+  store.set(value);
+  return ret;
 }
 function action_destroyer(action_result) {
   return action_result && is_function(action_result.destroy) ? action_result.destroy : noop;
@@ -508,6 +519,12 @@ function setContext(key, context) {
   get_current_component().$$.context.set(key, context);
   return context;
 }
+function bubble(component, event) {
+  const callbacks = component.$$.callbacks[event.type];
+  if (callbacks) {
+    callbacks.slice().forEach((fn) => fn.call(this, event));
+  }
+}
 const dirty_components = [];
 const binding_callbacks = [];
 const render_callbacks = [];
@@ -723,6 +740,11 @@ const globals = typeof window !== "undefined" ? window : typeof globalThis !== "
 function destroy_block(block, lookup) {
   block.d(1);
   lookup.delete(block.key);
+}
+function outro_and_destroy_block(block, lookup) {
+  transition_out(block, 1, 1, () => {
+    lookup.delete(block.key);
+  });
 }
 function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, lookup, node, destroy, create_each_block, next, get_context) {
   let o = old_blocks.length;
@@ -960,6 +982,7 @@ export {
   attr,
   bind,
   binding_callbacks,
+  bubble,
   check_outros,
   children,
   claim_component,
@@ -977,27 +1000,34 @@ export {
   detach,
   element,
   empty,
+  flush,
   get_all_dirty_from_scope,
   get_slot_changes,
   get_spread_object,
   get_spread_update,
   globals,
   group_outros,
+  identity,
   init,
   insert_hydration,
   is_function,
   listen,
+  loop,
   mount_component,
   noop,
+  now,
   onDestroy,
   onMount,
+  outro_and_destroy_block,
   run_all,
   safe_not_equal,
   setContext,
   set_data,
   set_input_value,
+  set_store_value,
   set_style,
   space,
+  subscribe,
   svg_element,
   text,
   tick,
@@ -1008,4 +1038,4 @@ export {
   update_slot_base,
   xlink_attr
 };
-//# sourceMappingURL=index-9bdb6fb4.js.map
+//# sourceMappingURL=index-082b18d7.js.map
