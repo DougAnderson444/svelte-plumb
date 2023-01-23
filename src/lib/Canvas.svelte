@@ -26,8 +26,8 @@
 
 	let canvas;
 	let connecting;
-	let marker;
-	let tempLink = null; // connecting, temp tempLink from node to marker
+	let marker = null;
+	let tempLink = null; // connecting, temp link from node to marker
 
 	let left = 0;
 	let top = 0;
@@ -61,6 +61,9 @@
 	function connectable(node, options) {
 		if (!node.id) node.id = nanoid();
 
+		// source id can be either data-sourceid or node.id
+		let sourceid = node?.dataset?.sourceid ? node?.dataset?.sourceid : node.id;
+
 		// TODO: Handle absolute nodes, create a relative child?
 		if (
 			!node.style.position ||
@@ -72,7 +75,7 @@
 		let overZone;
 
 		// add to list of nodes to highlight when connecting
-		highlighters[node.id] = { node, highlight };
+		highlighters[sourceid] = { node, highlight };
 
 		// Applying Restrictions
 		// limit source count (single, multiples), target count, etc. # of connections per connectable
@@ -82,16 +85,11 @@
 		// if there is a startPoint, then add that to the nodeElement
 		if (options?.startPoint) {
 			node.dataset[DELEGATOR] = true;
-			// startPoint is a svelte component which is mounte to the node as target
+			// startPoint is a svelte component which is mounted to the node as target
 			// and is used to start the connection
-			startPoint = new options.startPoint({
-				target: node,
-				props: {
-					trigger: (handle) => {
-						return createHandleTracker(node, handle);
-					}
-				}
-			});
+			startPoint = new options.startPoint({ target: node });
+			startPoint.$on('ready', (event) => createHandleTracker(node, event.detail.handle));
+			startPoint.$set({ mounted: true }); // trigger the event fire to the listener above
 		} else {
 			// if no startPoint, then add the whole node as the startPoint
 			createHandleTracker(node);
@@ -121,13 +119,13 @@
 						handler(pointerTracker.currentPointers[0], event);
 
 						tempLink = {
-							id: node.id + '-to-',
-							source: { id: node.id, startPoint: options?.startPoint || false },
+							id: sourceid + '-to-',
+							source: { id: sourceid, startPoint: options?.startPoint || false },
 							target: { id: MARKER },
 							opts: {
 								label: {
 									enabled: true,
-									value: generateLinkLabel(data.nodes, node.id)
+									value: generateLinkLabel(data.nodes, sourceid)
 								}
 							}
 						};
@@ -171,18 +169,16 @@
 
 						// update links
 						const newLink = {
-							id: node.id + '-to-' + zone.id,
-							source: { id: node.id, startPoint: options?.startPoint || false },
+							id: sourceid + '-to-' + zone.id,
+							source: { id: sourceid, startPoint: options?.startPoint || false },
 							target: { id: zone.id },
 							opts: {
 								label: {
 									enabled: true,
-									value: generateLinkLabel(data.nodes, node.id, zone.id)
+									value: generateLinkLabel(data.nodes, sourceid, zone.id)
 								}
 							}
 						};
-
-						console.log({ newLink });
 
 						data.links = [...data.links, newLink];
 
@@ -194,8 +190,6 @@
 									dataset: zone?.dataset?.dataset ? JSON.parse(zone.dataset.dataset) : null
 								}
 							};
-							console.log(detail);
-
 							dispatch('connected', detail);
 						}
 					},
@@ -218,6 +212,8 @@
 			}
 		};
 	}
+
+	const removeLink = (e) => (data.links = data.links.filter((l) => l.id !== e.detail));
 </script>
 
 <svelte:window
@@ -245,9 +241,13 @@
 	{/if}
 
 	<!-- TODO: Tempoary Link while connecting -->
-	<Links links={[tempLink]} {calcOffsetFromCanvas} {...opts?.links} />
+	{#if tempLink}
+		<Links links={[tempLink]} {...opts?.links} />
+	{/if}
 	<!-- All connected links ("permanent") -->
-	<Links links={data.links} {calcOffsetFromCanvas} {...opts?.links} />
+	{#if data.links && data.links.length > 0}
+		<Links links={data.links} {...opts?.links} on:removeLink={removeLink} />
+	{/if}
 
 	<!-- highlighters -->
 	{#each [...Object.entries(highlighters)] as [nodeid, { node, highlight }]}
