@@ -3,8 +3,10 @@
 	// https://github.com/Rich-Harris/svelte-d3-arc-demo/blob/master/src/Viz.svelte
 	// https://github.com/d3/d3-shape/blob/v3.1.0/README.md#_link
 
-	import { onMount } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
 	import { getBoxToBoxArrow } from 'perfect-arrows';
+	import { tweened } from 'svelte/motion';
+	import { clickOutside } from '$lib/directives/clickOutside';
 
 	export let link;
 
@@ -16,6 +18,12 @@
 	export let groupStrokeColor = 'white';
 	export let textStartOffset = 20; // %
 
+	const dispatch = createEventDispatcher();
+
+	let initialStrokeWidth = strokeWidth;
+
+	let stroke;
+	let selected = false;
 	let mounted = false;
 
 	onMount(() => {
@@ -25,7 +33,7 @@
 	let d, pointer;
 	let options = {};
 	let x0, y0, w0, h0, x1, y1, w1, h1;
-	let sx, sy, cx, cy, ex, ey, ae, as, ec;
+	let sx, sy, cx, cy, ex, ey, ae, as, ac;
 
 	$: if (link) genArrow(link);
 
@@ -46,7 +54,7 @@
 		h1 = targetEl.offsetHeight;
 
 		const arrow = getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options);
-		[sx, sy, cx, cy, ex, ey, ae, as, ec] = arrow;
+		[sx, sy, cx, cy, ex, ey, ae, as, ac] = arrow;
 
 		d = `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`;
 		let endAngleAsDegrees = ae * (180 / Math.PI);
@@ -64,11 +72,30 @@
 			left: box.left + window.pageXOffset
 		};
 	}
+	function handleMouseOver(e) {
+		console.log('over', strokeWidth);
+		strokeWidth = initialStrokeWidth * 20; // jump
+	}
+	function handleMouseOut(e) {
+		stroke = tweened(strokeWidth, {
+			duration: 1750
+		});
+		$stroke = initialStrokeWidth; // shrink
+	}
+
+	function handleUnselect(e) {
+		selected = false;
+	}
+
+	$: if ($stroke > initialStrokeWidth) {
+		strokeWidth = $stroke;
+	}
 </script>
 
 {#if link && mounted}
 	<g stroke={groupStrokeColor} stroke-opacity={groupStrokeOpacity}>
 		<path
+			style="pointer-events: stroke; user-select: none; outline: none;"
 			{d}
 			id={link.id}
 			stroke-width={strokeWidth}
@@ -76,6 +103,12 @@
 			fill="none"
 			stroke-linecap="round"
 			stroke-opacity={strokeOpacity}
+			on:click={() => (selected = !selected)}
+			on:mouseover={handleMouseOver}
+			on:mouseout={handleMouseOut}
+			on:focus={handleMouseOver}
+			on:blur={handleMouseOut}
+			use:clickOutside={{ enabled: selected, handleUnselect }}
 		/>
 		<!-- Always have text left to right (English) -->
 		{#if sx < ex}
@@ -94,13 +127,27 @@
 			<!-- default to plain circle -->
 			<circle cx={sx} cy={sy} r={4} />
 		</slot>
-		<slot name="endPoint" {sx} {sy} {ex} {ey}>
+		<slot name="endPoint" {sx} {sy} {ex} {ey} {pointer}>
 			<!-- Default if no named slot endPoint included in Parent component -->
 			{#if pointer}
 				<!-- Arrow Pointer -->
 				<polygon points="0,-6 12,0, 0,6" transform={pointer} fill={arrowColor} />
 			{/if}
 		</slot>
+		{#if selected}
+			<!-- Draw an unfilled svg circle -->
+			<circle cx={ex} cy={ey} r={12} fill="none" stroke="blue" />
+			<!-- Draw a red delete "x" at cx, cy with stroke opacity 0.6-->
+			<foreignObject class="overflow-visible pointer-events-auto relative" x={cx} y={cy}>
+				<div
+					on:click={() => dispatch('removeLink', link.id)}
+					class="w-24 h-24 font-mono text-red-500 text-2xl cursor-pointer"
+					style="font-family: 'Luckiest Guy';"
+				>
+					X
+				</div>
+			</foreignObject>
+		{/if}
 	</g>
 {/if}
 
