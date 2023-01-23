@@ -9,6 +9,7 @@ Going for the simplest svg drawing API _ever_.
 - [x] Connect Elements and EndPoints
 - [x] Touch/Mobile friendly
 - [x] Restrictive options for connectables (start only, drop only)
+- [x] Delegate connectable to a label, which follows the path arrow after connect
 
 ![Demo](static/thumb.png)
 
@@ -110,6 +111,35 @@ function handleConnected(e) {
 	<div use:connectable{{ dataset: { point: 'B' }, restrictions: { dropOnly: true } }}>Point B</div>
 </Canvas>;
 
+```
+
+## Use with Optional Delegated Connect Component
+
+You can make a component connectable by wrapping it in the `Delegate` component. This is useful if you want to make a label connectable, but don't want to make the whole component connectable.
+
+First, make the component by wrapping it in the `Delegate` componentwith the `mounted` prop and the `on:ready` event listener, which is used internally by the `svelte-plumb` action directive.
+
+```svelte
+<!-- Set accessors true -->
+<svelte:options accessors={true} />
+
+<script>
+	import Delegate from '@douganderson444/svelte-plumb';
+	export let mounted;
+</script>
+
+<!-- Wrap in Delegate Component, with mounted prop and on:ready listener -->
+<Delegate {mounted} on:ready>Connect Me</Delegate>
+```
+
+Once your custom delegated component is wrapped, you can use it in the `use:connectable` directive.
+
+```svelte
+<script>
+	import DemoDelegated from  ./DemoDelegated.svelte
+</script>
+
+<div use:connectable={{ startPoint: DemoDelegated }}>Has a connect component</div>
 ```
 
 ### All Options
