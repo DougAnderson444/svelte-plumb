@@ -1,8 +1,6 @@
 # Svelte Plumb
 
-Experimental Work In Progress.
-
-Going for the simplest svg drawing API _ever_.
+Connect HTML Elements with SVG paths. Aiming for a simple API.
 
 - [x] Simple API
 - [x] Defaults + Customization
@@ -30,6 +28,8 @@ The bare minimum is a framework Component wrapper (in this case, Svelte) because
 QED, as my high school math teacher would say.
 
 ## API
+
+HTML elements need an `id`, if they don't have one, a random one will be generated for them. This is used to connect the elements using `element.getElementById()`.
 
 ### Basic Use
 
@@ -99,7 +99,7 @@ You can also pass data to the `on:connected` event by setting options on the `us
 
 ```svelte
 <script>
-import {Canvas} from '@douganderson444/svelte-plumb';
+import { Canvas } from '@douganderson444/svelte-plumb';
 
 function handleConnected(e) {
 	console.log(e.detail.source?.dataset?.point + ' to ' + e.detail.target?.dataset?.point); // A to B
@@ -126,7 +126,7 @@ First, make the component by wrapping it in the `Delegate` componentwith the `mo
 <svelte:options accessors={true} />
 
 <script>
-	import Delegate from '@douganderson444/svelte-plumb';
+	import { Delegate } from '@douganderson444/svelte-plumb';
 	export let mounted;
 	export let as; // angleStart, if you want the position of the component to adjust above or below the component
 </script>
@@ -194,6 +194,7 @@ https://svelte.dev/repl/cf05fb3c64674978a717ce1f861a82c0?version=3.49.0
 - [ ] Move end points
 - [ ] Add option: number of connectiosn allowed
 - [ ] Disable duplicate links
+- [ ] Better label API
 
 # Inspiration
 
@@ -202,3 +203,5 @@ https://svelte.dev/repl/cf05fb3c64674978a717ce1f861a82c0?version=3.49.0
 [https://github.com/bpmn-io/diagram-js](https://github.com/bpmn-io/diagram-js)
 
 CSS by [https://tailwindcss.com/](https://tailwindcss.com/)
+
+[Natto](https://natto.dev/)
