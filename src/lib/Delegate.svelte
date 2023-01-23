@@ -1,12 +1,11 @@
+<svelte:options accessors={true} />
+
 <script>
 	// @ts-nocheck
 
 	// The delegated start point component is on the top right hand side of the parent element
-	import { onDestroy } from 'svelte';
-	import { DELEGATOR } from './constants.js';
-
-	export let handle; // bind this var to your custom handle
-	export let trigger; // passed down from resizable.js
+	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+	import { DROPZONE } from './constants.js';
 
 	export let sx = 0; // starting x
 	export let sy = 0;
@@ -14,20 +13,23 @@
 	export let ey = 0;
 	export let as = 0; // angle start
 
+	export let mounted = false;
+
+	let handle; // bind this var to your custom handle
+
+	const dispatch = createEventDispatcher();
+
 	let x = 0;
 	let y = 0;
 
 	let tracker; // pointer-tracker
 	let width;
 
-	$: if (handle && handle?.parentNode) {
-		console.log(handle?.parentNode);
+	$: if (mounted && handle && handle?.parentNode) {
+		// console.log(handle?.parentNode, `[data-${DROPZONE}]`, handle?.closest(`[data-${DROPZONE}]`));
 		({ width } = handle.parentNode.getBoundingClientRect());
-	}
-
-	$: if (width && trigger) {
 		x = width; // initialize position to far right corner
-		tracker = trigger(handle); // let the directive know what/where the resize handle is
+		dispatch('ready', { handle }); // let the parent know we're ready to track
 	}
 
 	// update if sy or ey changes
@@ -38,9 +40,9 @@
 	}
 
 	// update x offset to the left if sx is on the far left of the handle element
-	$: if (handle && !!sy && as < 0.6 && as > -0.6) {
+	$: if (handle && (!!sy || !!sx) && as < 0.6 && as > -0.6) {
 		x = -handle?.offsetWidth;
-	} else if (!!sy) {
+	} else if (!!sy || !!sx) {
 		x = 0;
 	}
 
@@ -56,6 +58,6 @@
 >
 	<slot
 		>Connect
-		<!-- {as.toFixed(1) || 0}° -->
+		<!-- {as.toFixed(1) || 0}° @ {x.toFixed(0)}, {y.toFixed(0)} -->
 	</slot>
 </div>

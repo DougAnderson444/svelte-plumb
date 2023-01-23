@@ -5,10 +5,7 @@
 	import Skew from '$lib/Skew.svelte';
 	import Toast from '$lib/Toast.svelte';
 	import Delegate from '$lib/Delegate.svelte';
-
-	import { quintOut } from 'svelte/easing';
-	import { crossfade } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
+	import DemoDelegated from '$lib/DemoDelegated.svelte';
 
 	let types = { emojii: 'emojii', description: 'description' };
 
@@ -88,14 +85,13 @@
 		<div class="flex flex-row justify-around ">
 			<div
 				class="flex flex-col border rounded-lg m-4 p-4 items-center"
-				use:connectable={{ startPoint: Delegate }}
-				id={'From'}
+				use:connectable={{ startPoint: DemoDelegated }}
 			>
-				<div class="block m-2 select-none w-fit">Fixed start endpoint, moves once connected.</div>
+				<div class="block m-2 select-none w-fit">Delegated Floating <br />Label Components</div>
 			</div>
 			<div class="flex flex-col border rounded-lg m-4 p-4 items-center" use:connectable id={'To'}>
 				<div class="block m-2 cursor-pointer select-none w-fit">
-					Fixed plumb point, movable endpoint.
+					...Starts out fixed, then switches to<br /> movable endpoint once connected.
 				</div>
 			</div>
 		</div>
