@@ -1,5 +1,6 @@
 // get data nodes value from matching node.id
 export const generateLinkLabel = (nodes, sourceID, targetID = false) => {
+	if (!nodes) return '';
 	const match = nodes.find((el) => el.id == sourceID);
 	if (!match || !match.value) return '';
 	if (!targetID) return match.value + ' to';

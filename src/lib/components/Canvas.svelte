@@ -125,7 +125,7 @@
 							opts: {
 								label: {
 									enabled: true,
-									value: generateLinkLabel(data.nodes, sourceid)
+									value: generateLinkLabel(data?.nodes, sourceid)
 								}
 							}
 						};
@@ -175,7 +175,7 @@
 							opts: {
 								label: {
 									enabled: true,
-									value: generateLinkLabel(data.nodes, sourceid, zone.id)
+									value: generateLinkLabel(data?.nodes, sourceid, zone.id)
 								}
 							}
 						};
