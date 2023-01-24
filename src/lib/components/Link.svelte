@@ -103,6 +103,7 @@
 			fill="none"
 			stroke-linecap="round"
 			stroke-opacity={strokeOpacity}
+			stroke-dasharray="4"
 			on:click={() => (selected = !selected)}
 			on:mouseover={handleMouseOver}
 			on:mouseout={handleMouseOut}
@@ -138,7 +139,13 @@
 			<!-- Draw an unfilled svg circle -->
 			<circle cx={ex} cy={ey} r={12} fill="none" stroke="blue" />
 			<!-- Draw a red delete "x" at cx, cy with stroke opacity 0.6-->
-			<foreignObject class="overflow-visible pointer-events-auto relative" x={cx} y={cy}>
+			<foreignObject
+				class="overflow-visible pointer-events-auto relative"
+				x={cx}
+				y={cy}
+				width="50"
+				height="50"
+			>
 				<div
 					on:click={() => dispatch('removeLink', link.id)}
 					class="w-fit h-fit font-mono text-red-500 text-2xl cursor-pointer select-none"
