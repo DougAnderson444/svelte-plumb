@@ -80,7 +80,6 @@
 		// Applying Restrictions
 		// limit source count (single, multiples), target count, etc. # of connections per connectable
 		let pointerTracker;
-
 		let startPoint;
 		// if there is a startPoint, then add that to the nodeElement
 		if (options?.startPoint?.component) {

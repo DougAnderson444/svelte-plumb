@@ -46,7 +46,14 @@
 						{#if link?.source?.startPoint}
 							<!-- foreignObject alows us to put HTML inside an SVG element -->
 							<foreignObject class="overflow-visible pointer-events-auto relative" x={sx} y={sy}>
-								<svelte:component this={link.source.startPoint} {sx} {sy} {ex} {ey} {as} />
+								<svelte:component
+									this={link.source.startPoint.component}
+									{sx}
+									{sy}
+									{ex}
+									{ey}
+									{as}
+								/>
 							</foreignObject>
 						{:else}
 							<!-- default to plain circle -->
@@ -57,7 +64,7 @@
 						{#if link?.source?.endPoint}
 							<!-- foreignObject alows us to put HTML inside an SVG element -->
 							<foreignObject class="overflow-visible pointer-events-auto relative" x={sx} y={sy}>
-								<svelte:component this={link.source.startPoint} {sx} {sy} {ex} {ey} {as} />
+								<svelte:component this={link.source.endPoint.component} {sx} {sy} {ex} {ey} {as} />
 							</foreignObject>
 						{:else}
 							<!-- Default if no named slot endPoint included in Parent component -->

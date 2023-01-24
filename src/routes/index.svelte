@@ -85,7 +85,7 @@
 		<div class="flex flex-row justify-around ">
 			<div
 				class="flex flex-col border rounded-lg m-4 p-4 items-center"
-				use:connectable={{ startPoint: DemoDelegated }}
+				use:connectable={{ startPoint: { component: DemoDelegated, show: true } }}
 			>
 				<div class="block m-2 select-none w-fit">Delegated Floating <br />Label Components</div>
 			</div>
