@@ -83,11 +83,16 @@
 
 		let startPoint;
 		// if there is a startPoint, then add that to the nodeElement
-		if (options?.startPoint) {
+		if (options?.startPoint?.component) {
 			node.dataset[DELEGATOR] = true;
 			// startPoint is a svelte component which is mounted to the node as target
 			// and is used to start the connection
-			startPoint = new options.startPoint({ target: node });
+			startPoint = new options.startPoint.component({
+				target: node,
+				props: {
+					show: options.startPoint?.show || true
+				}
+			});
 			startPoint.$on('ready', (event) => createHandleTracker(node, event.detail.handle));
 			startPoint.$set({ mounted: true }); // trigger the event fire to the listener above
 		} else {
@@ -203,6 +208,7 @@
 			update(params) {
 				// the value of `params` has changed
 				options = params;
+				if (startPoint) startPoint.$set({ show: options?.startPoint?.show || true }); // default to true if no show value is passed
 			},
 
 			destroy() {

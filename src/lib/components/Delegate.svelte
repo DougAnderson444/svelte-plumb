@@ -9,11 +9,12 @@
 
 	export let sx = 0; // starting x
 	export let sy = 0;
-	export let ex = 0; // ending x
-	export let ey = 0;
+	// export let ex = 0; // ending x
+	// export let ey = 0;
 	export let as = 0; // angle start
 
 	export let mounted = false;
+	export let show = true; // boolean toggle whether to show the resizer handle or not
 
 	let handle; // bind this var to your custom handle
 
@@ -32,13 +33,15 @@
 	$: x = handle && (!!sy || !!sx) && as < 0.6 && as > -0.6 ? 0 : -handle?.offsetWidth;
 </script>
 
-<div
-	bind:this={handle}
-	class="cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50"
-	style="position: absolute; right:{x}px; top:{y}px;"
->
-	<slot
-		>Connect
-		<!-- {as.toFixed(1) || 0}° @ {x.toFixed(0)}, {y.toFixed(0)} -->
-	</slot>
-</div>
+{#if show}
+	<div
+		bind:this={handle}
+		class="cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50"
+		style="position: absolute; right:{x}px; top:{y}px;"
+	>
+		<slot
+			>Connect
+			<!-- {as.toFixed(1) || 0}° @ {x.toFixed(0)}, {y.toFixed(0)} -->
+		</slot>
+	</div>
+{/if}

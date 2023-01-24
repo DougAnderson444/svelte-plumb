@@ -143,7 +143,9 @@ Once your custom delegated component is wrapped, you can use it in the `use:conn
 	import DemoDelegated from './DemoDelegated.svelte';
 </script>
 
-<div use:connectable={{ startPoint: DemoDelegated }}>Has a connect component</div>
+<div use:connectable={{ startPoint: { component: DemoDelegated, show: true } }}>
+	Has a connect component
+</div>
 ```
 
 ### All Options
