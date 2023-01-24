@@ -1,7 +1,6 @@
 export function clickOutside(node, { enabled: initialEnabled, handleUnselect }) {
 	const handleOutsideClick = ({ target }) => {
 		if (node !== target && node.parentElement != target.parentElement && !node.contains(target)) {
-			console.log('handleUnselect', node !== target, node.parentElement != target.parentElement);
 			handleUnselect();
 		}
 	};
