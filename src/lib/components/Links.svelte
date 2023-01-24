@@ -25,7 +25,6 @@
 	onMount(() => {
 		mounted = true;
 	});
-	console.log('links', { links });
 </script>
 
 {#if mounted && links && links.length > 0}
