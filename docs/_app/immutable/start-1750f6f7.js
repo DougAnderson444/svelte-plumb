@@ -748,7 +748,7 @@ const matchers = {};
 const components = [
   () => __vitePreload(() => import("./pages/__layout.svelte-dd7523ff.js"), true ? ["_app/immutable/pages/__layout.svelte-dd7523ff.js","_app/immutable/assets/__layout-53d4967d.css","_app/immutable/chunks/index-c4dc6e20.js"] : void 0),
   () => __vitePreload(() => import("./error.svelte-8187b40d.js"), true ? ["_app/immutable/error.svelte-8187b40d.js","_app/immutable/chunks/index-c4dc6e20.js"] : void 0),
-  () => __vitePreload(() => import("./pages/index.svelte-5532ce4e.js"), true ? ["_app/immutable/pages/index.svelte-5532ce4e.js","_app/immutable/assets/index-1588a27f.css","_app/immutable/chunks/index-c4dc6e20.js","_app/immutable/chunks/index-679a6cd0.js"] : void 0)
+  () => __vitePreload(() => import("./pages/index.svelte-6839738d.js"), true ? ["_app/immutable/pages/index.svelte-6839738d.js","_app/immutable/assets/index-1588a27f.css","_app/immutable/chunks/index-c4dc6e20.js","_app/immutable/chunks/index-679a6cd0.js"] : void 0)
 ];
 const dictionary = {
   "": [[0, 2], [1]]
@@ -897,7 +897,7 @@ function create_updated_store() {
     });
     if (res.ok) {
       const { version } = await res.json();
-      const updated = version !== "1674514741325";
+      const updated = version !== "1674583564080";
       if (updated) {
         set(true);
         clearTimeout(timeout);
@@ -1929,4 +1929,4 @@ export {
   set_public_env,
   start
 };
-//# sourceMappingURL=start-f1cbc68e.js.map
+//# sourceMappingURL=start-1750f6f7.js.map
