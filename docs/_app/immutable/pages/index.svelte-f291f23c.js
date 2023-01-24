@@ -1684,7 +1684,7 @@ function create_if_block_4(ctx) {
   let foreignObject_x_value;
   let foreignObject_y_value;
   let current;
-  var switch_value = ctx[10].source.startPoint;
+  var switch_value = ctx[10].source.startPoint.component;
   function switch_props(ctx2) {
     return {
       props: {
@@ -1738,7 +1738,7 @@ function create_if_block_4(ctx) {
         switch_instance_changes.ey = ctx2[16];
       if (dirty & 131072)
         switch_instance_changes.as = ctx2[17];
-      if (switch_value !== (switch_value = ctx2[10].source.startPoint)) {
+      if (switch_value !== (switch_value = ctx2[10].source.startPoint.component)) {
         if (switch_instance) {
           group_outros();
           const old_component = switch_instance;
@@ -1902,7 +1902,7 @@ function create_if_block_2$1(ctx) {
   let foreignObject_x_value;
   let foreignObject_y_value;
   let current;
-  var switch_value = ctx[10].source.startPoint;
+  var switch_value = ctx[10].source.endPoint.component;
   function switch_props(ctx2) {
     return {
       props: {
@@ -1956,7 +1956,7 @@ function create_if_block_2$1(ctx) {
         switch_instance_changes.ey = ctx2[16];
       if (dirty & 131072)
         switch_instance_changes.as = ctx2[17];
-      if (switch_value !== (switch_value = ctx2[10].source.startPoint)) {
+      if (switch_value !== (switch_value = ctx2[10].source.endPoint.component)) {
         if (switch_instance) {
           group_outros();
           const old_component = switch_instance;
@@ -4814,7 +4814,9 @@ function create_default_slot(ctx) {
       current = true;
       if (!mounted) {
         dispose = [
-          action_destroyer(ctx[11].call(null, div3, { startPoint: DemoDelegated })),
+          action_destroyer(ctx[11].call(null, div3, {
+            startPoint: { component: DemoDelegated, show: true }
+          })),
           action_destroyer(ctx[11].call(null, div5))
         ];
         mounted = true;
@@ -5394,4 +5396,4 @@ class Routes extends SvelteComponent {
 export {
   Routes as default
 };
-//# sourceMappingURL=index.svelte-6839738d.js.map
+//# sourceMappingURL=index.svelte-f291f23c.js.map
