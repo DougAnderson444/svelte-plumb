@@ -7,6 +7,7 @@
 	import Link from './Link.svelte';
 
 	export let links;
+	export let scale;
 
 	// some defaults
 	export let strokeColor = 'currentColor';
@@ -28,7 +29,7 @@
 </script>
 
 {#if mounted && links && links.length > 0}
-	<svg style="pointer-events: none;">
+	<svg style="pointer-events: none; overflow: visible;">
 		{#each links as link (link.id)}
 			{#if link && mounted}
 				<Link
@@ -40,20 +41,22 @@
 					{groupStrokeOpacity}
 					{groupStrokeColor}
 					{textStartOffset}
+					{scale}
 					on:removeLink
 				>
 					<svelte:fragment slot="startPoint" let:sx let:sy let:ex let:ey let:as>
-						{#if link?.source?.startPoint}
+						{#if link?.source?.startPoint?.component}
 							<!-- foreignObject alows us to put HTML inside an SVG element -->
-							<foreignObject class="overflow-visible pointer-events-auto relative" x={sx} y={sy}>
-								<svelte:component
-									this={link.source.startPoint.component}
-									{sx}
-									{sy}
-									{ex}
-									{ey}
-									{as}
-								/>
+							<foreignObject
+								style:overflow="visible"
+								style:position="relative"
+								style:pointer-events="auto"
+								x={sx}
+								y={sy}
+								width="50"
+								height="50"
+							>
+								<svelte:component this={link.source.startPoint.component} {sx} {sy} {as} />
 							</foreignObject>
 						{:else}
 							<!-- default to plain circle -->
@@ -61,9 +64,15 @@
 						{/if}
 					</svelte:fragment>
 					<svelte:fragment slot="endPoint" let:sx let:sy let:ex let:ey let:as let:pointer>
-						{#if link?.source?.endPoint}
+						{#if link?.source?.endPoint?.component}
 							<!-- foreignObject alows us to put HTML inside an SVG element -->
-							<foreignObject class="overflow-visible pointer-events-auto relative" x={sx} y={sy}>
+							<foreignObject
+								class="overflow-visible pointer-events-auto relative"
+								x={sx}
+								y={sy}
+								width="50"
+								height="50"
+							>
 								<svelte:component this={link.source.endPoint.component} {sx} {sy} {ex} {ey} {as} />
 							</foreignObject>
 						{:else}
