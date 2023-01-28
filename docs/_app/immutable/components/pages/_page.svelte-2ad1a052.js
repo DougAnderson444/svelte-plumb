@@ -1,6 +1,12 @@
-import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$1, assign, now, loop, identity, empty, group_outros, check_outros, createEventDispatcher, onMount, svg_element, claim_svg_element, append_hydration, listen, action_destroyer, is_function, run_all, text, claim_text, set_store_value, space, claim_space, set_data, xlink_attr, subscribe, update_keyed_each, outro_and_destroy_block, bubble, create_component, claim_component, mount_component, destroy_component, destroy_each, globals, bind, add_flush_callback, get_spread_update, get_spread_object, flush, create_bidirectional_transition, set_input_value, to_number, destroy_block } from "../chunks/index-c4dc6e20.js";
-import { writable } from "../chunks/index-679a6cd0.js";
-class Pointer {
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$2, assign, now, loop, identity, empty, group_outros, check_outros, createEventDispatcher, onMount, svg_element, claim_svg_element, append_hydration, listen, action_destroyer, is_function, run_all, text, claim_text, set_store_value, space, claim_space, set_data, xlink_attr, subscribe, update_keyed_each, outro_and_destroy_block, bubble, create_component, claim_component, mount_component, destroy_component, construct_svelte_component, destroy_each, globals, bind, add_flush_callback, get_spread_update, get_spread_object, flush, create_bidirectional_transition, set_input_value, to_number, destroy_block } from "../../chunks/index-04c364fb.js";
+import { writable } from "../../chunks/index-a71b7706.js";
+let Pointer$1 = class Pointer {
   constructor(nativePointer) {
     this.id = -1;
     this.nativePointer = nativePointer;
@@ -10,41 +16,50 @@ class Pointer {
     this.clientY = nativePointer.clientY;
     if (self.Touch && nativePointer instanceof Touch) {
       this.id = nativePointer.identifier;
-    } else if (isPointerEvent(nativePointer)) {
+    } else if (isPointerEvent$1(nativePointer)) {
       this.id = nativePointer.pointerId;
     }
   }
+  /**
+   * Returns an expanded set of Pointers for high-resolution inputs.
+   */
   getCoalesced() {
     if ("getCoalescedEvents" in this.nativePointer) {
-      const events = this.nativePointer.getCoalescedEvents().map((p) => new Pointer(p));
+      const events = this.nativePointer.getCoalescedEvents().map((p) => new Pointer$1(p));
       if (events.length > 0)
         return events;
     }
     return [this];
   }
-}
-const isPointerEvent = (event) => "pointerId" in event;
-const isTouchEvent = (event) => "changedTouches" in event;
-const noop = () => {
 };
-class PointerTracker {
-  constructor(_element, { start = () => true, move = noop, end = noop, rawUpdates = false, avoidPointerEvents = false, eventListenerOptions = { capture: false, passive: false, once: false } } = {}) {
+const isPointerEvent$1 = (event) => "pointerId" in event;
+const isTouchEvent$1 = (event) => "changedTouches" in event;
+const noop$1 = () => {
+};
+let PointerTracker$1 = class PointerTracker {
+  /**
+   * Track pointers across a particular element
+   *
+   * @param element Element to monitor.
+   * @param options
+   */
+  constructor(_element, { start = () => true, move = noop$1, end = noop$1, rawUpdates = false, avoidPointerEvents = false, eventListenerOptions = { capture: false, passive: false, once: false } } = {}) {
     this._element = _element;
     this.startPointers = [];
     this.currentPointers = [];
     this._excludeFromButtonsCheck = /* @__PURE__ */ new Set();
     this._pointerStart = (event) => {
-      if (isPointerEvent(event) && event.buttons === 0) {
+      if (isPointerEvent$1(event) && event.buttons === 0) {
         this._excludeFromButtonsCheck.add(event.pointerId);
       } else if (!(event.buttons & 1)) {
         return;
       }
-      const pointer = new Pointer(event);
+      const pointer = new Pointer$1(event);
       if (this.currentPointers.some((p) => p.id === pointer.id))
         return;
       if (!this._triggerPointerStart(pointer, event))
         return;
-      if (isPointerEvent(event)) {
+      if (isPointerEvent$1(event)) {
         const capturingElement = event.target && "setPointerCapture" in event.target ? event.target : this._element;
         capturingElement.setPointerCapture(event.pointerId);
         this._element.addEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move, this._eventListenerOptions);
@@ -57,16 +72,16 @@ class PointerTracker {
     };
     this._touchStart = (event) => {
       for (const touch of Array.from(event.changedTouches)) {
-        this._triggerPointerStart(new Pointer(touch), event);
+        this._triggerPointerStart(new Pointer$1(touch), event);
       }
     };
     this._move = (event) => {
-      if (!isTouchEvent(event) && (!isPointerEvent(event) || !this._excludeFromButtonsCheck.has(event.pointerId)) && event.buttons === 0) {
+      if (!isTouchEvent$1(event) && (!isPointerEvent$1(event) || !this._excludeFromButtonsCheck.has(event.pointerId)) && event.buttons === 0) {
         this._pointerEnd(event);
         return;
       }
       const previousPointers = this.currentPointers.slice();
-      const changedPointers = isTouchEvent(event) ? Array.from(event.changedTouches).map((t) => new Pointer(t)) : [new Pointer(event)];
+      const changedPointers = isTouchEvent$1(event) ? Array.from(event.changedTouches).map((t) => new Pointer$1(t)) : [new Pointer$1(event)];
       const trackedChangedPointers = [];
       for (const pointer of changedPointers) {
         const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
@@ -80,7 +95,7 @@ class PointerTracker {
       this._moveCallback(previousPointers, trackedChangedPointers, event);
     };
     this._triggerPointerEnd = (pointer, event) => {
-      if (!isTouchEvent(event) && event.buttons & 1) {
+      if (!isTouchEvent$1(event) && event.buttons & 1) {
         return false;
       }
       const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
@@ -94,9 +109,9 @@ class PointerTracker {
       return true;
     };
     this._pointerEnd = (event) => {
-      if (!this._triggerPointerEnd(new Pointer(event), event))
+      if (!this._triggerPointerEnd(new Pointer$1(event), event))
         return;
-      if (isPointerEvent(event)) {
+      if (isPointerEvent$1(event)) {
         if (this.currentPointers.length)
           return;
         this._element.removeEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move);
@@ -109,7 +124,7 @@ class PointerTracker {
     };
     this._touchEnd = (event) => {
       for (const touch of Array.from(event.changedTouches)) {
-        this._triggerPointerEnd(new Pointer(touch), event);
+        this._triggerPointerEnd(new Pointer$1(touch), event);
       }
     };
     this._startCallback = start;
@@ -127,6 +142,9 @@ class PointerTracker {
       this._element.addEventListener("touchcancel", this._touchEnd, this._eventListenerOptions);
     }
   }
+  /**
+   * Remove all listeners.
+   */
   stop() {
     this._element.removeEventListener("pointerdown", this._pointerStart);
     this._element.removeEventListener("mousedown", this._pointerStart);
@@ -140,6 +158,13 @@ class PointerTracker {
     window.removeEventListener("mousemove", this._move);
     window.removeEventListener("mouseup", this._pointerEnd);
   }
+  /**
+   * Call the start callback for this pointer, and track it if the user wants.
+   *
+   * @param pointer Pointer
+   * @param event Related event
+   * @returns Whether the pointer is being tracked.
+   */
   _triggerPointerStart(pointer, event) {
     if (!this._startCallback(pointer, event))
       return false;
@@ -147,7 +172,7 @@ class PointerTracker {
     this.startPointers.push(pointer);
     return true;
   }
-}
+};
 let nanoid = (size = 21) => crypto.getRandomValues(new Uint8Array(size)).reduce((id, byte) => {
   byte &= 63;
   if (byte < 36) {
@@ -179,7 +204,7 @@ function fallback_block$5(ctx) {
     m(target, anchor) {
       insert_hydration(target, div, anchor);
     },
-    p: noop$1,
+    p: noop$2,
     d(detaching) {
       if (detaching)
         detach(div);
@@ -190,8 +215,17 @@ function create_fragment$a(ctx) {
   let div;
   let div_resize_listener;
   let current;
-  const default_slot_template = ctx[9].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[8], null);
+  const default_slot_template = (
+    /*#slots*/
+    ctx[9].default
+  );
+  const default_slot = create_slot(
+    default_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[8],
+    null
+  );
   const default_slot_or_fallback = default_slot || fallback_block$5();
   return {
     c() {
@@ -209,11 +243,29 @@ function create_fragment$a(ctx) {
       this.h();
     },
     h() {
-      attr(div, "id", ctx[1]);
+      attr(
+        div,
+        "id",
+        /*id*/
+        ctx[1]
+      );
       attr(div, "class", "absolute");
-      set_style(div, "left", ctx[5] + "px");
-      set_style(div, "top", ctx[4] + "px");
-      add_render_callback(() => ctx[11].call(div));
+      set_style(
+        div,
+        "left",
+        /*x*/
+        ctx[5] + "px"
+      );
+      set_style(
+        div,
+        "top",
+        /*y*/
+        ctx[4] + "px"
+      );
+      add_render_callback(() => (
+        /*div_elementresize_handler*/
+        ctx[11].call(div)
+      ));
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -221,30 +273,63 @@ function create_fragment$a(ctx) {
         default_slot_or_fallback.m(div, null);
       }
       ctx[10](div);
-      div_resize_listener = add_resize_listener(div, ctx[11].bind(div));
+      div_resize_listener = add_resize_listener(
+        div,
+        /*div_elementresize_handler*/
+        ctx[11].bind(div)
+      );
       current = true;
     },
     p(ctx2, [dirty]) {
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 256)) {
+        if (default_slot.p && (!current || dirty & /*$$scope*/
+        256)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
+            /*$$scope*/
             ctx2[8],
-            !current ? get_all_dirty_from_scope(ctx2[8]) : get_slot_changes(default_slot_template, ctx2[8], dirty, null),
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[8]
+            ) : get_slot_changes(
+              default_slot_template,
+              /*$$scope*/
+              ctx2[8],
+              dirty,
+              null
+            ),
             null
           );
         }
       }
-      if (!current || dirty & 2) {
-        attr(div, "id", ctx2[1]);
+      if (!current || dirty & /*id*/
+      2) {
+        attr(
+          div,
+          "id",
+          /*id*/
+          ctx2[1]
+        );
       }
-      if (!current || dirty & 32) {
-        set_style(div, "left", ctx2[5] + "px");
+      if (!current || dirty & /*x*/
+      32) {
+        set_style(
+          div,
+          "left",
+          /*x*/
+          ctx2[5] + "px"
+        );
       }
-      if (!current || dirty & 16) {
-        set_style(div, "top", ctx2[4] + "px");
+      if (!current || dirty & /*y*/
+      16) {
+        set_style(
+          div,
+          "top",
+          /*y*/
+          ctx2[4] + "px"
+        );
       }
     },
     i(local) {
@@ -302,10 +387,12 @@ function instance$a($$self, $$props, $$invalidate) {
       $$invalidate(8, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty & 68) {
+    if ($$self.$$.dirty & /*left, offsetWidth*/
+    68) {
       $$invalidate(5, x = left - offsetWidth / 2);
     }
-    if ($$self.$$.dirty & 136) {
+    if ($$self.$$.dirty & /*top, offsetHeight*/
+    136) {
       $$invalidate(4, y = top - offsetHeight / 2);
     }
   };
@@ -366,7 +453,7 @@ function rotatePoint(x, y, cx, cy, angle) {
   var ny = px * s + py * c;
   return [nx + cx, ny + cy];
 }
-function getDistance(x0, y0, x1, y1) {
+function getDistance$1(x0, y0, x1, y1) {
   return Math.hypot(y1 - y0, x1 - x0);
 }
 function getAngle(x0, y0, x1, y1) {
@@ -485,7 +572,7 @@ function getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options) {
   var _options = options, _options$bow = _options.bow, bow = _options$bow === void 0 ? 0 : _options$bow, _options$stretch = _options.stretch, stretch = _options$stretch === void 0 ? 0.25 : _options$stretch, _options$stretchMin = _options.stretchMin, stretchMin = _options$stretchMin === void 0 ? 50 : _options$stretchMin, _options$stretchMax = _options.stretchMax, stretchMax = _options$stretchMax === void 0 ? 420 : _options$stretchMax, _options$padStart = _options.padStart, padStart = _options$padStart === void 0 ? 0 : _options$padStart, _options$padEnd = _options.padEnd, padEnd = _options$padEnd === void 0 ? 20 : _options$padEnd, _options$flip = _options.flip, flip = _options$flip === void 0 ? false : _options$flip, _options$straights = _options.straights, straights = _options$straights === void 0 ? true : _options$straights;
   var px0 = x0 - padStart, py0 = y0 - padStart, pw0 = w0 + padStart * 2, ph0 = h0 + padStart * 2, px1 = x1 - padEnd, py1 = y1 - padEnd, pw1 = w1 + padEnd * 2, ph1 = h1 + padEnd * 2, cx0 = x0 + w0 / 2, cy0 = y0 + h0 / 2, cx1 = x1 + w1 / 2, cy1 = y1 + h1 / 2;
   var angle = normalizeAngle(getAngle(cx0, cy0, cx1, cy1));
-  var distance = getDistance(cx0, cy0, cx1, cy1);
+  var distance = getDistance$1(cx0, cy0, cx1, cy1);
   if (distance === 0) {
     var _sx = cx0, _sy = py0;
     var _ex = cx1, _ey = py1;
@@ -499,7 +586,7 @@ function getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options) {
     card = 0.99;
   var isColliding = doRectanglesCollide(px0, py0, pw0, ph0, px1, py1, pw1, ph1);
   var _getLineBetweenRounde = getLineBetweenRoundedRectangles(px0, py0, pw0, ph0, padStart, px1, py1, pw1, ph1, padEnd), dix0 = _getLineBetweenRounde[0], diy0 = _getLineBetweenRounde[1], dix1 = _getLineBetweenRounde[2], diy1 = _getLineBetweenRounde[3];
-  var distanceBetween = getDistance(dix0, diy0, dix1, diy1);
+  var distanceBetween = getDistance$1(dix0, diy0, dix1, diy1);
   if (!isColliding && straights && card % 0.5 === 0) {
     var _getPointBetween2 = getPointBetween(dix0, diy0, dix1, diy1, 0.5), mpdx = _getPointBetween2[0], mpdy = _getPointBetween2[1];
     return [dix0, diy0, mpdx, mpdy, dix1, diy1, angle, angle - PI$1, angle];
@@ -510,12 +597,14 @@ function getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options) {
   var arc = bow + stretchEffect * stretch;
   var angleOffset = modulate(
     card * card,
+    // a better curve here?
     [0, 1],
     [PI$1 * 0.125, 0],
     true
   );
   var distOffset = isColliding ? PI$1 * 0.5 * card : modulate(
     distEffect,
+    // a better curve here?
     [0.75, 1],
     [0, PI$1 * 0.5],
     true
@@ -567,10 +656,11 @@ function getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options) {
     ex,
     ey,
     Math.max(-1, Math.min(1, 0.5 + arc))
+    // Clamped to 2
   ), tix = _getPointBetween8[0], tiy = _getPointBetween8[1];
   var _rotatePoint = rotatePoint(tix, tiy, mx1, my1, PI$1 / 2 * rot), cixA = _rotatePoint[0], ciyA = _rotatePoint[1];
   var _rotatePoint2 = rotatePoint(tix, tiy, mx1, my1, PI$1 / 2 * -rot), cixB = _rotatePoint2[0], ciyB = _rotatePoint2[1];
-  var _ref = isColliding && getDistance(cixA, ciyA, cx1, cy1) < getDistance(cixB, ciyB, cx1, cy1) ? [cixB, ciyB] : [cixA, ciyA], cix = _ref[0], ciy = _ref[1];
+  var _ref = isColliding && getDistance$1(cixA, ciyA, cx1, cy1) < getDistance$1(cixB, ciyB, cx1, cy1) ? [cixB, ciyB] : [cixA, ciyA], cix = _ref[0], ciy = _ref[1];
   var as = getAngle(cix, ciy, sx, sy);
   var ae = getAngle(cix, ciy, ex, ey);
   return [sx, sy, cix, ciy, ex, ey, ae, as, getAngle(sx, sy, ex, ey)];
@@ -701,32 +791,72 @@ function clickOutside(node, { enabled: initialEnabled, handleUnselect }) {
 }
 const Link_svelte_svelte_type_style_lang = "";
 const get_endPoint_slot_changes = (dirty) => ({
-  sx: dirty[0] & 8192,
-  sy: dirty[0] & 16384,
-  ex: dirty[0] & 131072,
-  ey: dirty[0] & 262144,
-  pointer: dirty[0] & 4096
+  sx: dirty[0] & /*sx*/
+  8192,
+  sy: dirty[0] & /*sy*/
+  16384,
+  ex: dirty[0] & /*ex*/
+  131072,
+  ey: dirty[0] & /*ey*/
+  262144,
+  pointer: dirty[0] & /*pointer*/
+  4096
 });
 const get_endPoint_slot_context = (ctx) => ({
-  sx: ctx[13],
-  sy: ctx[14],
-  ex: ctx[17],
-  ey: ctx[18],
-  pointer: ctx[12]
+  sx: (
+    /*sx*/
+    ctx[13]
+  ),
+  sy: (
+    /*sy*/
+    ctx[14]
+  ),
+  ex: (
+    /*ex*/
+    ctx[17]
+  ),
+  ey: (
+    /*ey*/
+    ctx[18]
+  ),
+  pointer: (
+    /*pointer*/
+    ctx[12]
+  )
 });
 const get_startPoint_slot_changes = (dirty) => ({
-  sx: dirty[0] & 8192,
-  sy: dirty[0] & 16384,
-  ex: dirty[0] & 131072,
-  ey: dirty[0] & 262144,
-  as: dirty[0] & 524288
+  sx: dirty[0] & /*sx*/
+  8192,
+  sy: dirty[0] & /*sy*/
+  16384,
+  ex: dirty[0] & /*ex*/
+  131072,
+  ey: dirty[0] & /*ey*/
+  262144,
+  as: dirty[0] & /*as*/
+  524288
 });
 const get_startPoint_slot_context = (ctx) => ({
-  sx: ctx[13],
-  sy: ctx[14],
-  ex: ctx[17],
-  ey: ctx[18],
-  as: ctx[19]
+  sx: (
+    /*sx*/
+    ctx[13]
+  ),
+  sy: (
+    /*sy*/
+    ctx[14]
+  ),
+  ex: (
+    /*ex*/
+    ctx[17]
+  ),
+  ey: (
+    /*ey*/
+    ctx[18]
+  ),
+  as: (
+    /*as*/
+    ctx[19]
+  )
 });
 function create_if_block$6(ctx) {
   let g;
@@ -738,19 +868,44 @@ function create_if_block$6(ctx) {
   let mounted;
   let dispose;
   function select_block_type(ctx2, dirty) {
-    if (ctx2[13] < ctx2[17])
+    if (
+      /*sx*/
+      ctx2[13] < /*ex*/
+      ctx2[17]
+    )
       return create_if_block_3$2;
     return create_else_block$1;
   }
   let current_block_type = select_block_type(ctx);
   let if_block0 = current_block_type(ctx);
-  const startPoint_slot_template = ctx[26].startPoint;
-  const startPoint_slot = create_slot(startPoint_slot_template, ctx, ctx[25], get_startPoint_slot_context);
+  const startPoint_slot_template = (
+    /*#slots*/
+    ctx[27].startPoint
+  );
+  const startPoint_slot = create_slot(
+    startPoint_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[26],
+    get_startPoint_slot_context
+  );
   const startPoint_slot_or_fallback = startPoint_slot || fallback_block_1(ctx);
-  const endPoint_slot_template = ctx[26].endPoint;
-  const endPoint_slot = create_slot(endPoint_slot_template, ctx, ctx[25], get_endPoint_slot_context);
+  const endPoint_slot_template = (
+    /*#slots*/
+    ctx[27].endPoint
+  );
+  const endPoint_slot = create_slot(
+    endPoint_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[26],
+    get_endPoint_slot_context
+  );
   const endPoint_slot_or_fallback = endPoint_slot || fallback_block$4(ctx);
-  let if_block1 = ctx[9] && create_if_block_1$2(ctx);
+  let if_block1 = (
+    /*selected*/
+    ctx[9] && create_if_block_1$2(ctx)
+  );
   return {
     c() {
       g = svg_element("g");
@@ -795,16 +950,47 @@ function create_if_block$6(ctx) {
       set_style(path, "pointer-events", "stroke");
       set_style(path, "user-select", "none");
       set_style(path, "outline", "none");
-      attr(path, "d", ctx[11]);
-      attr(path, "id", path_id_value = ctx[1].id);
-      attr(path, "stroke-width", ctx[0]);
-      attr(path, "stroke", ctx[2]);
+      attr(
+        path,
+        "d",
+        /*d*/
+        ctx[11]
+      );
+      attr(path, "id", path_id_value = /*link*/
+      ctx[1].id);
+      attr(
+        path,
+        "stroke-width",
+        /*strokeWidth*/
+        ctx[0]
+      );
+      attr(
+        path,
+        "stroke",
+        /*strokeColor*/
+        ctx[2]
+      );
       attr(path, "fill", "none");
       attr(path, "stroke-linecap", "round");
-      attr(path, "stroke-opacity", ctx[4]);
+      attr(
+        path,
+        "stroke-opacity",
+        /*strokeOpacity*/
+        ctx[4]
+      );
       attr(path, "stroke-dasharray", "4");
-      attr(g, "stroke", ctx[6]);
-      attr(g, "stroke-opacity", ctx[5]);
+      attr(
+        g,
+        "stroke",
+        /*groupStrokeColor*/
+        ctx[6]
+      );
+      attr(
+        g,
+        "stroke-opacity",
+        /*groupStrokeOpacity*/
+        ctx[5]
+      );
     },
     m(target, anchor) {
       insert_hydration(target, g, anchor);
@@ -822,39 +1008,109 @@ function create_if_block$6(ctx) {
       current = true;
       if (!mounted) {
         dispose = [
-          listen(path, "click", ctx[27]),
-          listen(path, "mouseover", ctx[21]),
-          listen(path, "mouseout", ctx[22]),
-          listen(path, "focus", ctx[21]),
-          listen(path, "blur", ctx[22]),
+          listen(
+            path,
+            "click",
+            /*click_handler*/
+            ctx[28]
+          ),
+          listen(
+            path,
+            "keypress",
+            /*keypress_handler*/
+            ctx[29]
+          ),
+          listen(
+            path,
+            "mouseover",
+            /*handleMouseOver*/
+            ctx[21]
+          ),
+          listen(
+            path,
+            "mouseout",
+            /*handleMouseOut*/
+            ctx[22]
+          ),
+          listen(
+            path,
+            "focus",
+            /*handleMouseOver*/
+            ctx[21]
+          ),
+          listen(
+            path,
+            "blur",
+            /*handleMouseOut*/
+            ctx[22]
+          ),
           action_destroyer(clickOutside_action = clickOutside.call(null, path, {
-            enabled: ctx[9],
-            handleUnselect: ctx[23]
+            enabled: (
+              /*selected*/
+              ctx[9]
+            ),
+            handleUnselect: (
+              /*handleUnselect*/
+              ctx[23]
+            )
           }))
         ];
         mounted = true;
       }
     },
     p(ctx2, dirty) {
-      if (!current || dirty[0] & 2048) {
-        attr(path, "d", ctx2[11]);
+      if (!current || dirty[0] & /*d*/
+      2048) {
+        attr(
+          path,
+          "d",
+          /*d*/
+          ctx2[11]
+        );
       }
-      if (!current || dirty[0] & 2 && path_id_value !== (path_id_value = ctx2[1].id)) {
+      if (!current || dirty[0] & /*link*/
+      2 && path_id_value !== (path_id_value = /*link*/
+      ctx2[1].id)) {
         attr(path, "id", path_id_value);
       }
-      if (!current || dirty[0] & 1) {
-        attr(path, "stroke-width", ctx2[0]);
+      if (!current || dirty[0] & /*strokeWidth*/
+      1) {
+        attr(
+          path,
+          "stroke-width",
+          /*strokeWidth*/
+          ctx2[0]
+        );
       }
-      if (!current || dirty[0] & 4) {
-        attr(path, "stroke", ctx2[2]);
+      if (!current || dirty[0] & /*strokeColor*/
+      4) {
+        attr(
+          path,
+          "stroke",
+          /*strokeColor*/
+          ctx2[2]
+        );
       }
-      if (!current || dirty[0] & 16) {
-        attr(path, "stroke-opacity", ctx2[4]);
+      if (!current || dirty[0] & /*strokeOpacity*/
+      16) {
+        attr(
+          path,
+          "stroke-opacity",
+          /*strokeOpacity*/
+          ctx2[4]
+        );
       }
-      if (clickOutside_action && is_function(clickOutside_action.update) && dirty[0] & 512)
+      if (clickOutside_action && is_function(clickOutside_action.update) && dirty[0] & /*selected*/
+      512)
         clickOutside_action.update.call(null, {
-          enabled: ctx2[9],
-          handleUnselect: ctx2[23]
+          enabled: (
+            /*selected*/
+            ctx2[9]
+          ),
+          handleUnselect: (
+            /*handleUnselect*/
+            ctx2[23]
+          )
         });
       if (current_block_type === (current_block_type = select_block_type(ctx2)) && if_block0) {
         if_block0.p(ctx2, dirty);
@@ -867,38 +1123,65 @@ function create_if_block$6(ctx) {
         }
       }
       if (startPoint_slot) {
-        if (startPoint_slot.p && (!current || dirty[0] & 34496512)) {
+        if (startPoint_slot.p && (!current || dirty[0] & /*$$scope, sx, sy, ex, ey, as*/
+        68050944)) {
           update_slot_base(
             startPoint_slot,
             startPoint_slot_template,
             ctx2,
-            ctx2[25],
-            !current ? get_all_dirty_from_scope(ctx2[25]) : get_slot_changes(startPoint_slot_template, ctx2[25], dirty, get_startPoint_slot_changes),
+            /*$$scope*/
+            ctx2[26],
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[26]
+            ) : get_slot_changes(
+              startPoint_slot_template,
+              /*$$scope*/
+              ctx2[26],
+              dirty,
+              get_startPoint_slot_changes
+            ),
             get_startPoint_slot_context
           );
         }
       } else {
-        if (startPoint_slot_or_fallback && startPoint_slot_or_fallback.p && (!current || dirty[0] & 24576)) {
+        if (startPoint_slot_or_fallback && startPoint_slot_or_fallback.p && (!current || dirty[0] & /*sx, sy*/
+        24576)) {
           startPoint_slot_or_fallback.p(ctx2, !current ? [-1, -1] : dirty);
         }
       }
       if (endPoint_slot) {
-        if (endPoint_slot.p && (!current || dirty[0] & 33976320)) {
+        if (endPoint_slot.p && (!current || dirty[0] & /*$$scope, sx, sy, ex, ey, pointer*/
+        67530752)) {
           update_slot_base(
             endPoint_slot,
             endPoint_slot_template,
             ctx2,
-            ctx2[25],
-            !current ? get_all_dirty_from_scope(ctx2[25]) : get_slot_changes(endPoint_slot_template, ctx2[25], dirty, get_endPoint_slot_changes),
+            /*$$scope*/
+            ctx2[26],
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[26]
+            ) : get_slot_changes(
+              endPoint_slot_template,
+              /*$$scope*/
+              ctx2[26],
+              dirty,
+              get_endPoint_slot_changes
+            ),
             get_endPoint_slot_context
           );
         }
       } else {
-        if (endPoint_slot_or_fallback && endPoint_slot_or_fallback.p && (!current || dirty[0] & 4104)) {
+        if (endPoint_slot_or_fallback && endPoint_slot_or_fallback.p && (!current || dirty[0] & /*pointer, arrowColor*/
+        4104)) {
           endPoint_slot_or_fallback.p(ctx2, !current ? [-1, -1] : dirty);
         }
       }
-      if (ctx2[9]) {
+      if (
+        /*selected*/
+        ctx2[9]
+      ) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
         } else {
@@ -910,11 +1193,23 @@ function create_if_block$6(ctx) {
         if_block1.d(1);
         if_block1 = null;
       }
-      if (!current || dirty[0] & 64) {
-        attr(g, "stroke", ctx2[6]);
+      if (!current || dirty[0] & /*groupStrokeColor*/
+      64) {
+        attr(
+          g,
+          "stroke",
+          /*groupStrokeColor*/
+          ctx2[6]
+        );
       }
-      if (!current || dirty[0] & 32) {
-        attr(g, "stroke-opacity", ctx2[5]);
+      if (!current || dirty[0] & /*groupStrokeOpacity*/
+      32) {
+        attr(
+          g,
+          "stroke-opacity",
+          /*groupStrokeOpacity*/
+          ctx2[5]
+        );
       }
     },
     i(local) {
@@ -948,7 +1243,13 @@ function create_else_block$1(ctx) {
   var _a, _b, _c, _d, _e, _f;
   let text_1;
   let tspan;
-  let t0_value = (((_c = (_b = (_a = ctx[1]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[1]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
+  let t0_value = (
+    /*link*/
+    (((_c = (_b = (_a = ctx[1]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (
+      /*link*/
+      (_f = (_e = (_d = ctx[1]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value
+    ) : "") + ""
+  );
   let t0;
   let t1;
   return {
@@ -972,10 +1273,20 @@ function create_else_block$1(ctx) {
     },
     h() {
       attr(tspan, "fill", "black");
-      attr(tspan, "class", "svelte-1fj6p42");
-      attr(text_1, "x", ctx[15]);
-      attr(text_1, "y", ctx[16]);
-      attr(text_1, "class", "svelte-1fj6p42");
+      attr(tspan, "class", "svelte-1suvvnl");
+      attr(
+        text_1,
+        "x",
+        /*cx*/
+        ctx[15]
+      );
+      attr(
+        text_1,
+        "y",
+        /*cy*/
+        ctx[16]
+      );
+      attr(text_1, "class", "svelte-1suvvnl");
     },
     m(target, anchor) {
       insert_hydration(target, text_1, anchor);
@@ -985,13 +1296,30 @@ function create_else_block$1(ctx) {
     },
     p(ctx2, dirty) {
       var _a2, _b2, _c2, _d2, _e2, _f2;
-      if (dirty[0] & 2 && t0_value !== (t0_value = (((_c2 = (_b2 = (_a2 = ctx2[1]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[1]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
+      if (dirty[0] & /*link*/
+      2 && t0_value !== (t0_value = /*link*/
+      (((_c2 = (_b2 = (_a2 = ctx2[1]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (
+        /*link*/
+        (_f2 = (_e2 = (_d2 = ctx2[1]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value
+      ) : "") + ""))
         set_data(t0, t0_value);
-      if (dirty[0] & 32768) {
-        attr(text_1, "x", ctx2[15]);
+      if (dirty[0] & /*cx*/
+      32768) {
+        attr(
+          text_1,
+          "x",
+          /*cx*/
+          ctx2[15]
+        );
       }
-      if (dirty[0] & 65536) {
-        attr(text_1, "y", ctx2[16]);
+      if (dirty[0] & /*cy*/
+      65536) {
+        attr(
+          text_1,
+          "y",
+          /*cy*/
+          ctx2[16]
+        );
       }
     },
     d(detaching) {
@@ -1005,7 +1333,13 @@ function create_if_block_3$2(ctx) {
   let text_1;
   let textPath;
   let tspan;
-  let t0_value = (((_c = (_b = (_a = ctx[1]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (_f = (_e = (_d = ctx[1]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value : "") + "";
+  let t0_value = (
+    /*link*/
+    (((_c = (_b = (_a = ctx[1]) == null ? void 0 : _a.opts) == null ? void 0 : _b.label) == null ? void 0 : _c.enabled) ? (
+      /*link*/
+      (_f = (_e = (_d = ctx[1]) == null ? void 0 : _d.opts) == null ? void 0 : _e.label) == null ? void 0 : _f.value
+    ) : "") + ""
+  );
   let t0;
   let t1;
   let textPath_xlink_href_value;
@@ -1035,10 +1369,12 @@ function create_if_block_3$2(ctx) {
     },
     h() {
       attr(tspan, "fill", "black");
-      attr(tspan, "class", "svelte-1fj6p42");
-      xlink_attr(textPath, "xlink:href", textPath_xlink_href_value = "#" + ctx[1].id);
-      attr(textPath, "startOffset", textPath_startOffset_value = ctx[7] + "%");
-      attr(text_1, "class", "svelte-1fj6p42");
+      attr(tspan, "class", "svelte-1suvvnl");
+      xlink_attr(textPath, "xlink:href", textPath_xlink_href_value = "#" + /*link*/
+      ctx[1].id);
+      attr(textPath, "startOffset", textPath_startOffset_value = /*textStartOffset*/
+      ctx[7] + "%");
+      attr(text_1, "class", "svelte-1suvvnl");
     },
     m(target, anchor) {
       insert_hydration(target, text_1, anchor);
@@ -1049,12 +1385,21 @@ function create_if_block_3$2(ctx) {
     },
     p(ctx2, dirty) {
       var _a2, _b2, _c2, _d2, _e2, _f2;
-      if (dirty[0] & 2 && t0_value !== (t0_value = (((_c2 = (_b2 = (_a2 = ctx2[1]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (_f2 = (_e2 = (_d2 = ctx2[1]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value : "") + ""))
+      if (dirty[0] & /*link*/
+      2 && t0_value !== (t0_value = /*link*/
+      (((_c2 = (_b2 = (_a2 = ctx2[1]) == null ? void 0 : _a2.opts) == null ? void 0 : _b2.label) == null ? void 0 : _c2.enabled) ? (
+        /*link*/
+        (_f2 = (_e2 = (_d2 = ctx2[1]) == null ? void 0 : _d2.opts) == null ? void 0 : _e2.label) == null ? void 0 : _f2.value
+      ) : "") + ""))
         set_data(t0, t0_value);
-      if (dirty[0] & 2 && textPath_xlink_href_value !== (textPath_xlink_href_value = "#" + ctx2[1].id)) {
+      if (dirty[0] & /*link*/
+      2 && textPath_xlink_href_value !== (textPath_xlink_href_value = "#" + /*link*/
+      ctx2[1].id)) {
         xlink_attr(textPath, "xlink:href", textPath_xlink_href_value);
       }
-      if (dirty[0] & 128 && textPath_startOffset_value !== (textPath_startOffset_value = ctx2[7] + "%")) {
+      if (dirty[0] & /*textStartOffset*/
+      128 && textPath_startOffset_value !== (textPath_startOffset_value = /*textStartOffset*/
+      ctx2[7] + "%")) {
         attr(textPath, "startOffset", textPath_startOffset_value);
       }
     },
@@ -1077,19 +1422,41 @@ function fallback_block_1(ctx) {
       this.h();
     },
     h() {
-      attr(circle, "cx", ctx[13]);
-      attr(circle, "cy", ctx[14]);
+      attr(
+        circle,
+        "cx",
+        /*sx*/
+        ctx[13]
+      );
+      attr(
+        circle,
+        "cy",
+        /*sy*/
+        ctx[14]
+      );
       attr(circle, "r", 4);
     },
     m(target, anchor) {
       insert_hydration(target, circle, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty[0] & 8192) {
-        attr(circle, "cx", ctx2[13]);
+      if (dirty[0] & /*sx*/
+      8192) {
+        attr(
+          circle,
+          "cx",
+          /*sx*/
+          ctx2[13]
+        );
       }
-      if (dirty[0] & 16384) {
-        attr(circle, "cy", ctx2[14]);
+      if (dirty[0] & /*sy*/
+      16384) {
+        attr(
+          circle,
+          "cy",
+          /*sy*/
+          ctx2[14]
+        );
       }
     },
     d(detaching) {
@@ -1116,18 +1483,40 @@ function create_if_block_2$2(ctx) {
     },
     h() {
       attr(polygon, "points", "0,-6 12,0, 0,6");
-      attr(polygon, "transform", ctx[12]);
-      attr(polygon, "fill", ctx[3]);
+      attr(
+        polygon,
+        "transform",
+        /*pointer*/
+        ctx[12]
+      );
+      attr(
+        polygon,
+        "fill",
+        /*arrowColor*/
+        ctx[3]
+      );
     },
     m(target, anchor) {
       insert_hydration(target, polygon, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty[0] & 4096) {
-        attr(polygon, "transform", ctx2[12]);
+      if (dirty[0] & /*pointer*/
+      4096) {
+        attr(
+          polygon,
+          "transform",
+          /*pointer*/
+          ctx2[12]
+        );
       }
-      if (dirty[0] & 8) {
-        attr(polygon, "fill", ctx2[3]);
+      if (dirty[0] & /*arrowColor*/
+      8) {
+        attr(
+          polygon,
+          "fill",
+          /*arrowColor*/
+          ctx2[3]
+        );
       }
     },
     d(detaching) {
@@ -1138,7 +1527,10 @@ function create_if_block_2$2(ctx) {
 }
 function fallback_block$4(ctx) {
   let if_block_anchor;
-  let if_block = ctx[12] && create_if_block_2$2(ctx);
+  let if_block = (
+    /*pointer*/
+    ctx[12] && create_if_block_2$2(ctx)
+  );
   return {
     c() {
       if (if_block)
@@ -1156,7 +1548,10 @@ function fallback_block$4(ctx) {
       insert_hydration(target, if_block_anchor, anchor);
     },
     p(ctx2, dirty) {
-      if (ctx2[12]) {
+      if (
+        /*pointer*/
+        ctx2[12]
+      ) {
         if (if_block) {
           if_block.p(ctx2, dirty);
         } else {
@@ -1180,7 +1575,7 @@ function fallback_block$4(ctx) {
 function create_if_block_1$2(ctx) {
   let circle;
   let foreignObject;
-  let div;
+  let button;
   let t;
   let mounted;
   let dispose;
@@ -1188,7 +1583,7 @@ function create_if_block_1$2(ctx) {
     c() {
       circle = svg_element("circle");
       foreignObject = svg_element("foreignObject");
-      div = element("div");
+      button = element("button");
       t = text("X");
       this.h();
     },
@@ -1209,50 +1604,99 @@ function create_if_block_1$2(ctx) {
         height: true
       });
       var foreignObject_nodes = children(foreignObject);
-      div = claim_element(foreignObject_nodes, "DIV", { class: true, style: true });
-      var div_nodes = children(div);
-      t = claim_text(div_nodes, "X");
-      div_nodes.forEach(detach);
+      button = claim_element(foreignObject_nodes, "BUTTON", { class: true, style: true });
+      var button_nodes = children(button);
+      t = claim_text(button_nodes, "X");
+      button_nodes.forEach(detach);
       foreignObject_nodes.forEach(detach);
       this.h();
     },
     h() {
-      attr(circle, "cx", ctx[17]);
-      attr(circle, "cy", ctx[18]);
+      attr(
+        circle,
+        "cx",
+        /*ex*/
+        ctx[17]
+      );
+      attr(
+        circle,
+        "cy",
+        /*ey*/
+        ctx[18]
+      );
       attr(circle, "r", 12);
       attr(circle, "fill", "none");
       attr(circle, "stroke", "blue");
-      attr(div, "class", "w-fit h-fit font-mono text-red-500 text-2xl cursor-pointer select-none");
-      set_style(div, "font-family", "'Luckiest Guy'");
-      set_style(div, "transform", `translate(180deg)`, false);
+      attr(button, "class", "w-fit h-fit font-mono text-red-500 text-2xl cursor-pointer select-none");
+      set_style(button, "font-family", "'Luckiest Guy'");
+      set_style(button, "transform", `translate(180deg)`);
       attr(foreignObject, "class", "overflow-visible pointer-events-auto relative");
-      attr(foreignObject, "x", ctx[15]);
-      attr(foreignObject, "y", ctx[16]);
+      attr(
+        foreignObject,
+        "x",
+        /*cx*/
+        ctx[15]
+      );
+      attr(
+        foreignObject,
+        "y",
+        /*cy*/
+        ctx[16]
+      );
       attr(foreignObject, "width", "50");
       attr(foreignObject, "height", "50");
     },
     m(target, anchor) {
       insert_hydration(target, circle, anchor);
       insert_hydration(target, foreignObject, anchor);
-      append_hydration(foreignObject, div);
-      append_hydration(div, t);
+      append_hydration(foreignObject, button);
+      append_hydration(button, t);
       if (!mounted) {
-        dispose = listen(div, "click", ctx[28]);
+        dispose = listen(
+          button,
+          "click",
+          /*click_handler_1*/
+          ctx[30]
+        );
         mounted = true;
       }
     },
     p(ctx2, dirty) {
-      if (dirty[0] & 131072) {
-        attr(circle, "cx", ctx2[17]);
+      if (dirty[0] & /*ex*/
+      131072) {
+        attr(
+          circle,
+          "cx",
+          /*ex*/
+          ctx2[17]
+        );
       }
-      if (dirty[0] & 262144) {
-        attr(circle, "cy", ctx2[18]);
+      if (dirty[0] & /*ey*/
+      262144) {
+        attr(
+          circle,
+          "cy",
+          /*ey*/
+          ctx2[18]
+        );
       }
-      if (dirty[0] & 32768) {
-        attr(foreignObject, "x", ctx2[15]);
+      if (dirty[0] & /*cx*/
+      32768) {
+        attr(
+          foreignObject,
+          "x",
+          /*cx*/
+          ctx2[15]
+        );
       }
-      if (dirty[0] & 65536) {
-        attr(foreignObject, "y", ctx2[16]);
+      if (dirty[0] & /*cy*/
+      65536) {
+        attr(
+          foreignObject,
+          "y",
+          /*cy*/
+          ctx2[16]
+        );
       }
     },
     d(detaching) {
@@ -1268,7 +1712,11 @@ function create_if_block_1$2(ctx) {
 function create_fragment$9(ctx) {
   let if_block_anchor;
   let current;
-  let if_block = ctx[1] && ctx[10] && create_if_block$6(ctx);
+  let if_block = (
+    /*link*/
+    ctx[1] && /*mounted*/
+    ctx[10] && create_if_block$6(ctx)
+  );
   return {
     c() {
       if (if_block)
@@ -1287,10 +1735,15 @@ function create_fragment$9(ctx) {
       current = true;
     },
     p(ctx2, dirty) {
-      if (ctx2[1] && ctx2[10]) {
+      if (
+        /*link*/
+        ctx2[1] && /*mounted*/
+        ctx2[10]
+      ) {
         if (if_block) {
           if_block.p(ctx2, dirty);
-          if (dirty[0] & 1026) {
+          if (dirty[0] & /*link, mounted*/
+          1026) {
             transition_in(if_block, 1);
           }
         } else {
@@ -1335,10 +1788,11 @@ function getCoords(elem) {
   };
 }
 function instance$9($$self, $$props, $$invalidate) {
-  let $stroke, $$unsubscribe_stroke = noop$1, $$subscribe_stroke = () => ($$unsubscribe_stroke(), $$unsubscribe_stroke = subscribe(stroke, ($$value) => $$invalidate(24, $stroke = $$value)), stroke);
+  let $stroke, $$unsubscribe_stroke = noop$2, $$subscribe_stroke = () => ($$unsubscribe_stroke(), $$unsubscribe_stroke = subscribe(stroke, ($$value) => $$invalidate(25, $stroke = $$value)), stroke);
   $$self.$$.on_destroy.push(() => $$unsubscribe_stroke());
   let { $$slots: slots = {}, $$scope } = $$props;
   let { link } = $$props;
+  let { scale } = $$props;
   let { strokeColor = link == null ? void 0 : link.strokeColor } = $$props;
   let { strokeWidth = 1 } = $$props;
   let { arrowColor = "green" } = $$props;
@@ -1364,14 +1818,17 @@ function instance$9($$self, $$props, $$invalidate) {
     let canvasEl = document.querySelector(`[data-canvas]`);
     if (!sourceEl || !targetEl)
       return;
-    x0 = getCoords(sourceEl).left - (canvasEl.offsetLeft || 0);
-    y0 = getCoords(sourceEl).top - (canvasEl.offsetTop || 0);
-    x1 = getCoords(targetEl).left - (canvasEl.offsetLeft || 0);
-    y1 = getCoords(targetEl).top - (canvasEl.offsetTop || 0);
-    w0 = sourceEl.offsetWidth;
-    h0 = sourceEl.offsetHeight;
-    w1 = targetEl.offsetWidth;
-    h1 = targetEl.offsetHeight;
+    let source = getCoords(sourceEl);
+    let target = getCoords(targetEl);
+    let canvas = getCoords(canvasEl);
+    x0 = (source.left - canvas.left) / scale;
+    y0 = (source.top - canvas.top) / scale;
+    x1 = (target.left - canvas.left) / scale;
+    y1 = (target.top - canvas.top) / scale;
+    w0 = (source.right - source.left) / scale;
+    h0 = (source.bottom - source.top) / scale;
+    w1 = (target.right - target.left) / scale;
+    h1 = (target.bottom - target.top) / scale;
     const arrow = getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options);
     $$invalidate(13, [sx, sy, cx, cy, ex, ey, ae, as, ac] = arrow, sx, $$invalidate(14, sy), $$invalidate(15, cx), $$invalidate(16, cy), $$invalidate(17, ex), $$invalidate(18, ey), $$invalidate(19, as));
     $$invalidate(11, d = `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`);
@@ -1390,10 +1847,13 @@ function instance$9($$self, $$props, $$invalidate) {
     $$invalidate(9, selected = false);
   }
   const click_handler = () => $$invalidate(9, selected = !selected);
+  const keypress_handler = () => $$invalidate(9, selected = !selected);
   const click_handler_1 = () => dispatch("removeLink", link.id);
   $$self.$$set = ($$props2) => {
     if ("link" in $$props2)
       $$invalidate(1, link = $$props2.link);
+    if ("scale" in $$props2)
+      $$invalidate(24, scale = $$props2.scale);
     if ("strokeColor" in $$props2)
       $$invalidate(2, strokeColor = $$props2.strokeColor);
     if ("strokeWidth" in $$props2)
@@ -1409,14 +1869,16 @@ function instance$9($$self, $$props, $$invalidate) {
     if ("textStartOffset" in $$props2)
       $$invalidate(7, textStartOffset = $$props2.textStartOffset);
     if ("$$scope" in $$props2)
-      $$invalidate(25, $$scope = $$props2.$$scope);
+      $$invalidate(26, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty[0] & 2) {
+    if ($$self.$$.dirty[0] & /*link*/
+    2) {
       if (link)
         genArrow(link);
     }
-    if ($$self.$$.dirty[0] & 16777216) {
+    if ($$self.$$.dirty[0] & /*$stroke*/
+    33554432) {
       if ($stroke > initialStrokeWidth) {
         $$invalidate(0, strokeWidth = $stroke);
       }
@@ -1447,10 +1909,12 @@ function instance$9($$self, $$props, $$invalidate) {
     handleMouseOver,
     handleMouseOut,
     handleUnselect,
+    scale,
     $stroke,
     $$scope,
     slots,
     click_handler,
+    keypress_handler,
     click_handler_1
   ];
 }
@@ -1465,6 +1929,7 @@ class Link extends SvelteComponent {
       safe_not_equal,
       {
         link: 1,
+        scale: 24,
         strokeColor: 2,
         strokeWidth: 0,
         arrowColor: 3,
@@ -1481,7 +1946,7 @@ class Link extends SvelteComponent {
 const Links_svelte_svelte_type_style_lang = "";
 function get_each_context$2(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[10] = list[i];
+  child_ctx[11] = list[i];
   return child_ctx;
 }
 function create_if_block$5(ctx) {
@@ -1489,8 +1954,14 @@ function create_if_block$5(ctx) {
   let each_blocks = [];
   let each_1_lookup = /* @__PURE__ */ new Map();
   let current;
-  let each_value = ctx[0];
-  const get_key = (ctx2) => ctx2[10].id;
+  let each_value = (
+    /*links*/
+    ctx[0]
+  );
+  const get_key = (ctx2) => (
+    /*link*/
+    ctx2[11].id
+  );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context$2(ctx, each_value, i);
     let key = get_key(child_ctx);
@@ -1515,6 +1986,7 @@ function create_if_block$5(ctx) {
     },
     h() {
       set_style(svg, "pointer-events", "none");
+      set_style(svg, "overflow", "visible");
       attr(svg, "class", "svelte-s6duoo");
     },
     m(target, anchor) {
@@ -1525,8 +1997,10 @@ function create_if_block$5(ctx) {
       current = true;
     },
     p(ctx2, dirty) {
-      if (dirty & 516607) {
-        each_value = ctx2[0];
+      if (dirty & /*links, strokeColor, strokeWidth, arrowColor, strokeOpacity, groupStrokeOpacity, groupStrokeColor, textStartOffset, scale, sx, sy, ex, ey, as, pointer, mounted*/
+      1033215) {
+        each_value = /*links*/
+        ctx2[0];
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, svg, outro_and_destroy_block, create_each_block$2, null, get_each_context$2);
         check_outros();
@@ -1560,37 +2034,69 @@ function create_if_block_1$1(ctx) {
   let current;
   link = new Link({
     props: {
-      link: ctx[10],
-      strokeColor: ctx[1],
-      strokeWidth: ctx[2],
-      arrowColor: ctx[3],
-      strokeOpacity: ctx[4],
-      groupStrokeOpacity: ctx[5],
-      groupStrokeColor: ctx[6],
-      textStartOffset: ctx[7],
+      link: (
+        /*link*/
+        ctx[11]
+      ),
+      strokeColor: (
+        /*strokeColor*/
+        ctx[2]
+      ),
+      strokeWidth: (
+        /*strokeWidth*/
+        ctx[3]
+      ),
+      arrowColor: (
+        /*arrowColor*/
+        ctx[4]
+      ),
+      strokeOpacity: (
+        /*strokeOpacity*/
+        ctx[5]
+      ),
+      groupStrokeOpacity: (
+        /*groupStrokeOpacity*/
+        ctx[6]
+      ),
+      groupStrokeColor: (
+        /*groupStrokeColor*/
+        ctx[7]
+      ),
+      textStartOffset: (
+        /*textStartOffset*/
+        ctx[8]
+      ),
+      scale: (
+        /*scale*/
+        ctx[1]
+      ),
       $$slots: {
         endPoint: [
           create_endPoint_slot,
           ({ sx, sy, ex, ey, as, pointer }) => ({
-            13: sx,
-            14: sy,
-            15: ex,
-            16: ey,
-            17: as,
-            18: pointer
+            14: sx,
+            15: sy,
+            16: ex,
+            17: ey,
+            18: as,
+            19: pointer
           }),
-          ({ sx, sy, ex, ey, as, pointer }) => (sx ? 8192 : 0) | (sy ? 16384 : 0) | (ex ? 32768 : 0) | (ey ? 65536 : 0) | (as ? 131072 : 0) | (pointer ? 262144 : 0)
+          ({ sx, sy, ex, ey, as, pointer }) => (sx ? 16384 : 0) | (sy ? 32768 : 0) | (ex ? 65536 : 0) | (ey ? 131072 : 0) | (as ? 262144 : 0) | (pointer ? 524288 : 0)
         ],
         startPoint: [
           create_startPoint_slot,
-          ({ sx, sy, ex, ey, as }) => ({ 13: sx, 14: sy, 15: ex, 16: ey, 17: as }),
-          ({ sx, sy, ex, ey, as }) => (sx ? 8192 : 0) | (sy ? 16384 : 0) | (ex ? 32768 : 0) | (ey ? 65536 : 0) | (as ? 131072 : 0)
+          ({ sx, sy, ex, ey, as }) => ({ 14: sx, 15: sy, 16: ex, 17: ey, 18: as }),
+          ({ sx, sy, ex, ey, as }) => (sx ? 16384 : 0) | (sy ? 32768 : 0) | (ex ? 65536 : 0) | (ey ? 131072 : 0) | (as ? 262144 : 0)
         ]
       },
       $$scope: { ctx }
     }
   });
-  link.$on("removeLink", ctx[9]);
+  link.$on(
+    "removeLink",
+    /*removeLink_handler*/
+    ctx[10]
+  );
   return {
     c() {
       create_component(link.$$.fragment);
@@ -1604,23 +2110,44 @@ function create_if_block_1$1(ctx) {
     },
     p(ctx2, dirty) {
       const link_changes = {};
-      if (dirty & 1)
-        link_changes.link = ctx2[10];
-      if (dirty & 2)
-        link_changes.strokeColor = ctx2[1];
-      if (dirty & 4)
-        link_changes.strokeWidth = ctx2[2];
-      if (dirty & 8)
-        link_changes.arrowColor = ctx2[3];
-      if (dirty & 16)
-        link_changes.strokeOpacity = ctx2[4];
-      if (dirty & 32)
-        link_changes.groupStrokeOpacity = ctx2[5];
-      if (dirty & 64)
-        link_changes.groupStrokeColor = ctx2[6];
-      if (dirty & 128)
-        link_changes.textStartOffset = ctx2[7];
-      if (dirty & 1040393) {
+      if (dirty & /*links*/
+      1)
+        link_changes.link = /*link*/
+        ctx2[11];
+      if (dirty & /*strokeColor*/
+      4)
+        link_changes.strokeColor = /*strokeColor*/
+        ctx2[2];
+      if (dirty & /*strokeWidth*/
+      8)
+        link_changes.strokeWidth = /*strokeWidth*/
+        ctx2[3];
+      if (dirty & /*arrowColor*/
+      16)
+        link_changes.arrowColor = /*arrowColor*/
+        ctx2[4];
+      if (dirty & /*strokeOpacity*/
+      32)
+        link_changes.strokeOpacity = /*strokeOpacity*/
+        ctx2[5];
+      if (dirty & /*groupStrokeOpacity*/
+      64)
+        link_changes.groupStrokeOpacity = /*groupStrokeOpacity*/
+        ctx2[6];
+      if (dirty & /*groupStrokeColor*/
+      128)
+        link_changes.groupStrokeColor = /*groupStrokeColor*/
+        ctx2[7];
+      if (dirty & /*textStartOffset*/
+      256)
+        link_changes.textStartOffset = /*textStartOffset*/
+        ctx2[8];
+      if (dirty & /*scale*/
+      2)
+        link_changes.scale = /*scale*/
+        ctx2[1];
+      if (dirty & /*$$scope, sx, sy, links, ex, ey, as, pointer, arrowColor*/
+      2080785) {
         link_changes.$$scope = { dirty, ctx: ctx2 };
       }
       link.$set(link_changes);
@@ -1655,23 +2182,29 @@ function create_else_block_1(ctx) {
       this.h();
     },
     h() {
-      attr(circle, "cx", circle_cx_value = ctx[13]);
-      attr(circle, "cy", circle_cy_value = ctx[14]);
+      attr(circle, "cx", circle_cx_value = /*sx*/
+      ctx[14]);
+      attr(circle, "cy", circle_cy_value = /*sy*/
+      ctx[15]);
       attr(circle, "r", 4);
     },
     m(target, anchor) {
       insert_hydration(target, circle, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty & 8192 && circle_cx_value !== (circle_cx_value = ctx2[13])) {
+      if (dirty & /*sx*/
+      16384 && circle_cx_value !== (circle_cx_value = /*sx*/
+      ctx2[14])) {
         attr(circle, "cx", circle_cx_value);
       }
-      if (dirty & 16384 && circle_cy_value !== (circle_cy_value = ctx2[14])) {
+      if (dirty & /*sy*/
+      32768 && circle_cy_value !== (circle_cy_value = /*sy*/
+      ctx2[15])) {
         attr(circle, "cy", circle_cy_value);
       }
     },
-    i: noop$1,
-    o: noop$1,
+    i: noop$2,
+    o: noop$2,
     d(detaching) {
       if (detaching)
         detach(circle);
@@ -1684,20 +2217,30 @@ function create_if_block_4(ctx) {
   let foreignObject_x_value;
   let foreignObject_y_value;
   let current;
-  var switch_value = ctx[10].source.startPoint.component;
+  var switch_value = (
+    /*link*/
+    ctx[11].source.startPoint.component
+  );
   function switch_props(ctx2) {
     return {
       props: {
-        sx: ctx2[13],
-        sy: ctx2[14],
-        ex: ctx2[15],
-        ey: ctx2[16],
-        as: ctx2[17]
+        sx: (
+          /*sx*/
+          ctx2[14]
+        ),
+        sy: (
+          /*sy*/
+          ctx2[15]
+        ),
+        as: (
+          /*as*/
+          ctx2[18]
+        )
       }
     };
   }
   if (switch_value) {
-    switch_instance = new switch_value(switch_props(ctx));
+    switch_instance = construct_svelte_component(switch_value, switch_props(ctx));
   }
   return {
     c() {
@@ -1707,7 +2250,12 @@ function create_if_block_4(ctx) {
       this.h();
     },
     l(nodes) {
-      foreignObject = claim_svg_element(nodes, "foreignObject", { class: true, x: true, y: true });
+      foreignObject = claim_svg_element(nodes, "foreignObject", {
+        x: true,
+        y: true,
+        width: true,
+        height: true
+      });
       var foreignObject_nodes = children(foreignObject);
       if (switch_instance)
         claim_component(switch_instance.$$.fragment, foreignObject_nodes);
@@ -1715,30 +2263,38 @@ function create_if_block_4(ctx) {
       this.h();
     },
     h() {
-      attr(foreignObject, "class", "overflow-visible pointer-events-auto relative");
-      attr(foreignObject, "x", foreignObject_x_value = ctx[13]);
-      attr(foreignObject, "y", foreignObject_y_value = ctx[14]);
+      attr(foreignObject, "x", foreignObject_x_value = /*sx*/
+      ctx[14]);
+      attr(foreignObject, "y", foreignObject_y_value = /*sy*/
+      ctx[15]);
+      attr(foreignObject, "width", "50");
+      attr(foreignObject, "height", "50");
+      set_style(foreignObject, "overflow", `visible`);
+      set_style(foreignObject, "position", `relative`);
+      set_style(foreignObject, "pointer-events", `auto`);
     },
     m(target, anchor) {
       insert_hydration(target, foreignObject, anchor);
-      if (switch_instance) {
+      if (switch_instance)
         mount_component(switch_instance, foreignObject, null);
-      }
       current = true;
     },
     p(ctx2, dirty) {
       const switch_instance_changes = {};
-      if (dirty & 8192)
-        switch_instance_changes.sx = ctx2[13];
-      if (dirty & 16384)
-        switch_instance_changes.sy = ctx2[14];
-      if (dirty & 32768)
-        switch_instance_changes.ex = ctx2[15];
-      if (dirty & 65536)
-        switch_instance_changes.ey = ctx2[16];
-      if (dirty & 131072)
-        switch_instance_changes.as = ctx2[17];
-      if (switch_value !== (switch_value = ctx2[10].source.startPoint.component)) {
+      if (dirty & /*sx*/
+      16384)
+        switch_instance_changes.sx = /*sx*/
+        ctx2[14];
+      if (dirty & /*sy*/
+      32768)
+        switch_instance_changes.sy = /*sy*/
+        ctx2[15];
+      if (dirty & /*as*/
+      262144)
+        switch_instance_changes.as = /*as*/
+        ctx2[18];
+      if (switch_value !== (switch_value = /*link*/
+      ctx2[11].source.startPoint.component)) {
         if (switch_instance) {
           group_outros();
           const old_component = switch_instance;
@@ -1748,7 +2304,7 @@ function create_if_block_4(ctx) {
           check_outros();
         }
         if (switch_value) {
-          switch_instance = new switch_value(switch_props(ctx2));
+          switch_instance = construct_svelte_component(switch_value, switch_props(ctx2));
           create_component(switch_instance.$$.fragment);
           transition_in(switch_instance.$$.fragment, 1);
           mount_component(switch_instance, foreignObject, null);
@@ -1758,10 +2314,14 @@ function create_if_block_4(ctx) {
       } else if (switch_value) {
         switch_instance.$set(switch_instance_changes);
       }
-      if (!current || dirty & 8192 && foreignObject_x_value !== (foreignObject_x_value = ctx2[13])) {
+      if (!current || dirty & /*sx*/
+      16384 && foreignObject_x_value !== (foreignObject_x_value = /*sx*/
+      ctx2[14])) {
         attr(foreignObject, "x", foreignObject_x_value);
       }
-      if (!current || dirty & 16384 && foreignObject_y_value !== (foreignObject_y_value = ctx2[14])) {
+      if (!current || dirty & /*sy*/
+      32768 && foreignObject_y_value !== (foreignObject_y_value = /*sy*/
+      ctx2[15])) {
         attr(foreignObject, "y", foreignObject_y_value);
       }
     },
@@ -1793,8 +2353,11 @@ function create_startPoint_slot(ctx) {
   const if_block_creators = [create_if_block_4, create_else_block_1];
   const if_blocks = [];
   function select_block_type_1(ctx2, dirty) {
-    var _a, _b;
-    if ((_b = (_a = ctx2[10]) == null ? void 0 : _a.source) == null ? void 0 : _b.startPoint)
+    var _a, _b, _c;
+    if (
+      /*link*/
+      (_c = (_b = (_a = ctx2[11]) == null ? void 0 : _a.source) == null ? void 0 : _b.startPoint) == null ? void 0 : _c.component
+    )
       return 0;
     return 1;
   }
@@ -1855,7 +2418,10 @@ function create_startPoint_slot(ctx) {
 }
 function create_else_block(ctx) {
   let if_block_anchor;
-  let if_block = ctx[18] && create_if_block_3$1(ctx);
+  let if_block = (
+    /*pointer*/
+    ctx[19] && create_if_block_3$1(ctx)
+  );
   return {
     c() {
       if (if_block)
@@ -1873,7 +2439,10 @@ function create_else_block(ctx) {
       insert_hydration(target, if_block_anchor, anchor);
     },
     p(ctx2, dirty) {
-      if (ctx2[18]) {
+      if (
+        /*pointer*/
+        ctx2[19]
+      ) {
         if (if_block) {
           if_block.p(ctx2, dirty);
         } else {
@@ -1886,8 +2455,8 @@ function create_else_block(ctx) {
         if_block = null;
       }
     },
-    i: noop$1,
-    o: noop$1,
+    i: noop$2,
+    o: noop$2,
     d(detaching) {
       if (if_block)
         if_block.d(detaching);
@@ -1902,20 +2471,38 @@ function create_if_block_2$1(ctx) {
   let foreignObject_x_value;
   let foreignObject_y_value;
   let current;
-  var switch_value = ctx[10].source.endPoint.component;
+  var switch_value = (
+    /*link*/
+    ctx[11].source.endPoint.component
+  );
   function switch_props(ctx2) {
     return {
       props: {
-        sx: ctx2[13],
-        sy: ctx2[14],
-        ex: ctx2[15],
-        ey: ctx2[16],
-        as: ctx2[17]
+        sx: (
+          /*sx*/
+          ctx2[14]
+        ),
+        sy: (
+          /*sy*/
+          ctx2[15]
+        ),
+        ex: (
+          /*ex*/
+          ctx2[16]
+        ),
+        ey: (
+          /*ey*/
+          ctx2[17]
+        ),
+        as: (
+          /*as*/
+          ctx2[18]
+        )
       }
     };
   }
   if (switch_value) {
-    switch_instance = new switch_value(switch_props(ctx));
+    switch_instance = construct_svelte_component(switch_value, switch_props(ctx));
   }
   return {
     c() {
@@ -1925,7 +2512,13 @@ function create_if_block_2$1(ctx) {
       this.h();
     },
     l(nodes) {
-      foreignObject = claim_svg_element(nodes, "foreignObject", { class: true, x: true, y: true });
+      foreignObject = claim_svg_element(nodes, "foreignObject", {
+        class: true,
+        x: true,
+        y: true,
+        width: true,
+        height: true
+      });
       var foreignObject_nodes = children(foreignObject);
       if (switch_instance)
         claim_component(switch_instance.$$.fragment, foreignObject_nodes);
@@ -1934,29 +2527,43 @@ function create_if_block_2$1(ctx) {
     },
     h() {
       attr(foreignObject, "class", "overflow-visible pointer-events-auto relative");
-      attr(foreignObject, "x", foreignObject_x_value = ctx[13]);
-      attr(foreignObject, "y", foreignObject_y_value = ctx[14]);
+      attr(foreignObject, "x", foreignObject_x_value = /*sx*/
+      ctx[14]);
+      attr(foreignObject, "y", foreignObject_y_value = /*sy*/
+      ctx[15]);
+      attr(foreignObject, "width", "50");
+      attr(foreignObject, "height", "50");
     },
     m(target, anchor) {
       insert_hydration(target, foreignObject, anchor);
-      if (switch_instance) {
+      if (switch_instance)
         mount_component(switch_instance, foreignObject, null);
-      }
       current = true;
     },
     p(ctx2, dirty) {
       const switch_instance_changes = {};
-      if (dirty & 8192)
-        switch_instance_changes.sx = ctx2[13];
-      if (dirty & 16384)
-        switch_instance_changes.sy = ctx2[14];
-      if (dirty & 32768)
-        switch_instance_changes.ex = ctx2[15];
-      if (dirty & 65536)
-        switch_instance_changes.ey = ctx2[16];
-      if (dirty & 131072)
-        switch_instance_changes.as = ctx2[17];
-      if (switch_value !== (switch_value = ctx2[10].source.endPoint.component)) {
+      if (dirty & /*sx*/
+      16384)
+        switch_instance_changes.sx = /*sx*/
+        ctx2[14];
+      if (dirty & /*sy*/
+      32768)
+        switch_instance_changes.sy = /*sy*/
+        ctx2[15];
+      if (dirty & /*ex*/
+      65536)
+        switch_instance_changes.ex = /*ex*/
+        ctx2[16];
+      if (dirty & /*ey*/
+      131072)
+        switch_instance_changes.ey = /*ey*/
+        ctx2[17];
+      if (dirty & /*as*/
+      262144)
+        switch_instance_changes.as = /*as*/
+        ctx2[18];
+      if (switch_value !== (switch_value = /*link*/
+      ctx2[11].source.endPoint.component)) {
         if (switch_instance) {
           group_outros();
           const old_component = switch_instance;
@@ -1966,7 +2573,7 @@ function create_if_block_2$1(ctx) {
           check_outros();
         }
         if (switch_value) {
-          switch_instance = new switch_value(switch_props(ctx2));
+          switch_instance = construct_svelte_component(switch_value, switch_props(ctx2));
           create_component(switch_instance.$$.fragment);
           transition_in(switch_instance.$$.fragment, 1);
           mount_component(switch_instance, foreignObject, null);
@@ -1976,10 +2583,14 @@ function create_if_block_2$1(ctx) {
       } else if (switch_value) {
         switch_instance.$set(switch_instance_changes);
       }
-      if (!current || dirty & 8192 && foreignObject_x_value !== (foreignObject_x_value = ctx2[13])) {
+      if (!current || dirty & /*sx*/
+      16384 && foreignObject_x_value !== (foreignObject_x_value = /*sx*/
+      ctx2[14])) {
         attr(foreignObject, "x", foreignObject_x_value);
       }
-      if (!current || dirty & 16384 && foreignObject_y_value !== (foreignObject_y_value = ctx2[14])) {
+      if (!current || dirty & /*sy*/
+      32768 && foreignObject_y_value !== (foreignObject_y_value = /*sy*/
+      ctx2[15])) {
         attr(foreignObject, "y", foreignObject_y_value);
       }
     },
@@ -2022,18 +2633,32 @@ function create_if_block_3$1(ctx) {
     },
     h() {
       attr(polygon, "points", "0,-6 12,0, 0,6");
-      attr(polygon, "transform", polygon_transform_value = ctx[18]);
-      attr(polygon, "fill", ctx[3]);
+      attr(polygon, "transform", polygon_transform_value = /*pointer*/
+      ctx[19]);
+      attr(
+        polygon,
+        "fill",
+        /*arrowColor*/
+        ctx[4]
+      );
     },
     m(target, anchor) {
       insert_hydration(target, polygon, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty & 262144 && polygon_transform_value !== (polygon_transform_value = ctx2[18])) {
+      if (dirty & /*pointer*/
+      524288 && polygon_transform_value !== (polygon_transform_value = /*pointer*/
+      ctx2[19])) {
         attr(polygon, "transform", polygon_transform_value);
       }
-      if (dirty & 8) {
-        attr(polygon, "fill", ctx2[3]);
+      if (dirty & /*arrowColor*/
+      16) {
+        attr(
+          polygon,
+          "fill",
+          /*arrowColor*/
+          ctx2[4]
+        );
       }
     },
     d(detaching) {
@@ -2050,8 +2675,11 @@ function create_endPoint_slot(ctx) {
   const if_block_creators = [create_if_block_2$1, create_else_block];
   const if_blocks = [];
   function select_block_type(ctx2, dirty) {
-    var _a, _b;
-    if ((_b = (_a = ctx2[10]) == null ? void 0 : _a.source) == null ? void 0 : _b.endPoint)
+    var _a, _b, _c;
+    if (
+      /*link*/
+      (_c = (_b = (_a = ctx2[11]) == null ? void 0 : _a.source) == null ? void 0 : _b.endPoint) == null ? void 0 : _c.component
+    )
       return 0;
     return 1;
   }
@@ -2114,7 +2742,11 @@ function create_each_block$2(key_1, ctx) {
   let first;
   let if_block_anchor;
   let current;
-  let if_block = ctx[10] && ctx[8] && create_if_block_1$1(ctx);
+  let if_block = (
+    /*link*/
+    ctx[11] && /*mounted*/
+    ctx[9] && create_if_block_1$1(ctx)
+  );
   return {
     key: key_1,
     first: null,
@@ -2144,10 +2776,15 @@ function create_each_block$2(key_1, ctx) {
     },
     p(new_ctx, dirty) {
       ctx = new_ctx;
-      if (ctx[10] && ctx[8]) {
+      if (
+        /*link*/
+        ctx[11] && /*mounted*/
+        ctx[9]
+      ) {
         if (if_block) {
           if_block.p(ctx, dirty);
-          if (dirty & 257) {
+          if (dirty & /*links, mounted*/
+          513) {
             transition_in(if_block, 1);
           }
         } else {
@@ -2187,7 +2824,12 @@ function create_each_block$2(key_1, ctx) {
 function create_fragment$8(ctx) {
   let if_block_anchor;
   let current;
-  let if_block = ctx[8] && ctx[0] && ctx[0].length > 0 && create_if_block$5(ctx);
+  let if_block = (
+    /*mounted*/
+    ctx[9] && /*links*/
+    ctx[0] && /*links*/
+    ctx[0].length > 0 && create_if_block$5(ctx)
+  );
   return {
     c() {
       if (if_block)
@@ -2206,10 +2848,16 @@ function create_fragment$8(ctx) {
       current = true;
     },
     p(ctx2, [dirty]) {
-      if (ctx2[8] && ctx2[0] && ctx2[0].length > 0) {
+      if (
+        /*mounted*/
+        ctx2[9] && /*links*/
+        ctx2[0] && /*links*/
+        ctx2[0].length > 0
+      ) {
         if (if_block) {
           if_block.p(ctx2, dirty);
-          if (dirty & 257) {
+          if (dirty & /*mounted, links*/
+          513) {
             transition_in(if_block, 1);
           }
         } else {
@@ -2246,6 +2894,7 @@ function create_fragment$8(ctx) {
 }
 function instance$8($$self, $$props, $$invalidate) {
   let { links } = $$props;
+  let { scale } = $$props;
   let { strokeColor = "currentColor" } = $$props;
   let { strokeWidth = 1 } = $$props;
   let { arrowColor = "currentColor" } = $$props;
@@ -2255,7 +2904,7 @@ function instance$8($$self, $$props, $$invalidate) {
   let { textStartOffset = 20 } = $$props;
   let mounted;
   onMount(() => {
-    $$invalidate(8, mounted = true);
+    $$invalidate(9, mounted = true);
   });
   function removeLink_handler(event) {
     bubble.call(this, $$self, event);
@@ -2263,23 +2912,26 @@ function instance$8($$self, $$props, $$invalidate) {
   $$self.$$set = ($$props2) => {
     if ("links" in $$props2)
       $$invalidate(0, links = $$props2.links);
+    if ("scale" in $$props2)
+      $$invalidate(1, scale = $$props2.scale);
     if ("strokeColor" in $$props2)
-      $$invalidate(1, strokeColor = $$props2.strokeColor);
+      $$invalidate(2, strokeColor = $$props2.strokeColor);
     if ("strokeWidth" in $$props2)
-      $$invalidate(2, strokeWidth = $$props2.strokeWidth);
+      $$invalidate(3, strokeWidth = $$props2.strokeWidth);
     if ("arrowColor" in $$props2)
-      $$invalidate(3, arrowColor = $$props2.arrowColor);
+      $$invalidate(4, arrowColor = $$props2.arrowColor);
     if ("strokeOpacity" in $$props2)
-      $$invalidate(4, strokeOpacity = $$props2.strokeOpacity);
+      $$invalidate(5, strokeOpacity = $$props2.strokeOpacity);
     if ("groupStrokeOpacity" in $$props2)
-      $$invalidate(5, groupStrokeOpacity = $$props2.groupStrokeOpacity);
+      $$invalidate(6, groupStrokeOpacity = $$props2.groupStrokeOpacity);
     if ("groupStrokeColor" in $$props2)
-      $$invalidate(6, groupStrokeColor = $$props2.groupStrokeColor);
+      $$invalidate(7, groupStrokeColor = $$props2.groupStrokeColor);
     if ("textStartOffset" in $$props2)
-      $$invalidate(7, textStartOffset = $$props2.textStartOffset);
+      $$invalidate(8, textStartOffset = $$props2.textStartOffset);
   };
   return [
     links,
+    scale,
     strokeColor,
     strokeWidth,
     arrowColor,
@@ -2296,20 +2948,30 @@ class Links extends SvelteComponent {
     super();
     init(this, options, instance$8, create_fragment$8, safe_not_equal, {
       links: 0,
-      strokeColor: 1,
-      strokeWidth: 2,
-      arrowColor: 3,
-      strokeOpacity: 4,
-      groupStrokeOpacity: 5,
-      groupStrokeColor: 6,
-      textStartOffset: 7
+      scale: 1,
+      strokeColor: 2,
+      strokeWidth: 3,
+      arrowColor: 4,
+      strokeOpacity: 5,
+      groupStrokeOpacity: 6,
+      groupStrokeColor: 7,
+      textStartOffset: 8
     });
   }
 }
 function create_if_block$4(ctx) {
   let current;
-  const default_slot_template = ctx[7].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[6], null);
+  const default_slot_template = (
+    /*#slots*/
+    ctx[7].default
+  );
+  const default_slot = create_slot(
+    default_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[6],
+    null
+  );
   const default_slot_or_fallback = default_slot || fallback_block$3(ctx);
   return {
     c() {
@@ -2328,18 +2990,30 @@ function create_if_block$4(ctx) {
     },
     p(ctx2, dirty) {
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 64)) {
+        if (default_slot.p && (!current || dirty & /*$$scope*/
+        64)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
+            /*$$scope*/
             ctx2[6],
-            !current ? get_all_dirty_from_scope(ctx2[6]) : get_slot_changes(default_slot_template, ctx2[6], dirty, null),
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[6]
+            ) : get_slot_changes(
+              default_slot_template,
+              /*$$scope*/
+              ctx2[6],
+              dirty,
+              null
+            ),
             null
           );
         }
       } else {
-        if (default_slot_or_fallback && default_slot_or_fallback.p && (!current || dirty & 4)) {
+        if (default_slot_or_fallback && default_slot_or_fallback.p && (!current || dirty & /*zoneSize*/
+        4)) {
           default_slot_or_fallback.p(ctx2, !current ? -1 : dirty);
         }
       }
@@ -2375,13 +3049,18 @@ function fallback_block$3(ctx) {
     },
     h() {
       set_style(div, "transform", "translate(-50%, -50%)");
-      attr(div, "class", div_class_value = "absolute border-[" + (ctx[2] + "em") + "] md:border-[" + (ctx[2] / 2 + "em") + "] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full");
+      attr(div, "class", div_class_value = "absolute border-[" + /*zoneSize*/
+      (ctx[2] + "em") + "] md:border-[" + /*zoneSize*/
+      (ctx[2] / 2 + "em") + "] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty & 4 && div_class_value !== (div_class_value = "absolute border-[" + (ctx2[2] + "em") + "] md:border-[" + (ctx2[2] / 2 + "em") + "] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full")) {
+      if (dirty & /*zoneSize*/
+      4 && div_class_value !== (div_class_value = "absolute border-[" + /*zoneSize*/
+      (ctx2[2] + "em") + "] md:border-[" + /*zoneSize*/
+      (ctx2[2] / 2 + "em") + "] border-yellow-200/40 ring-2 ring-black h-0 w-0 rounded-full")) {
         attr(div, "class", div_class_value);
       }
     },
@@ -2398,7 +3077,10 @@ function create_fragment$7(ctx) {
   let current;
   let mounted;
   let dispose;
-  let if_block = ctx[0] && create_if_block$4(ctx);
+  let if_block = (
+    /*highlight*/
+    ctx[0] && create_if_block$4(ctx)
+  );
   return {
     c() {
       div = element("div");
@@ -2420,11 +3102,24 @@ function create_fragment$7(ctx) {
       this.h();
     },
     h() {
-      attr(div, "id", div_id_value = ctx[1].id + "--highlighter");
+      attr(div, "id", div_id_value = /*node*/
+      ctx[1].id + "--highlighter");
       attr(div, "data-highlighter", "true");
-      attr(div, "class", div_class_value = "absolute border-[" + (ctx[2] + "em") + "] md:border-[" + (ctx[2] / 2 + "em") + "] border-transparent rounded-full p-0 m-0");
-      set_style(div, "top", ctx[5] + "px");
-      set_style(div, "left", ctx[4] + "px");
+      attr(div, "class", div_class_value = "absolute border-[" + /*zoneSize*/
+      (ctx[2] + "em") + "] md:border-[" + /*zoneSize*/
+      (ctx[2] / 2 + "em") + "] border-transparent rounded-full p-0 m-0");
+      set_style(
+        div,
+        "top",
+        /*top*/
+        ctx[5] + "px"
+      );
+      set_style(
+        div,
+        "left",
+        /*left*/
+        ctx[4] + "px"
+      );
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -2434,20 +3129,49 @@ function create_fragment$7(ctx) {
       current = true;
       if (!mounted) {
         dispose = [
-          listen(window, "resize", ctx[8]),
-          listen(div, "mouseover", ctx[10]),
-          listen(div, "mouseleave", ctx[11]),
-          listen(div, "focus", ctx[12]),
-          listen(div, "blur", ctx[13])
+          listen(
+            window,
+            "resize",
+            /*resize_handler*/
+            ctx[8]
+          ),
+          listen(
+            div,
+            "mouseover",
+            /*mouseover_handler*/
+            ctx[10]
+          ),
+          listen(
+            div,
+            "mouseleave",
+            /*mouseleave_handler*/
+            ctx[11]
+          ),
+          listen(
+            div,
+            "focus",
+            /*focus_handler*/
+            ctx[12]
+          ),
+          listen(
+            div,
+            "blur",
+            /*blur_handler*/
+            ctx[13]
+          )
         ];
         mounted = true;
       }
     },
     p(ctx2, [dirty]) {
-      if (ctx2[0]) {
+      if (
+        /*highlight*/
+        ctx2[0]
+      ) {
         if (if_block) {
           if_block.p(ctx2, dirty);
-          if (dirty & 1) {
+          if (dirty & /*highlight*/
+          1) {
             transition_in(if_block, 1);
           }
         } else {
@@ -2463,17 +3187,34 @@ function create_fragment$7(ctx) {
         });
         check_outros();
       }
-      if (!current || dirty & 2 && div_id_value !== (div_id_value = ctx2[1].id + "--highlighter")) {
+      if (!current || dirty & /*node*/
+      2 && div_id_value !== (div_id_value = /*node*/
+      ctx2[1].id + "--highlighter")) {
         attr(div, "id", div_id_value);
       }
-      if (!current || dirty & 4 && div_class_value !== (div_class_value = "absolute border-[" + (ctx2[2] + "em") + "] md:border-[" + (ctx2[2] / 2 + "em") + "] border-transparent rounded-full p-0 m-0")) {
+      if (!current || dirty & /*zoneSize*/
+      4 && div_class_value !== (div_class_value = "absolute border-[" + /*zoneSize*/
+      (ctx2[2] + "em") + "] md:border-[" + /*zoneSize*/
+      (ctx2[2] / 2 + "em") + "] border-transparent rounded-full p-0 m-0")) {
         attr(div, "class", div_class_value);
       }
-      if (!current || dirty & 32) {
-        set_style(div, "top", ctx2[5] + "px");
+      if (!current || dirty & /*top*/
+      32) {
+        set_style(
+          div,
+          "top",
+          /*top*/
+          ctx2[5] + "px"
+        );
       }
-      if (!current || dirty & 16) {
-        set_style(div, "left", ctx2[4] + "px");
+      if (!current || dirty & /*left*/
+      16) {
+        set_style(
+          div,
+          "left",
+          /*left*/
+          ctx2[4] + "px"
+        );
       }
     },
     i(local) {
@@ -2538,13 +3279,16 @@ function instance$7($$self, $$props, $$invalidate) {
       $$invalidate(6, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty & 10) {
+    if ($$self.$$.dirty & /*dot, node*/
+    10) {
       $$invalidate(5, top = dot ? -dot.offsetHeight / 2 + node.offsetHeight / 2 : 0);
     }
-    if ($$self.$$.dirty & 10) {
+    if ($$self.$$.dirty & /*dot, node*/
+    10) {
       $$invalidate(4, left = dot ? -dot.offsetWidth / 2 + node.offsetWidth / 2 : 0);
     }
-    if ($$self.$$.dirty & 10) {
+    if ($$self.$$.dirty & /*dot, node*/
+    10) {
       if (dot)
         node.insertAdjacentElement("beforeend", dot);
     }
@@ -2587,35 +3331,50 @@ const generateLinkLabel = (nodes, sourceID, targetID = false) => {
 };
 const MARKER = "marker";
 const DROPZONE = "connectabledropzone";
-const DELEGATOR = "connectdelegator";
 const { window: window_1 } = globals;
 function get_each_context$1(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[19] = list[i][0];
-  child_ctx[20] = list[i][1].node;
-  child_ctx[21] = list[i][1].highlight;
+  child_ctx[18] = list[i][0];
+  child_ctx[19] = list[i][1].node;
+  child_ctx[20] = list[i][1].highlight;
   return child_ctx;
 }
 const get_default_slot_changes = (dirty) => ({});
-const get_default_slot_context = (ctx) => ({ connectable: ctx[9] });
+const get_default_slot_context = (ctx) => ({ connectable: (
+  /*connectable*/
+  ctx[10]
+) });
 const get_marker_slot_changes = (dirty) => ({});
-const get_marker_slot_context = (ctx) => ({ connectable: ctx[9] });
+const get_marker_slot_context = (ctx) => ({ connectable: (
+  /*connectable*/
+  ctx[10]
+) });
 function create_if_block_3(ctx) {
   let cursormarker;
   let updating_marker;
   let current;
   function cursormarker_marker_binding(value) {
-    ctx[13](value);
+    ctx[14](value);
   }
   let cursormarker_props = {
-    left: ctx[7],
-    top: ctx[8],
+    left: (
+      /*left*/
+      ctx[8]
+    ),
+    top: (
+      /*top*/
+      ctx[9]
+    ),
     id: MARKER,
     $$slots: { default: [create_default_slot$2] },
     $$scope: { ctx }
   };
-  if (ctx[5] !== void 0) {
-    cursormarker_props.marker = ctx[5];
+  if (
+    /*marker*/
+    ctx[6] !== void 0
+  ) {
+    cursormarker_props.marker = /*marker*/
+    ctx[6];
   }
   cursormarker = new CursorMarker({ props: cursormarker_props });
   binding_callbacks.push(() => bind(cursormarker, "marker", cursormarker_marker_binding));
@@ -2632,16 +3391,23 @@ function create_if_block_3(ctx) {
     },
     p(ctx2, dirty) {
       const cursormarker_changes = {};
-      if (dirty & 128)
-        cursormarker_changes.left = ctx2[7];
-      if (dirty & 256)
-        cursormarker_changes.top = ctx2[8];
-      if (dirty & 32768) {
+      if (dirty & /*left*/
+      256)
+        cursormarker_changes.left = /*left*/
+        ctx2[8];
+      if (dirty & /*top*/
+      512)
+        cursormarker_changes.top = /*top*/
+        ctx2[9];
+      if (dirty & /*$$scope*/
+      65536) {
         cursormarker_changes.$$scope = { dirty, ctx: ctx2 };
       }
-      if (!updating_marker && dirty & 32) {
+      if (!updating_marker && dirty & /*marker*/
+      64) {
         updating_marker = true;
-        cursormarker_changes.marker = ctx2[5];
+        cursormarker_changes.marker = /*marker*/
+        ctx2[6];
         add_flush_callback(() => updating_marker = false);
       }
       cursormarker.$set(cursormarker_changes);
@@ -2679,7 +3445,7 @@ function fallback_block$2(ctx) {
     m(target, anchor) {
       insert_hydration(target, div, anchor);
     },
-    p: noop$1,
+    p: noop$2,
     d(detaching) {
       if (detaching)
         detach(div);
@@ -2688,8 +3454,17 @@ function fallback_block$2(ctx) {
 }
 function create_default_slot$2(ctx) {
   let current;
-  const marker_slot_template = ctx[11].marker;
-  const marker_slot = create_slot(marker_slot_template, ctx, ctx[15], get_marker_slot_context);
+  const marker_slot_template = (
+    /*#slots*/
+    ctx[12].marker
+  );
+  const marker_slot = create_slot(
+    marker_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[16],
+    get_marker_slot_context
+  );
   const marker_slot_or_fallback = marker_slot || fallback_block$2();
   return {
     c() {
@@ -2708,13 +3483,24 @@ function create_default_slot$2(ctx) {
     },
     p(ctx2, dirty) {
       if (marker_slot) {
-        if (marker_slot.p && (!current || dirty & 32768)) {
+        if (marker_slot.p && (!current || dirty & /*$$scope*/
+        65536)) {
           update_slot_base(
             marker_slot,
             marker_slot_template,
             ctx2,
-            ctx2[15],
-            !current ? get_all_dirty_from_scope(ctx2[15]) : get_slot_changes(marker_slot_template, ctx2[15], dirty, get_marker_slot_changes),
+            /*$$scope*/
+            ctx2[16],
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[16]
+            ) : get_slot_changes(
+              marker_slot_template,
+              /*$$scope*/
+              ctx2[16],
+              dirty,
+              get_marker_slot_changes
+            ),
             get_marker_slot_context
           );
         }
@@ -2738,8 +3524,17 @@ function create_default_slot$2(ctx) {
 }
 function create_if_block_2(ctx) {
   let current;
-  const default_slot_template = ctx[11].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[15], get_default_slot_context);
+  const default_slot_template = (
+    /*#slots*/
+    ctx[12].default
+  );
+  const default_slot = create_slot(
+    default_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[16],
+    get_default_slot_context
+  );
   return {
     c() {
       if (default_slot)
@@ -2757,13 +3552,24 @@ function create_if_block_2(ctx) {
     },
     p(ctx2, dirty) {
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 32768)) {
+        if (default_slot.p && (!current || dirty & /*$$scope*/
+        65536)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
-            ctx2[15],
-            !current ? get_all_dirty_from_scope(ctx2[15]) : get_slot_changes(default_slot_template, ctx2[15], dirty, get_default_slot_changes),
+            /*$$scope*/
+            ctx2[16],
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[16]
+            ) : get_slot_changes(
+              default_slot_template,
+              /*$$scope*/
+              ctx2[16],
+              dirty,
+              get_default_slot_changes
+            ),
             get_default_slot_context
           );
         }
@@ -2789,7 +3595,18 @@ function create_if_block_1(ctx) {
   var _a;
   let links;
   let current;
-  const links_spread_levels = [{ links: [ctx[6]] }, (_a = ctx[1]) == null ? void 0 : _a.links];
+  const links_spread_levels = [
+    { links: [
+      /*tempLink*/
+      ctx[7]
+    ] },
+    /*opts*/
+    (_a = ctx[2]) == null ? void 0 : _a.links,
+    { scale: (
+      /*scale*/
+      ctx[1]
+    ) }
+  ];
   let links_props = {};
   for (let i = 0; i < links_spread_levels.length; i += 1) {
     links_props = assign(links_props, links_spread_levels[i]);
@@ -2808,9 +3625,23 @@ function create_if_block_1(ctx) {
     },
     p(ctx2, dirty) {
       var _a2;
-      const links_changes = dirty & 66 ? get_spread_update(links_spread_levels, [
-        dirty & 64 && { links: [ctx2[6]] },
-        dirty & 2 && get_spread_object((_a2 = ctx2[1]) == null ? void 0 : _a2.links)
+      const links_changes = dirty & /*tempLink, opts, scale*/
+      134 ? get_spread_update(links_spread_levels, [
+        dirty & /*tempLink*/
+        128 && { links: [
+          /*tempLink*/
+          ctx2[7]
+        ] },
+        dirty & /*opts*/
+        4 && get_spread_object(
+          /*opts*/
+          (_a2 = ctx2[2]) == null ? void 0 : _a2.links
+        ),
+        dirty & /*scale*/
+        2 && { scale: (
+          /*scale*/
+          ctx2[1]
+        ) }
       ]) : {};
       links.$set(links_changes);
     },
@@ -2833,13 +3664,28 @@ function create_if_block$3(ctx) {
   var _a;
   let links;
   let current;
-  const links_spread_levels = [{ links: ctx[0].links }, (_a = ctx[1]) == null ? void 0 : _a.links];
+  const links_spread_levels = [
+    { links: (
+      /*data*/
+      ctx[0].links
+    ) },
+    /*opts*/
+    (_a = ctx[2]) == null ? void 0 : _a.links,
+    { scale: (
+      /*scale*/
+      ctx[1]
+    ) }
+  ];
   let links_props = {};
   for (let i = 0; i < links_spread_levels.length; i += 1) {
     links_props = assign(links_props, links_spread_levels[i]);
   }
   links = new Links({ props: links_props });
-  links.$on("removeLink", ctx[10]);
+  links.$on(
+    "removeLink",
+    /*removeLink*/
+    ctx[11]
+  );
   return {
     c() {
       create_component(links.$$.fragment);
@@ -2853,9 +3699,23 @@ function create_if_block$3(ctx) {
     },
     p(ctx2, dirty) {
       var _a2;
-      const links_changes = dirty & 3 ? get_spread_update(links_spread_levels, [
-        dirty & 1 && { links: ctx2[0].links },
-        dirty & 2 && get_spread_object((_a2 = ctx2[1]) == null ? void 0 : _a2.links)
+      const links_changes = dirty & /*data, opts, scale*/
+      7 ? get_spread_update(links_spread_levels, [
+        dirty & /*data*/
+        1 && { links: (
+          /*data*/
+          ctx2[0].links
+        ) },
+        dirty & /*opts*/
+        4 && get_spread_object(
+          /*opts*/
+          (_a2 = ctx2[2]) == null ? void 0 : _a2.links
+        ),
+        dirty & /*scale*/
+        2 && { scale: (
+          /*scale*/
+          ctx2[1]
+        ) }
       ]) : {};
       links.$set(links_changes);
     },
@@ -2879,8 +3739,14 @@ function create_each_block$1(ctx) {
   let current;
   highlighter = new Highlighter({
     props: {
-      node: ctx[20],
-      highlight: ctx[21]
+      node: (
+        /*node*/
+        ctx[19]
+      ),
+      highlight: (
+        /*highlight*/
+        ctx[20]
+      )
     }
   });
   return {
@@ -2896,10 +3762,14 @@ function create_each_block$1(ctx) {
     },
     p(ctx2, dirty) {
       const highlighter_changes = {};
-      if (dirty & 4)
-        highlighter_changes.node = ctx2[20];
-      if (dirty & 4)
-        highlighter_changes.highlight = ctx2[21];
+      if (dirty & /*highlighters*/
+      8)
+        highlighter_changes.node = /*node*/
+        ctx2[19];
+      if (dirty & /*highlighters*/
+      8)
+        highlighter_changes.highlight = /*highlight*/
+        ctx2[20];
       highlighter.$set(highlighter_changes);
     },
     i(local) {
@@ -2918,6 +3788,7 @@ function create_each_block$1(ctx) {
   };
 }
 function create_fragment$6(ctx) {
+  var _a;
   let div;
   let t0;
   let t1;
@@ -2926,11 +3797,27 @@ function create_fragment$6(ctx) {
   let current;
   let mounted;
   let dispose;
-  let if_block0 = ctx[4] && create_if_block_3(ctx);
-  let if_block1 = ctx[3] && create_if_block_2(ctx);
-  let if_block2 = ctx[6] && create_if_block_1(ctx);
-  let if_block3 = ctx[0].links && ctx[0].links.length > 0 && create_if_block$3(ctx);
-  let each_value = [...Object.entries(ctx[2])];
+  let if_block0 = (
+    /*connecting*/
+    ctx[5] && create_if_block_3(ctx)
+  );
+  let if_block1 = (
+    /*canvas*/
+    ctx[4] && create_if_block_2(ctx)
+  );
+  let if_block2 = (
+    /*tempLink*/
+    ctx[7] && create_if_block_1(ctx)
+  );
+  let if_block3 = (
+    /*data*/
+    ((_a = ctx[0]) == null ? void 0 : _a.links) && /*data*/
+    ctx[0].links.length > 0 && create_if_block$3(ctx)
+  );
+  let each_value = [...Object.entries(
+    /*highlighters*/
+    ctx[3]
+  )];
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
     each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
@@ -2959,7 +3846,7 @@ function create_fragment$6(ctx) {
       this.h();
     },
     l(nodes) {
-      div = claim_element(nodes, "DIV", { class: true, "data-canvas": true });
+      div = claim_element(nodes, "DIV", { "data-canvas": true });
       var div_nodes = children(div);
       if (if_block0)
         if_block0.l(div_nodes);
@@ -2980,8 +3867,8 @@ function create_fragment$6(ctx) {
       this.h();
     },
     h() {
-      attr(div, "class", "relative");
       attr(div, "data-canvas", "");
+      set_style(div, "position", `relative`);
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -3000,18 +3887,28 @@ function create_fragment$6(ctx) {
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].m(div, null);
       }
-      ctx[14](div);
+      ctx[15](div);
       current = true;
       if (!mounted) {
-        dispose = listen(window_1, "resize", ctx[12]);
+        dispose = listen(
+          window_1,
+          "resize",
+          /*resize_handler*/
+          ctx[13]
+        );
         mounted = true;
       }
     },
     p(ctx2, [dirty]) {
-      if (ctx2[4]) {
+      var _a2;
+      if (
+        /*connecting*/
+        ctx2[5]
+      ) {
         if (if_block0) {
           if_block0.p(ctx2, dirty);
-          if (dirty & 16) {
+          if (dirty & /*connecting*/
+          32) {
             transition_in(if_block0, 1);
           }
         } else {
@@ -3027,10 +3924,14 @@ function create_fragment$6(ctx) {
         });
         check_outros();
       }
-      if (ctx2[3]) {
+      if (
+        /*canvas*/
+        ctx2[4]
+      ) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
-          if (dirty & 8) {
+          if (dirty & /*canvas*/
+          16) {
             transition_in(if_block1, 1);
           }
         } else {
@@ -3046,10 +3947,14 @@ function create_fragment$6(ctx) {
         });
         check_outros();
       }
-      if (ctx2[6]) {
+      if (
+        /*tempLink*/
+        ctx2[7]
+      ) {
         if (if_block2) {
           if_block2.p(ctx2, dirty);
-          if (dirty & 64) {
+          if (dirty & /*tempLink*/
+          128) {
             transition_in(if_block2, 1);
           }
         } else {
@@ -3065,10 +3970,15 @@ function create_fragment$6(ctx) {
         });
         check_outros();
       }
-      if (ctx2[0].links && ctx2[0].links.length > 0) {
+      if (
+        /*data*/
+        ((_a2 = ctx2[0]) == null ? void 0 : _a2.links) && /*data*/
+        ctx2[0].links.length > 0
+      ) {
         if (if_block3) {
           if_block3.p(ctx2, dirty);
-          if (dirty & 1) {
+          if (dirty & /*data*/
+          1) {
             transition_in(if_block3, 1);
           }
         } else {
@@ -3084,8 +3994,12 @@ function create_fragment$6(ctx) {
         });
         check_outros();
       }
-      if (dirty & 4) {
-        each_value = [...Object.entries(ctx2[2])];
+      if (dirty & /*Object, highlighters*/
+      8) {
+        each_value = [...Object.entries(
+          /*highlighters*/
+          ctx2[3]
+        )];
         let i;
         for (i = 0; i < each_value.length; i += 1) {
           const child_ctx = get_each_context$1(ctx2, each_value, i);
@@ -3141,7 +4055,7 @@ function create_fragment$6(ctx) {
       if (if_block3)
         if_block3.d();
       destroy_each(each_blocks, detaching);
-      ctx[14](null);
+      ctx[15](null);
       mounted = false;
       dispose();
     }
@@ -3150,6 +4064,7 @@ function create_fragment$6(ctx) {
 function instance$6($$self, $$props, $$invalidate) {
   let { $$slots: slots = {}, $$scope } = $$props;
   let { data } = $$props;
+  let { scale = 1 } = $$props;
   let { opts = {} } = $$props;
   const dispatch = createEventDispatcher();
   let highlighters = {};
@@ -3159,58 +4074,59 @@ function instance$6($$self, $$props, $$invalidate) {
   let tempLink = null;
   let left = 0;
   let top = 0;
-  function handler(p, e) {
-    e.stopPropagation();
-    e.preventDefault();
-    $$invalidate(7, left = p.pageX - canvas.offsetLeft);
-    $$invalidate(8, top = p.pageY - canvas.offsetTop);
-  }
   function connectable(node, options) {
     var _a, _b, _c, _d, _e;
     if (!node.id)
       node.id = nanoid();
+    if (!node.dataset.noPan)
+      node.dataset.noPan = true;
     let sourceid = ((_a = node == null ? void 0 : node.dataset) == null ? void 0 : _a.sourceid) ? (_b = node == null ? void 0 : node.dataset) == null ? void 0 : _b.sourceid : node.id;
     if (!node.style.position || node.style.position !== "absolute" && node.style.position !== "relative")
       node.style.position = "relative";
     let highlight = false;
     let overZone;
-    $$invalidate(2, highlighters[sourceid] = { node, highlight }, highlighters);
+    $$invalidate(3, highlighters[sourceid] = { node, highlight }, highlighters);
     let pointerTracker;
     let startPoint;
     if ((_c = options == null ? void 0 : options.startPoint) == null ? void 0 : _c.component) {
-      node.dataset[DELEGATOR] = true;
       startPoint = new options.startPoint.component({
         target: node,
         props: { show: ((_d = options.startPoint) == null ? void 0 : _d.show) || true }
       });
-      startPoint.$on("ready", (event) => createHandleTracker(node, event.detail.handle));
+      startPoint.$on("ready", (event) => createPointerTracker(node, event.detail.handle));
       startPoint.$set({ mounted: true });
     } else {
-      createHandleTracker(node);
+      createPointerTracker(node);
     }
     if (options == null ? void 0 : options.dataset)
       node.dataset.dataset = JSON.stringify(options.dataset);
     if (!((_e = options == null ? void 0 : options.restrictions) == null ? void 0 : _e.startOnly))
       node.dataset[DROPZONE] = true;
-    function createHandleTracker(node2, handle = false) {
+    function createPointerTracker(node2, handle = false) {
       var _a2;
       if (!((_a2 = options == null ? void 0 : options.restrictions) == null ? void 0 : _a2.dropOnly)) {
-        pointerTracker = new PointerTracker(
+        pointerTracker = new PointerTracker$1(
           node2,
           {
             start(pointer, event) {
-              if (pointerTracker.currentPointers.length === 1)
+              if (pointerTracker.currentPointers.length >= 1)
                 return false;
               if ((options == null ? void 0 : options.startPoint) && event.target !== handle)
                 return false;
-              $$invalidate(4, connecting = true);
-              handler(pointer, event);
+              $$invalidate(5, connecting = true);
+              event.stopPropagation();
+              event.preventDefault();
+              $$invalidate(8, left = (pointer.pageX - canvas.getBoundingClientRect().left - window.scrollX) / scale);
+              $$invalidate(9, top = (pointer.pageY - canvas.getBoundingClientRect().top - window.scrollY) / scale);
               return true;
             },
             move(previousPointers, changedPointers, event) {
               var _a3;
-              handler(pointerTracker.currentPointers[0], event);
-              $$invalidate(6, tempLink = {
+              event.stopPropagation();
+              event.preventDefault();
+              $$invalidate(8, left = left + (pointerTracker.currentPointers[0].pageX - previousPointers[0].pageX) / scale);
+              $$invalidate(9, top = top + (pointerTracker.currentPointers[0].pageY - previousPointers[0].pageY) / scale);
+              $$invalidate(7, tempLink = {
                 id: sourceid + "-to-",
                 source: {
                   id: sourceid,
@@ -3225,24 +4141,26 @@ function instance$6($$self, $$props, $$invalidate) {
                 }
               });
               if (overZone)
-                $$invalidate(2, highlighters[overZone.id].highlight = false, highlighters);
+                $$invalidate(3, highlighters[overZone.id].highlight = false, highlighters);
               overZone = ((_a3 = document.elementFromPoint(pointerTracker.currentPointers[0].clientX, pointerTracker.currentPointers[0].clientY)) == null ? void 0 : _a3.closest(`[data-${DROPZONE}]`)) || null;
               if (overZone == null ? void 0 : overZone.id) {
-                $$invalidate(2, highlighters[overZone.id].highlight = true, highlighters);
+                $$invalidate(3, highlighters[overZone.id].highlight = true, highlighters);
               }
             },
             end: (pointer, event, cancelled) => {
               var _a3, _b2;
-              $$invalidate(5, marker.style.display = "none", marker);
-              $$invalidate(4, connecting = false);
+              $$invalidate(6, marker.style.display = "none", marker);
+              $$invalidate(5, connecting = false);
               if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
-                $$invalidate(2, highlighters[overZone.id].highlight = false, highlighters);
+                $$invalidate(3, highlighters[overZone.id].highlight = false, highlighters);
               }
               overZone = null;
               let drop = document.elementFromPoint(pointer.clientX, pointer.clientY);
               let zone = drop == null ? void 0 : drop.closest(`[data-${DROPZONE}]`);
-              $$invalidate(6, tempLink = null);
+              $$invalidate(7, tempLink = null);
               if (!zone || !(zone == null ? void 0 : zone.id) || !node2 || !(node2 == null ? void 0 : node2.id))
+                return;
+              if (data.links.find((link) => link.id === sourceid + "-to-" + zone.id))
                 return;
               const newLink = {
                 id: sourceid + "-to-" + zone.id,
@@ -3270,7 +4188,13 @@ function instance$6($$self, $$props, $$invalidate) {
               }
             },
             avoidPointerEvents: true,
-            eventListenerOptions: { capture: true, passive: false }
+            // mkaes mobile work better
+            eventListenerOptions: {
+              capture: true,
+              // capture the event and stop stopPropagation, so it doesn't bubble up to the parent
+              passive: false
+            }
+            // passive: false if no need to evt.preventDefault
           }
         );
       }
@@ -3295,24 +4219,27 @@ function instance$6($$self, $$props, $$invalidate) {
   };
   function cursormarker_marker_binding(value) {
     marker = value;
-    $$invalidate(5, marker);
+    $$invalidate(6, marker);
   }
   function div_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](() => {
       canvas = $$value;
-      $$invalidate(3, canvas);
+      $$invalidate(4, canvas);
     });
   }
   $$self.$$set = ($$props2) => {
     if ("data" in $$props2)
       $$invalidate(0, data = $$props2.data);
+    if ("scale" in $$props2)
+      $$invalidate(1, scale = $$props2.scale);
     if ("opts" in $$props2)
-      $$invalidate(1, opts = $$props2.opts);
+      $$invalidate(2, opts = $$props2.opts);
     if ("$$scope" in $$props2)
-      $$invalidate(15, $$scope = $$props2.$$scope);
+      $$invalidate(16, $$scope = $$props2.$$scope);
   };
   return [
     data,
+    scale,
     opts,
     highlighters,
     canvas,
@@ -3333,7 +4260,7 @@ function instance$6($$self, $$props, $$invalidate) {
 class Canvas extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$6, create_fragment$6, safe_not_equal, { data: 0, opts: 1 });
+    init(this, options, instance$6, create_fragment$6, safe_not_equal, { data: 0, scale: 1, opts: 2 });
   }
 }
 function fallback_block$1(ctx) {
@@ -3354,7 +4281,7 @@ function fallback_block$1(ctx) {
     m(target, anchor) {
       insert_hydration(target, div, anchor);
     },
-    p: noop$1,
+    p: noop$2,
     d(detaching) {
       if (detaching)
         detach(div);
@@ -3370,8 +4297,17 @@ function create_fragment$5(ctx) {
   let current;
   let mounted;
   let dispose;
-  const default_slot_template = ctx[11].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[10], null);
+  const default_slot_template = (
+    /*#slots*/
+    ctx[11].default
+  );
+  const default_slot = create_slot(
+    default_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[10],
+    null
+  );
   const default_slot_or_fallback = default_slot || fallback_block$1();
   return {
     c() {
@@ -3395,8 +4331,15 @@ function create_fragment$5(ctx) {
     h() {
       attr(div0, "class", "relative");
       attr(div1, "class", "flex absolute EndPoint");
-      attr(div1, "style", div1_style_value = "top: " + ctx[8] + "px; " + (ctx[0] == "right" ? `right: ${ctx[7]}px;` : `left: ${ctx[6]}px;`));
-      add_render_callback(() => ctx[14].call(div1));
+      attr(div1, "style", div1_style_value = "top: " + /*top*/
+      ctx[8] + "px; " + /*position*/
+      (ctx[0] == "right" ? `right: ${/*right*/
+      ctx[7]}px;` : `left: ${/*left*/
+      ctx[6]}px;`));
+      add_render_callback(() => (
+        /*div1_elementresize_handler*/
+        ctx[14].call(div1)
+      ));
     },
     m(target, anchor) {
       insert_hydration(target, div1, anchor);
@@ -3405,32 +4348,68 @@ function create_fragment$5(ctx) {
         default_slot_or_fallback.m(div0, null);
       }
       ctx[13](div1);
-      div1_resize_listener = add_resize_listener(div1, ctx[14].bind(div1));
+      div1_resize_listener = add_resize_listener(
+        div1,
+        /*div1_elementresize_handler*/
+        ctx[14].bind(div1)
+      );
       current = true;
       if (!mounted) {
         dispose = [
-          listen(window, "resize", ctx[12]),
-          action_destroyer(connectable_action = ctx[1].call(null, div0, ctx[2]))
+          listen(
+            window,
+            "resize",
+            /*resize_handler*/
+            ctx[12]
+          ),
+          action_destroyer(connectable_action = /*connectable*/
+          ctx[1].call(
+            null,
+            div0,
+            /*options*/
+            ctx[2]
+          ))
         ];
         mounted = true;
       }
     },
     p(ctx2, [dirty]) {
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 1024)) {
+        if (default_slot.p && (!current || dirty & /*$$scope*/
+        1024)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
+            /*$$scope*/
             ctx2[10],
-            !current ? get_all_dirty_from_scope(ctx2[10]) : get_slot_changes(default_slot_template, ctx2[10], dirty, null),
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[10]
+            ) : get_slot_changes(
+              default_slot_template,
+              /*$$scope*/
+              ctx2[10],
+              dirty,
+              null
+            ),
             null
           );
         }
       }
-      if (connectable_action && is_function(connectable_action.update) && dirty & 4)
-        connectable_action.update.call(null, ctx2[2]);
-      if (!current || dirty & 449 && div1_style_value !== (div1_style_value = "top: " + ctx2[8] + "px; " + (ctx2[0] == "right" ? `right: ${ctx2[7]}px;` : `left: ${ctx2[6]}px;`))) {
+      if (connectable_action && is_function(connectable_action.update) && dirty & /*options*/
+      4)
+        connectable_action.update.call(
+          null,
+          /*options*/
+          ctx2[2]
+        );
+      if (!current || dirty & /*top, position, right, left*/
+      449 && div1_style_value !== (div1_style_value = "top: " + /*top*/
+      ctx2[8] + "px; " + /*position*/
+      (ctx2[0] == "right" ? `right: ${/*right*/
+      ctx2[7]}px;` : `left: ${/*left*/
+      ctx2[6]}px;`))) {
         attr(div1, "style", div1_style_value);
       }
     },
@@ -3494,19 +4473,23 @@ function instance$5($$self, $$props, $$invalidate) {
       $$invalidate(10, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty & 8) {
+    if ($$self.$$.dirty & /*dot*/
+    8) {
       if (dot) {
         $$invalidate(3, dot.parentNode.style.position = "relative", dot);
         $$invalidate(9, parentHeight = dot.parentNode.offsetHeight);
       }
     }
-    if ($$self.$$.dirty & 528) {
+    if ($$self.$$.dirty & /*parentHeight, offsetHeight*/
+    528) {
       $$invalidate(8, top = parentHeight && offsetHeight ? parentHeight / 2 - offsetHeight / 2 : 0);
     }
-    if ($$self.$$.dirty & 32) {
+    if ($$self.$$.dirty & /*offsetWidth*/
+    32) {
       $$invalidate(7, right = offsetWidth ? -offsetWidth / 2 : 0);
     }
-    if ($$self.$$.dirty & 32) {
+    if ($$self.$$.dirty & /*offsetWidth*/
+    32) {
       $$invalidate(6, left = offsetWidth ? -offsetWidth / 2 : 0);
     }
   };
@@ -3537,8 +4520,17 @@ class EndPoint extends SvelteComponent {
 function create_if_block$2(ctx) {
   let div;
   let current;
-  const default_slot_template = ctx[9].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[8], null);
+  const default_slot_template = (
+    /*#slots*/
+    ctx[9].default
+  );
+  const default_slot = create_slot(
+    default_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[8],
+    null
+  );
   const default_slot_or_fallback = default_slot || fallback_block();
   return {
     c() {
@@ -3558,8 +4550,18 @@ function create_if_block$2(ctx) {
     h() {
       attr(div, "class", "cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50");
       set_style(div, "position", "absolute");
-      set_style(div, "right", ctx[2] + "px");
-      set_style(div, "top", ctx[3] + "px");
+      set_style(
+        div,
+        "left",
+        /*x*/
+        ctx[2] + "px"
+      );
+      set_style(
+        div,
+        "top",
+        /*y*/
+        ctx[3] + "px"
+      );
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -3571,22 +4573,45 @@ function create_if_block$2(ctx) {
     },
     p(ctx2, dirty) {
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 256)) {
+        if (default_slot.p && (!current || dirty & /*$$scope*/
+        256)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
+            /*$$scope*/
             ctx2[8],
-            !current ? get_all_dirty_from_scope(ctx2[8]) : get_slot_changes(default_slot_template, ctx2[8], dirty, null),
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[8]
+            ) : get_slot_changes(
+              default_slot_template,
+              /*$$scope*/
+              ctx2[8],
+              dirty,
+              null
+            ),
             null
           );
         }
       }
-      if (!current || dirty & 4) {
-        set_style(div, "right", ctx2[2] + "px");
+      if (!current || dirty & /*x*/
+      4) {
+        set_style(
+          div,
+          "left",
+          /*x*/
+          ctx2[2] + "px"
+        );
       }
-      if (!current || dirty & 8) {
-        set_style(div, "top", ctx2[3] + "px");
+      if (!current || dirty & /*y*/
+      8) {
+        set_style(
+          div,
+          "top",
+          /*y*/
+          ctx2[3] + "px"
+        );
       }
     },
     i(local) {
@@ -3629,7 +4654,10 @@ function fallback_block(ctx) {
 function create_fragment$4(ctx) {
   let if_block_anchor;
   let current;
-  let if_block = ctx[0] && create_if_block$2(ctx);
+  let if_block = (
+    /*show*/
+    ctx[0] && create_if_block$2(ctx)
+  );
   return {
     c() {
       if (if_block)
@@ -3648,10 +4676,14 @@ function create_fragment$4(ctx) {
       current = true;
     },
     p(ctx2, [dirty]) {
-      if (ctx2[0]) {
+      if (
+        /*show*/
+        ctx2[0]
+      ) {
         if (if_block) {
           if_block.p(ctx2, dirty);
-          if (dirty & 1) {
+          if (dirty & /*show*/
+          1) {
             transition_in(if_block, 1);
           }
         } else {
@@ -3688,9 +4720,9 @@ function create_fragment$4(ctx) {
 }
 function instance$4($$self, $$props, $$invalidate) {
   let { $$slots: slots = {}, $$scope } = $$props;
-  let { sx = 0 } = $$props;
-  let { sy = 0 } = $$props;
-  let { as = 0 } = $$props;
+  let { sx } = $$props;
+  let { sy } = $$props;
+  let { as } = $$props;
   let { mounted = false } = $$props;
   let { show = true } = $$props;
   let handle;
@@ -3718,17 +4750,23 @@ function instance$4($$self, $$props, $$invalidate) {
       $$invalidate(8, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty & 130) {
-      if (mounted && handle && (handle == null ? void 0 : handle.offsetWidth)) {
-        $$invalidate(2, x = -(handle == null ? void 0 : handle.offsetWidth));
+    var _a;
+    if ($$self.$$.dirty & /*mounted, handle*/
+    130) {
+      if (mounted && handle && ((_a = handle == null ? void 0 : handle.parentNode) == null ? void 0 : _a.offsetWidth)) {
+        $$invalidate(2, x = handle == null ? void 0 : handle.parentNode.offsetWidth);
         dispatch("ready", { handle });
       }
     }
-    if ($$self.$$.dirty & 66) {
+    if ($$self.$$.dirty & /*handle, as*/
+    66) {
       $$invalidate(3, y = handle && as > 0 ? -(handle == null ? void 0 : handle.offsetHeight) : 0);
     }
-    if ($$self.$$.dirty & 114) {
-      $$invalidate(2, x = handle && (!!sy || !!sx) && as < 0.6 && as > -0.6 ? 0 : -(handle == null ? void 0 : handle.offsetWidth));
+    if ($$self.$$.dirty & /*handle, as*/
+    66) {
+      if (handle && !!as) {
+        $$invalidate(2, x = as < 0.6 && as > -0.6 ? -(handle == null ? void 0 : handle.offsetWidth) : 0);
+      }
     }
   };
   return [show, handle, x, y, sx, sy, as, mounted, $$scope, slots, div_binding];
@@ -3779,8 +4817,17 @@ function create_fragment$3(ctx) {
   let span0;
   let span1_class_value;
   let current;
-  const default_slot_template = ctx[3].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[2], null);
+  const default_slot_template = (
+    /*#slots*/
+    ctx[3].default
+  );
+  const default_slot = create_slot(
+    default_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[2],
+    null
+  );
   return {
     c() {
       span1 = element("span");
@@ -3802,7 +4849,11 @@ function create_fragment$3(ctx) {
     },
     h() {
       attr(span0, "class", "relative pr-1");
-      attr(span1, "class", span1_class_value = (ctx[0] == "pink" ? pink : ctx[1]) + " before:inline-block before:absolute before:-inset-1 before:-skew-y-3 relative inline-block");
+      attr(span1, "class", span1_class_value = /*color*/
+      (ctx[0] == "pink" ? pink : (
+        /*green*/
+        ctx[1]
+      )) + " before:inline-block before:absolute before:-inset-1 before:-skew-y-3 relative inline-block");
     },
     m(target, anchor) {
       insert_hydration(target, span1, anchor);
@@ -3814,18 +4865,34 @@ function create_fragment$3(ctx) {
     },
     p(ctx2, [dirty]) {
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 4)) {
+        if (default_slot.p && (!current || dirty & /*$$scope*/
+        4)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
+            /*$$scope*/
             ctx2[2],
-            !current ? get_all_dirty_from_scope(ctx2[2]) : get_slot_changes(default_slot_template, ctx2[2], dirty, null),
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx2[2]
+            ) : get_slot_changes(
+              default_slot_template,
+              /*$$scope*/
+              ctx2[2],
+              dirty,
+              null
+            ),
             null
           );
         }
       }
-      if (!current || dirty & 1 && span1_class_value !== (span1_class_value = (ctx2[0] == "pink" ? pink : ctx2[1]) + " before:inline-block before:absolute before:-inset-1 before:-skew-y-3 relative inline-block")) {
+      if (!current || dirty & /*color*/
+      1 && span1_class_value !== (span1_class_value = /*color*/
+      (ctx2[0] == "pink" ? pink : (
+        /*green*/
+        ctx2[1]
+      )) + " before:inline-block before:absolute before:-inset-1 before:-skew-y-3 relative inline-block")) {
         attr(span1, "class", span1_class_value);
       }
     },
@@ -3893,10 +4960,28 @@ function create_if_block$1(ctx) {
   let t3;
   let div2_transition;
   let current;
-  const default_slot_template = ctx[5].default;
-  const default_slot = create_slot(default_slot_template, ctx, ctx[4], null);
-  const extra_slot_template = ctx[5].extra;
-  const extra_slot = create_slot(extra_slot_template, ctx, ctx[4], get_extra_slot_context);
+  const default_slot_template = (
+    /*#slots*/
+    ctx[5].default
+  );
+  const default_slot = create_slot(
+    default_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[4],
+    null
+  );
+  const extra_slot_template = (
+    /*#slots*/
+    ctx[5].extra
+  );
+  const extra_slot = create_slot(
+    extra_slot_template,
+    ctx,
+    /*$$scope*/
+    ctx[4],
+    get_extra_slot_context
+  );
   return {
     c() {
       div2 = element("div");
@@ -3906,7 +4991,10 @@ function create_if_block$1(ctx) {
         default_slot.c();
       t0 = space();
       span = element("span");
-      t1 = text(ctx[1]);
+      t1 = text(
+        /*counter*/
+        ctx[1]
+      );
       t2 = text("s");
       t3 = space();
       if (extra_slot)
@@ -3925,7 +5013,11 @@ function create_if_block$1(ctx) {
       t0 = claim_space(div0_nodes);
       span = claim_element(div0_nodes, "SPAN", { class: true });
       var span_nodes = children(span);
-      t1 = claim_text(span_nodes, ctx[1]);
+      t1 = claim_text(
+        span_nodes,
+        /*counter*/
+        ctx[1]
+      );
       t2 = claim_text(span_nodes, "s");
       span_nodes.forEach(detach);
       t3 = claim_space(div0_nodes);
@@ -3962,27 +5054,54 @@ function create_if_block$1(ctx) {
     p(new_ctx, dirty) {
       ctx = new_ctx;
       if (default_slot) {
-        if (default_slot.p && (!current || dirty & 16)) {
+        if (default_slot.p && (!current || dirty & /*$$scope*/
+        16)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx,
+            /*$$scope*/
             ctx[4],
-            !current ? get_all_dirty_from_scope(ctx[4]) : get_slot_changes(default_slot_template, ctx[4], dirty, null),
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx[4]
+            ) : get_slot_changes(
+              default_slot_template,
+              /*$$scope*/
+              ctx[4],
+              dirty,
+              null
+            ),
             null
           );
         }
       }
-      if (!current || dirty & 2)
-        set_data(t1, ctx[1]);
+      if (!current || dirty & /*counter*/
+      2)
+        set_data(
+          t1,
+          /*counter*/
+          ctx[1]
+        );
       if (extra_slot) {
-        if (extra_slot.p && (!current || dirty & 16)) {
+        if (extra_slot.p && (!current || dirty & /*$$scope*/
+        16)) {
           update_slot_base(
             extra_slot,
             extra_slot_template,
             ctx,
+            /*$$scope*/
             ctx[4],
-            !current ? get_all_dirty_from_scope(ctx[4]) : get_slot_changes(extra_slot_template, ctx[4], dirty, get_extra_slot_changes),
+            !current ? get_all_dirty_from_scope(
+              /*$$scope*/
+              ctx[4]
+            ) : get_slot_changes(
+              extra_slot_template,
+              /*$$scope*/
+              ctx[4],
+              dirty,
+              get_extra_slot_changes
+            ),
             get_extra_slot_context
           );
         }
@@ -4047,7 +5166,10 @@ function create_if_block$1(ctx) {
 function create_fragment$2(ctx) {
   let if_block_anchor;
   let current;
-  let if_block = ctx[0] && create_if_block$1(ctx);
+  let if_block = (
+    /*visible*/
+    ctx[0] && create_if_block$1(ctx)
+  );
   return {
     c() {
       if (if_block)
@@ -4066,10 +5188,14 @@ function create_fragment$2(ctx) {
       current = true;
     },
     p(ctx2, [dirty]) {
-      if (ctx2[0]) {
+      if (
+        /*visible*/
+        ctx2[0]
+      ) {
         if (if_block) {
           if_block.p(ctx2, dirty);
-          if (dirty & 1) {
+          if (dirty & /*visible*/
+          1) {
             transition_in(if_block, 1);
           }
         } else {
@@ -4124,7 +5250,8 @@ function instance$2($$self, $$props, $$invalidate) {
       $$invalidate(4, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty & 8) {
+    if ($$self.$$.dirty & /*toast*/
+    8) {
       if (toast) {
         $$invalidate(1, counter = 3);
         timeout();
@@ -4162,15 +5289,31 @@ function create_fragment$1(ctx) {
   let current;
   delegate = new Delegate({
     props: {
-      mounted: ctx[0],
-      as: ctx[1],
-      sx: ctx[2],
-      sy: ctx[3],
+      mounted: (
+        /*mounted*/
+        ctx[0]
+      ),
+      as: (
+        /*as*/
+        ctx[1]
+      ),
+      sx: (
+        /*sx*/
+        ctx[2]
+      ),
+      sy: (
+        /*sy*/
+        ctx[3]
+      ),
       $$slots: { default: [create_default_slot$1] },
       $$scope: { ctx }
     }
   });
-  delegate.$on("ready", ctx[4]);
+  delegate.$on(
+    "ready",
+    /*ready_handler*/
+    ctx[4]
+  );
   return {
     c() {
       create_component(delegate.$$.fragment);
@@ -4184,15 +5327,24 @@ function create_fragment$1(ctx) {
     },
     p(ctx2, [dirty]) {
       const delegate_changes = {};
-      if (dirty & 1)
-        delegate_changes.mounted = ctx2[0];
-      if (dirty & 2)
-        delegate_changes.as = ctx2[1];
-      if (dirty & 4)
-        delegate_changes.sx = ctx2[2];
-      if (dirty & 8)
-        delegate_changes.sy = ctx2[3];
-      if (dirty & 32) {
+      if (dirty & /*mounted*/
+      1)
+        delegate_changes.mounted = /*mounted*/
+        ctx2[0];
+      if (dirty & /*as*/
+      2)
+        delegate_changes.as = /*as*/
+        ctx2[1];
+      if (dirty & /*sx*/
+      4)
+        delegate_changes.sx = /*sx*/
+        ctx2[2];
+      if (dirty & /*sy*/
+      8)
+        delegate_changes.sy = /*sy*/
+        ctx2[3];
+      if (dirty & /*$$scope*/
+      32) {
         delegate_changes.$$scope = { dirty, ctx: ctx2 };
       }
       delegate.$set(delegate_changes);
@@ -4266,21 +5418,606 @@ class DemoDelegated extends SvelteComponent {
     flush();
   }
 }
+class Pointer2 {
+  constructor(nativePointer) {
+    this.id = -1;
+    this.nativePointer = nativePointer;
+    this.pageX = nativePointer.pageX;
+    this.pageY = nativePointer.pageY;
+    this.clientX = nativePointer.clientX;
+    this.clientY = nativePointer.clientY;
+    if (self.Touch && nativePointer instanceof Touch) {
+      this.id = nativePointer.identifier;
+    } else if (isPointerEvent(nativePointer)) {
+      this.id = nativePointer.pointerId;
+    }
+  }
+  /**
+   * Returns an expanded set of Pointers for high-resolution inputs.
+   */
+  getCoalesced() {
+    if ("getCoalescedEvents" in this.nativePointer) {
+      const events = this.nativePointer.getCoalescedEvents().map((p) => new Pointer2(p));
+      if (events.length > 0)
+        return events;
+    }
+    return [this];
+  }
+}
+const isPointerEvent = (event) => "pointerId" in event;
+const isTouchEvent = (event) => "changedTouches" in event;
+const noop = () => {
+};
+class PointerTracker2 {
+  /**
+   * Track pointers across a particular element
+   *
+   * @param element Element to monitor.
+   * @param options
+   */
+  constructor(_element, { start = () => true, move = noop, end = noop, rawUpdates = false, avoidPointerEvents = false } = {}) {
+    this._element = _element;
+    this.startPointers = [];
+    this.currentPointers = [];
+    this._excludeFromButtonsCheck = /* @__PURE__ */ new Set();
+    this._pointerStart = (event) => {
+      if (isPointerEvent(event) && event.buttons === 0) {
+        this._excludeFromButtonsCheck.add(event.pointerId);
+      } else if (!(event.buttons & 1)) {
+        return;
+      }
+      const pointer = new Pointer2(event);
+      if (this.currentPointers.some((p) => p.id === pointer.id))
+        return;
+      if (!this._triggerPointerStart(pointer, event))
+        return;
+      if (isPointerEvent(event)) {
+        const capturingElement = event.target && "setPointerCapture" in event.target ? event.target : this._element;
+        capturingElement.setPointerCapture(event.pointerId);
+        this._element.addEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move);
+        this._element.addEventListener("pointerup", this._pointerEnd);
+        this._element.addEventListener("pointercancel", this._pointerEnd);
+      } else {
+        window.addEventListener("mousemove", this._move);
+        window.addEventListener("mouseup", this._pointerEnd);
+      }
+    };
+    this._touchStart = (event) => {
+      for (const touch of Array.from(event.changedTouches)) {
+        this._triggerPointerStart(new Pointer2(touch), event);
+      }
+    };
+    this._move = (event) => {
+      if (!isTouchEvent(event) && (!isPointerEvent(event) || !this._excludeFromButtonsCheck.has(event.pointerId)) && event.buttons === 0) {
+        this._pointerEnd(event);
+        return;
+      }
+      const previousPointers = this.currentPointers.slice();
+      const changedPointers = isTouchEvent(event) ? Array.from(event.changedTouches).map((t) => new Pointer2(t)) : [new Pointer2(event)];
+      const trackedChangedPointers = [];
+      for (const pointer of changedPointers) {
+        const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
+        if (index === -1)
+          continue;
+        trackedChangedPointers.push(pointer);
+        this.currentPointers[index] = pointer;
+      }
+      if (trackedChangedPointers.length === 0)
+        return;
+      this._moveCallback(previousPointers, trackedChangedPointers, event);
+    };
+    this._triggerPointerEnd = (pointer, event) => {
+      if (!isTouchEvent(event) && event.buttons & 1) {
+        return false;
+      }
+      const index = this.currentPointers.findIndex((p) => p.id === pointer.id);
+      if (index === -1)
+        return false;
+      this.currentPointers.splice(index, 1);
+      this.startPointers.splice(index, 1);
+      this._excludeFromButtonsCheck.delete(pointer.id);
+      const cancelled = !(event.type === "mouseup" || event.type === "touchend" || event.type === "pointerup");
+      this._endCallback(pointer, event, cancelled);
+      return true;
+    };
+    this._pointerEnd = (event) => {
+      if (!this._triggerPointerEnd(new Pointer2(event), event))
+        return;
+      if (isPointerEvent(event)) {
+        if (this.currentPointers.length)
+          return;
+        this._element.removeEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move);
+        this._element.removeEventListener("pointerup", this._pointerEnd);
+        this._element.removeEventListener("pointercancel", this._pointerEnd);
+      } else {
+        window.removeEventListener("mousemove", this._move);
+        window.removeEventListener("mouseup", this._pointerEnd);
+      }
+    };
+    this._touchEnd = (event) => {
+      for (const touch of Array.from(event.changedTouches)) {
+        this._triggerPointerEnd(new Pointer2(touch), event);
+      }
+    };
+    this._startCallback = start;
+    this._moveCallback = move;
+    this._endCallback = end;
+    this._rawUpdates = rawUpdates && "onpointerrawupdate" in window;
+    if (self.PointerEvent && !avoidPointerEvents) {
+      this._element.addEventListener("pointerdown", this._pointerStart);
+    } else {
+      this._element.addEventListener("mousedown", this._pointerStart);
+      this._element.addEventListener("touchstart", this._touchStart);
+      this._element.addEventListener("touchmove", this._move);
+      this._element.addEventListener("touchend", this._touchEnd);
+      this._element.addEventListener("touchcancel", this._touchEnd);
+    }
+  }
+  /**
+   * Remove all listeners.
+   */
+  stop() {
+    this._element.removeEventListener("pointerdown", this._pointerStart);
+    this._element.removeEventListener("mousedown", this._pointerStart);
+    this._element.removeEventListener("touchstart", this._touchStart);
+    this._element.removeEventListener("touchmove", this._move);
+    this._element.removeEventListener("touchend", this._touchEnd);
+    this._element.removeEventListener("touchcancel", this._touchEnd);
+    this._element.removeEventListener(this._rawUpdates ? "pointerrawupdate" : "pointermove", this._move);
+    this._element.removeEventListener("pointerup", this._pointerEnd);
+    this._element.removeEventListener("pointercancel", this._pointerEnd);
+    window.removeEventListener("mousemove", this._move);
+    window.removeEventListener("mouseup", this._pointerEnd);
+  }
+  /**
+   * Call the start callback for this pointer, and track it if the user wants.
+   *
+   * @param pointer Pointer
+   * @param event Related event
+   * @returns Whether the pointer is being tracked.
+   */
+  _triggerPointerStart(pointer, event) {
+    if (!this._startCallback(pointer, event))
+      return false;
+    this.currentPointers.push(pointer);
+    this.startPointers.push(pointer);
+    return true;
+  }
+}
+const minScaleAttr = "min-scale";
+function getDistance(a, b) {
+  if (!b)
+    return 0;
+  return Math.sqrt((b.clientX - a.clientX) ** 2 + (b.clientY - a.clientY) ** 2);
+}
+function getMidpoint(a, b) {
+  if (!b)
+    return a;
+  return {
+    clientX: (a.clientX + b.clientX) / 2,
+    clientY: (a.clientY + b.clientY) / 2
+  };
+}
+function getAbsoluteValue(value, max) {
+  if (typeof value === "number")
+    return value;
+  if (value.trimRight().endsWith("%")) {
+    return max * parseFloat(value) / 100;
+  }
+  return parseFloat(value);
+}
+function createMatrix() {
+  return new DOMMatrix([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+}
+function createPoint() {
+  return new DOMPoint();
+}
+const MIN_SCALE = 0.01;
+class PinchZoom {
+  /**
+   * handle - an optional handle element to grab by
+   */
+  constructor(node, { panAnywhere, handle } = {}) {
+    // The element that we'll transform.
+    __publicField(this, "_node");
+    // Ideally this would be shadow DOM, but we don't have the browser
+    // support yet.
+    __publicField(this, "_parentEl");
+    // Current transform.
+    __publicField(this, "_transform", createMatrix());
+    __publicField(this, "_pointerTracker");
+    __publicField(this, "_handle", null);
+    this._node = node;
+    this._parentEl = this._node.parentElement || document.body;
+    this._handle = handle;
+    new MutationObserver(() => this._stageElChange()).observe(this._node, { childList: true });
+    this._pointerTracker = new PointerTracker2(this._parentEl, {
+      eventListenerOptions: {
+        capture: false
+        // catch the event before it goes to child in the DOM tree ?
+      },
+      start: (pointer, event) => {
+        if (this._pointerTracker.currentPointers.length === 0 && (event.target instanceof HTMLInputElement || event.target.isContentEditable)) {
+          return false;
+        }
+        if (this._pointerTracker.currentPointers.length === 2 || !this._parentEl)
+          return false;
+        if (event.target.closest("[data-no-pan]"))
+          return false;
+        if (this._pointerTracker.currentPointers.length > 1) {
+          return false;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        return true;
+      },
+      move: (previousPointers, changedPointers, event) => {
+        var _a;
+        if (this._pointerTracker.currentPointers.length === 0)
+          return;
+        if (!panAnywhere && !this._handle && this._pointerTracker.currentPointers.length === 1 && !(event.target == this._parentEl || event.target == node))
+          return;
+        if (this._handle && !((_a = this._handle) == null ? void 0 : _a.contains(event.target)) && this._pointerTracker.currentPointers.length == 1)
+          return;
+        event.preventDefault();
+        event.stopPropagation();
+        this._onPointerMove(previousPointers, this._pointerTracker.currentPointers);
+      },
+      end: (pointer, event, cancelled) => {
+      }
+    });
+    this._parentEl.addEventListener("wheel", (event) => this._onWheel(event));
+  }
+  static get observedAttributes() {
+    return [minScaleAttr];
+  }
+  destroy() {
+    this._pointerTracker.stop();
+  }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === minScaleAttr) {
+      if (this.scale < this.minScale) {
+        this.setTransform({ scale: this.minScale });
+      }
+    }
+  }
+  get minScale() {
+    const attrValue = this._node.getAttribute(minScaleAttr);
+    if (!attrValue)
+      return MIN_SCALE;
+    const value = parseFloat(attrValue);
+    if (Number.isFinite(value))
+      return Math.max(MIN_SCALE, value);
+    return MIN_SCALE;
+  }
+  set minScale(value) {
+    this._node.setAttribute(minScaleAttr, String(value));
+  }
+  connectedCallback() {
+    this._stageElChange();
+  }
+  get x() {
+    return this._transform.e;
+  }
+  get y() {
+    return this._transform.f;
+  }
+  get scale() {
+    return this._transform.a;
+  }
+  /**
+   * Change the scale, adjusting x/y by a given transform origin.
+   */
+  scaleTo(scale, opts = {}) {
+    let { originX = 0, originY = 0 } = opts;
+    const { relativeTo = "content", allowChangeEvent = false } = opts;
+    const relativeToEl = relativeTo === "content" ? this._parentEl : this._node;
+    if (!relativeToEl || !this._parentEl) {
+      this.setTransform({ scale, allowChangeEvent });
+      return;
+    }
+    const rect = relativeToEl.getBoundingClientRect();
+    originX = getAbsoluteValue(originX, rect.width);
+    originY = getAbsoluteValue(originY, rect.height);
+    if (relativeTo === "content") {
+      originX += this.x;
+      originY += this.y;
+    } else {
+      const currentRect = this._parentEl.getBoundingClientRect();
+      originX -= currentRect.left;
+      originY -= currentRect.top;
+    }
+    this._applyChange({
+      allowChangeEvent,
+      originX,
+      originY,
+      scaleDiff: scale / this.scale
+    });
+  }
+  /**
+   * Update the stage with a given scale/x/y.
+   */
+  setTransform(opts = {}) {
+    const { scale = this.scale, allowChangeEvent = false } = opts;
+    let { x = this.x, y = this.y } = opts;
+    if (!this._parentEl) {
+      this._updateTransform(scale, x, y, allowChangeEvent);
+      return;
+    }
+    const thisBounds = this._node.getBoundingClientRect();
+    const parentElBounds = this._parentEl.getBoundingClientRect();
+    if (!thisBounds.width || !thisBounds.height) {
+      this._updateTransform(scale, x, y, allowChangeEvent);
+      return;
+    }
+    let topLeft = createPoint();
+    topLeft.x = parentElBounds.left - thisBounds.left;
+    topLeft.y = parentElBounds.top - thisBounds.top;
+    let bottomRight = createPoint();
+    bottomRight.x = parentElBounds.width + topLeft.x;
+    bottomRight.y = parentElBounds.height + topLeft.y;
+    const matrix = createMatrix().translate(x, y).scale(scale).multiply(this._transform.inverse());
+    topLeft = topLeft.matrixTransform(matrix);
+    bottomRight = bottomRight.matrixTransform(matrix);
+    this._updateTransform(scale, x, y, allowChangeEvent);
+  }
+  /**
+   * Update transform values without checking bounds. This is only called in setTransform.
+   */
+  _updateTransform(scale, x, y, allowChangeEvent) {
+    if (scale < this.minScale)
+      return;
+    if (scale === this.scale && x === this.x && y === this.y)
+      return;
+    this._transform.e = x;
+    this._transform.f = y;
+    this._transform.d = this._transform.a = scale;
+    this._node.style.transform = `translate(${x}px,${y}px) scale(${scale})`;
+    if (allowChangeEvent) {
+      const event = new Event("change", { bubbles: true });
+      this._node.dispatchEvent(event);
+    }
+  }
+  /**
+   * Called when the direct children of this element change.
+   * Until we have have shadow dom support across the board, we
+   * require a single element to be the child of <pinch-zoom>, and
+   * that's the element we pan/scale.
+   */
+  _stageElChange() {
+    this._parentEl = this._node.parentElement || document.body;
+    this.setTransform({ allowChangeEvent: true });
+  }
+  _onWheel(event) {
+    if (!this._parentEl)
+      return;
+    event.preventDefault();
+    this._parentEl.getBoundingClientRect();
+    let { deltaY } = event;
+    const { ctrlKey, deltaMode } = event;
+    if (deltaMode === 1) {
+      deltaY *= 15;
+    }
+    const divisor = ctrlKey ? 200 : 600;
+    const scaleDiff = 1 - deltaY / divisor;
+    this._applyChange({
+      scaleDiff,
+      originX: event.pageX - this._parentEl.offsetLeft - this._parentEl.clientWidth / 2,
+      originY: event.pageY - this._parentEl.offsetTop - this._parentEl.clientHeight / 2,
+      allowChangeEvent: true
+    });
+  }
+  _onPointerMove(previousPointers, currentPointers) {
+    if (!this._parentEl)
+      return;
+    const currentRect = this._parentEl.getBoundingClientRect();
+    const prevMidpoint = getMidpoint(previousPointers[0], previousPointers[1]);
+    const newMidpoint = getMidpoint(currentPointers[0], currentPointers[1]);
+    const originX = prevMidpoint.clientX - currentRect.left - currentRect.width / 2;
+    const originY = prevMidpoint.clientY - currentRect.top - currentRect.height / 2;
+    const prevDistance = getDistance(previousPointers[0], previousPointers[1]);
+    const newDistance = getDistance(currentPointers[0], currentPointers[1]);
+    const scaleDiff = prevDistance ? newDistance / prevDistance : 1;
+    this._applyChange({
+      originX,
+      originY,
+      scaleDiff,
+      panX: newMidpoint.clientX - prevMidpoint.clientX,
+      panY: newMidpoint.clientY - prevMidpoint.clientY,
+      allowChangeEvent: true
+    });
+  }
+  /** Transform the view & fire a change event */
+  _applyChange(opts = {}) {
+    const { panX = 0, panY = 0, originX = 0, originY = 0, scaleDiff = 1, allowChangeEvent = false } = opts;
+    const matrix = createMatrix().translate(panX, panY).translate(originX, originY).scale(scaleDiff).translate(-originX, -originY).multiply(this._transform);
+    this.setTransform({
+      allowChangeEvent,
+      scale: matrix.a,
+      x: matrix.e,
+      y: matrix.f
+    });
+  }
+}
+const pzoom = (node, params) => {
+  let container = node.parentElement || document.body;
+  container.style["touch-action"] = "none";
+  container.style["user-select"] = "none";
+  container.style["overflow"] = "hidden";
+  container.style["position"] = "relative";
+  node.style["touch-action"] = "none";
+  node.style["user-select"] = "none";
+  node.style["position"] = "absolute";
+  node.style.width = "100%";
+  node.style.height = "100%";
+  let zoomer = new PinchZoom(node, {
+    handle: params == null ? void 0 : params.handle,
+    panAnywhere: params == null ? void 0 : params.panAnywhere
+  });
+  node.addEventListener("home", handleScaleToHome);
+  node.addEventListener("scaleTo", handleScaleTo);
+  node.addEventListener("change", handleScaleChange);
+  node.addEventListener("setTransform", handleSetTransform);
+  function handleScaleTo(val) {
+    zoomer.scaleTo(val, { allowChangeEvent: true });
+  }
+  function handleScaleToHome(e) {
+    zoomer.setTransform({ x: 0, y: 0, scale: 1, allowChangeEvent: true });
+  }
+  function handleSetTransform(e) {
+    zoomer.setTransform({
+      x: e.detail.x || 0,
+      y: e.detail.y || 0,
+      scale: e.detail.scale || 1,
+      allowChangeEvent: true
+    });
+  }
+  function handleScaleChange(e) {
+    const scale = e.target.style.transform.match(/scale\((\d+\.?\d*)\)/)[1];
+    node.dispatchEvent(new CustomEvent("scale", {
+      detail: { scale }
+    }));
+  }
+  return {
+    update(params2) {
+      zoomer.destroy();
+      zoomer = new PinchZoom(node, {
+        handle: params2 == null ? void 0 : params2.handle,
+        panAnywhere: params2 == null ? void 0 : params2.panAnywhere
+      });
+    },
+    destroy() {
+      zoomer.destroy();
+      node.removeEventListener("home", handleScaleToHome);
+      node.removeEventListener("change", handleScaleChange);
+      node.removeEventListener("scaleTo", handleScaleTo);
+      node.removeEventListener("setTransform", handleSetTransform);
+    }
+  };
+};
+function grabable(nodeEl, { nodeData = {}, removeCurrentNode = () => null, scale = 1 } = {}) {
+  let top = 0;
+  let left = 0;
+  let shiftX;
+  let shiftY;
+  let pointerTracker = new PointerTracker$1(nodeEl, {
+    start(pointer, event) {
+      left = null;
+      top = null;
+      if (event.target instanceof HTMLInputElement || event.target.isContentEditable)
+        return false;
+      event.preventDefault();
+      event.stopPropagation();
+      nodeEl.dispatchEvent(
+        new CustomEvent("started", {
+          detail: {}
+        })
+      );
+      shiftX = event.clientX - nodeEl.getBoundingClientRect().left || 0;
+      shiftY = event.clientY - nodeEl.getBoundingClientRect().top || 0;
+      left = parseFloat(getComputedStyle(nodeEl)["left"].replace("px", "")) || 0;
+      top = parseFloat(getComputedStyle(nodeEl)["top"].replace("px", "")) || 0;
+      return true;
+    },
+    move(previousPointers, changedPointers, event) {
+      event.preventDefault();
+      event.stopPropagation();
+      nodeEl.style.cursor = "grabbing";
+      if (pointerTracker.currentPointers[0].clientY > document.body.clientHeight - 20)
+        window.scrollBy(0, 20);
+      if (pointerTracker.currentPointers[0].clientY < 20)
+        window.scrollBy(0, -20);
+      if (pointerTracker.currentPointers[0].clientX > document.body.clientWidth - 20)
+        window.scrollBy(20, 0);
+      if (pointerTracker.currentPointers[0].clientX < 20)
+        window.scrollBy(-20, 0);
+      left = left + (pointerTracker.currentPointers[0].pageX - previousPointers[0].pageX) / scale;
+      top = top + (pointerTracker.currentPointers[0].pageY - previousPointers[0].pageY) / scale;
+      nodeData.x = left;
+      nodeData.y = top;
+      nodeEl.dispatchEvent(
+        new CustomEvent("move", {
+          detail: {
+            ...nodeData,
+            x: left,
+            y: top,
+            overDropZone: overDropZone(pointerTracker.currentPointers[0])
+          }
+        })
+      );
+    },
+    end(pointer, event, cancelled) {
+      var _a;
+      nodeEl.style.left = 0;
+      nodeEl.style.top = 0;
+      let zone = (_a = document.elementFromPoint(pointer.clientX, pointer.clientY)) == null ? void 0 : _a.closest("[data-dropzone]");
+      nodeEl.style.cursor = "auto";
+      if (!overDropZone(pointer, zone)) {
+        nodeEl == null ? void 0 : nodeEl.dispatchEvent(
+          new CustomEvent("end", {
+            detail: {
+              ...nodeData,
+              // set left and top back to last position since it was cleared (above)
+              x: left,
+              y: top
+            }
+          })
+        );
+        return;
+      }
+      removeCurrentNode();
+      zone.dispatchEvent(
+        new CustomEvent("addChild", {
+          detail: {
+            nodeData: {
+              ...nodeData,
+              x: pointer.clientX - shiftX - zone.getBoundingClientRect().left,
+              y: pointer.clientY - shiftY - zone.getBoundingClientRect().top
+            }
+          }
+        })
+      );
+    },
+    avoidPointerEvents: true,
+    eventListenerOptions: { capture: false }
+  });
+  function overDropZone(pointer, zone = null) {
+    var _a, _b;
+    if (!zone)
+      zone = (_a = document.elementFromPoint(pointer.clientX, pointer.clientY)) == null ? void 0 : _a.closest("[data-dropzone]");
+    return !!zone && // dropzone exists
+    zone != nodeEl && // not dropped on self
+    zone.parentNode != nodeEl && // not dropped on parent
+    ((_b = zone.parentNode) == null ? void 0 : _b.id) != (nodeEl == null ? void 0 : nodeEl.id) && // sometime nodeEl disappeara and is removed from the DOM
+    !nodeEl.contains(zone) && zone != nodeEl.parentNode.closest("[data-dropzone]");
+  }
+  return {
+    update(params) {
+      ({ nodeData, removeCurrentNode, scale } = params);
+    },
+    destroy() {
+      pointerTracker.stop();
+    }
+  };
+}
 function get_each_context(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[12] = list[i][0];
-  child_ctx[13] = list[i][1];
-  child_ctx[15] = i;
+  child_ctx[16] = list[i][0];
+  child_ctx[17] = list[i][1];
+  child_ctx[19] = i;
   return child_ctx;
 }
 function get_each_context_1(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[16] = list[i];
+  child_ctx[20] = list[i];
   return child_ctx;
 }
 function create_each_block_1(key_1, ctx) {
   let div;
-  let t_value = ctx[16].value + "";
+  let t_value = (
+    /*node*/
+    ctx[20].value + ""
+  );
   let t;
   let div_id_value;
   let connectable_action;
@@ -4295,7 +6032,11 @@ function create_each_block_1(key_1, ctx) {
       this.h();
     },
     l(nodes) {
-      div = claim_element(nodes, "DIV", { class: true, id: true });
+      div = claim_element(nodes, "DIV", {
+        class: true,
+        "data-no-pan": true,
+        id: true
+      });
       var div_nodes = children(div);
       t = claim_text(div_nodes, t_value);
       div_nodes.forEach(detach);
@@ -4304,15 +6045,24 @@ function create_each_block_1(key_1, ctx) {
     h() {
       var _a, _b;
       attr(div, "class", "block m-2 cursor-pointer select-none w-fit");
-      attr(div, "id", div_id_value = ((_a = ctx[16]) == null ? void 0 : _a.id) ? (_b = ctx[16]) == null ? void 0 : _b.id : null);
+      attr(div, "data-no-pan", "");
+      attr(div, "id", div_id_value = /*node*/
+      ((_a = ctx[20]) == null ? void 0 : _a.id) ? (
+        /*node*/
+        (_b = ctx[20]) == null ? void 0 : _b.id
+      ) : null);
       this.first = div;
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
       append_hydration(div, t);
       if (!mounted) {
-        dispose = action_destroyer(connectable_action = ctx[11].call(null, div, {
-          dataset: { value: ctx[16].value }
+        dispose = action_destroyer(connectable_action = /*connectable*/
+        ctx[15].call(null, div, {
+          dataset: { value: (
+            /*node*/
+            ctx[20].value
+          ) }
         }));
         mounted = true;
       }
@@ -4320,14 +6070,25 @@ function create_each_block_1(key_1, ctx) {
     p(new_ctx, dirty) {
       var _a, _b;
       ctx = new_ctx;
-      if (dirty & 1 && t_value !== (t_value = ctx[16].value + ""))
+      if (dirty & /*data*/
+      1 && t_value !== (t_value = /*node*/
+      ctx[20].value + ""))
         set_data(t, t_value);
-      if (dirty & 1 && div_id_value !== (div_id_value = ((_a = ctx[16]) == null ? void 0 : _a.id) ? (_b = ctx[16]) == null ? void 0 : _b.id : null)) {
+      if (dirty & /*data*/
+      1 && div_id_value !== (div_id_value = /*node*/
+      ((_a = ctx[20]) == null ? void 0 : _a.id) ? (
+        /*node*/
+        (_b = ctx[20]) == null ? void 0 : _b.id
+      ) : null)) {
         attr(div, "id", div_id_value);
       }
-      if (connectable_action && is_function(connectable_action.update) && dirty & 1)
+      if (connectable_action && is_function(connectable_action.update) && dirty & /*data*/
+      1)
         connectable_action.update.call(null, {
-          dataset: { value: ctx[16].value }
+          dataset: { value: (
+            /*node*/
+            ctx[20].value
+          ) }
         });
     },
     d(detaching) {
@@ -4344,10 +6105,23 @@ function create_each_block(ctx) {
   let each_1_lookup = /* @__PURE__ */ new Map();
   let t;
   function func(...args) {
-    return ctx[5](ctx[12], ...args);
+    return (
+      /*func*/
+      ctx[7](
+        /*type*/
+        ctx[16],
+        ...args
+      )
+    );
   }
-  let each_value_1 = ctx[0].nodes.filter(func);
-  const get_key = (ctx2) => ctx2[16].id;
+  let each_value_1 = (
+    /*data*/
+    ctx[0].nodes.filter(func)
+  );
+  const get_key = (ctx2) => (
+    /*node*/
+    ctx2[20].id
+  );
   for (let i = 0; i < each_value_1.length; i += 1) {
     let child_ctx = get_each_context_1(ctx, each_value_1, i);
     let key = get_key(child_ctx);
@@ -4384,8 +6158,10 @@ function create_each_block(ctx) {
     },
     p(new_ctx, dirty) {
       ctx = new_ctx;
-      if (dirty & 9) {
-        each_value_1 = ctx[0].nodes.filter(func);
+      if (dirty & /*data, Object, types*/
+      17) {
+        each_value_1 = /*data*/
+        ctx[0].nodes.filter(func);
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value_1, each_1_lookup, div, destroy_block, create_each_block_1, t, get_each_context_1);
       }
     },
@@ -4434,7 +6210,7 @@ function create_default_slot_2(ctx) {
     m(target, anchor) {
       insert_hydration(target, div, anchor);
     },
-    p: noop$1,
+    p: noop$2,
     d(detaching) {
       if (detaching)
         detach(div);
@@ -4442,7 +6218,10 @@ function create_default_slot_2(ctx) {
   };
 }
 function create_if_block(ctx) {
-  let previous_key = ctx[2];
+  let previous_key = (
+    /*toast*/
+    ctx[2]
+  );
   let key_block_anchor;
   let current;
   let key_block = create_key_block(ctx);
@@ -4461,9 +6240,11 @@ function create_if_block(ctx) {
       current = true;
     },
     p(ctx2, dirty) {
-      if (dirty & 4 && safe_not_equal(previous_key, previous_key = ctx2[2])) {
+      if (dirty & /*toast*/
+      4 && safe_not_equal(previous_key, previous_key = /*toast*/
+      ctx2[2])) {
         group_outros();
-        transition_out(key_block, 1, 1, noop$1);
+        transition_out(key_block, 1, 1, noop$2);
         check_outros();
         key_block = create_key_block(ctx2);
         key_block.c();
@@ -4494,17 +6275,29 @@ function create_default_slot_1(ctx) {
   let t;
   return {
     c() {
-      t = text(ctx[2]);
+      t = text(
+        /*toast*/
+        ctx[2]
+      );
     },
     l(nodes) {
-      t = claim_text(nodes, ctx[2]);
+      t = claim_text(
+        nodes,
+        /*toast*/
+        ctx[2]
+      );
     },
     m(target, anchor) {
       insert_hydration(target, t, anchor);
     },
     p(ctx2, dirty) {
-      if (dirty & 4)
-        set_data(t, ctx2[2]);
+      if (dirty & /*toast*/
+      4)
+        set_data(
+          t,
+          /*toast*/
+          ctx2[2]
+        );
     },
     d(detaching) {
       if (detaching)
@@ -4517,14 +6310,18 @@ function create_key_block(ctx) {
   let updating_toast;
   let current;
   function toast_1_toast_binding(value) {
-    ctx[6](value);
+    ctx[10](value);
   }
   let toast_1_props = {
     $$slots: { default: [create_default_slot_1] },
     $$scope: { ctx }
   };
-  if (ctx[2] !== void 0) {
-    toast_1_props.toast = ctx[2];
+  if (
+    /*toast*/
+    ctx[2] !== void 0
+  ) {
+    toast_1_props.toast = /*toast*/
+    ctx[2];
   }
   toast_1 = new Toast({ props: toast_1_props });
   binding_callbacks.push(() => bind(toast_1, "toast", toast_1_toast_binding));
@@ -4541,12 +6338,15 @@ function create_key_block(ctx) {
     },
     p(ctx2, dirty) {
       const toast_1_changes = {};
-      if (dirty & 524292) {
+      if (dirty & /*$$scope, toast*/
+      8388612) {
         toast_1_changes.$$scope = { dirty, ctx: ctx2 };
       }
-      if (!updating_toast && dirty & 4) {
+      if (!updating_toast && dirty & /*toast*/
+      4) {
         updating_toast = true;
-        toast_1_changes.toast = ctx2[2];
+        toast_1_changes.toast = /*toast*/
+        ctx2[2];
         add_flush_callback(() => updating_toast = false);
       }
       toast_1.$set(toast_1_changes);
@@ -4567,46 +6367,55 @@ function create_key_block(ctx) {
   };
 }
 function create_default_slot(ctx) {
+  let div11;
   let div0;
   let t0;
+  let br0;
   let t1;
-  let div1;
   let t2;
+  let div1;
+  let t3;
   let div6;
   let div3;
   let div2;
-  let t3;
-  let br0;
   let t4;
+  let br1;
   let t5;
+  let br2;
+  let t6;
+  let grabable_action;
+  let t7;
   let div5;
   let div4;
-  let t6;
-  let br1;
-  let t7;
   let t8;
+  let br3;
+  let t9;
+  let t10;
   let div10;
   let div7;
-  let t9;
-  let endpoint0;
-  let t10;
-  let endpoint1;
   let t11;
-  let div8;
+  let endpoint0;
   let t12;
-  let endpoint2;
+  let endpoint1;
   let t13;
-  let div9;
+  let div8;
   let t14;
-  let skew;
+  let endpoint2;
   let t15;
-  let endpoint3;
+  let div9;
   let t16;
+  let skew;
+  let t17;
+  let endpoint3;
+  let t18;
   let if_block_anchor;
   let current;
   let mounted;
   let dispose;
-  let each_value = [...Object.entries(ctx[3])];
+  let each_value = [...Object.entries(
+    /*types*/
+    ctx[4]
+  )];
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
     each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
@@ -4614,19 +6423,28 @@ function create_default_slot(ctx) {
   endpoint0 = new EndPoint({
     props: {
       position: "right",
-      connectable: ctx[11]
+      connectable: (
+        /*connectable*/
+        ctx[15]
+      )
     }
   });
   endpoint1 = new EndPoint({
     props: {
       position: "left",
-      connectable: ctx[11]
+      connectable: (
+        /*connectable*/
+        ctx[15]
+      )
     }
   });
   endpoint2 = new EndPoint({
     props: {
       position: "left",
-      connectable: ctx[11]
+      connectable: (
+        /*connectable*/
+        ctx[15]
+      )
     }
   });
   skew = new Skew({
@@ -4638,193 +6456,270 @@ function create_default_slot(ctx) {
   endpoint3 = new EndPoint({
     props: {
       position: "left",
-      connectable: ctx[11],
+      connectable: (
+        /*connectable*/
+        ctx[15]
+      ),
       $$slots: { default: [create_default_slot_2] },
       $$scope: { ctx }
     }
   });
-  let if_block = ctx[2] && create_if_block(ctx);
+  let if_block = (
+    /*toast*/
+    ctx[2] && create_if_block(ctx)
+  );
   return {
     c() {
+      div11 = element("div");
       div0 = element("div");
-      t0 = text("Directive is available within the slot as a slot prop");
-      t1 = space();
+      t0 = text("Directive is available within the slot as a slot prop.");
+      br0 = element("br");
+      t1 = text("\n					Try scroll to zoom, drag to pan, and still connect!");
+      t2 = space();
       div1 = element("div");
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
       }
-      t2 = space();
+      t3 = space();
       div6 = element("div");
       div3 = element("div");
       div2 = element("div");
-      t3 = text("Delegated Floating ");
-      br0 = element("br");
-      t4 = text("Label Components");
-      t5 = space();
+      t4 = text("Delegated Floating ");
+      br1 = element("br");
+      t5 = text("Label Components");
+      br2 = element("br");
+      t6 = text("\n							Connect then move me, then scroll!");
+      t7 = space();
       div5 = element("div");
       div4 = element("div");
-      t6 = text("...Starts out fixed, then switches to");
-      br1 = element("br");
-      t7 = text(" movable endpoint once connected.");
-      t8 = space();
+      t8 = text("...Starts out fixed, then switches to");
+      br3 = element("br");
+      t9 = text(" movable endpoint once connected.");
+      t10 = space();
       div10 = element("div");
       div7 = element("div");
-      t9 = text("Can we also have an external endpoint?\n				");
+      t11 = text("Can we also have an external endpoint?\n						");
       create_component(endpoint0.$$.fragment);
-      t10 = space();
+      t12 = space();
       create_component(endpoint1.$$.fragment);
-      t11 = space();
-      div8 = element("div");
-      t12 = text("No, libraries cannot do that. Just kidding.\n				");
-      create_component(endpoint2.$$.fragment);
       t13 = space();
+      div8 = element("div");
+      t14 = text("No, libraries cannot do that. Just kidding.\n						");
+      create_component(endpoint2.$$.fragment);
+      t15 = space();
       div9 = element("div");
-      t14 = text("Yes, pass the connectable directive to the component. They can even be ");
+      t16 = text("Yes, pass the connectable directive to the component. They can even be ");
       create_component(skew.$$.fragment);
-      t15 = text(",\n				like this one.\n				");
+      t17 = text(", like this one.\n						");
       create_component(endpoint3.$$.fragment);
-      t16 = space();
+      t18 = space();
       if (if_block)
         if_block.c();
       if_block_anchor = empty();
       this.h();
     },
     l(nodes) {
-      div0 = claim_element(nodes, "DIV", { class: true });
+      div11 = claim_element(nodes, "DIV", { class: true });
+      var div11_nodes = children(div11);
+      div0 = claim_element(div11_nodes, "DIV", { class: true });
       var div0_nodes = children(div0);
-      t0 = claim_text(div0_nodes, "Directive is available within the slot as a slot prop");
+      t0 = claim_text(div0_nodes, "Directive is available within the slot as a slot prop.");
+      br0 = claim_element(div0_nodes, "BR", {});
+      t1 = claim_text(div0_nodes, "\n					Try scroll to zoom, drag to pan, and still connect!");
       div0_nodes.forEach(detach);
-      t1 = claim_space(nodes);
-      div1 = claim_element(nodes, "DIV", { class: true });
+      t2 = claim_space(div11_nodes);
+      div1 = claim_element(div11_nodes, "DIV", { class: true });
       var div1_nodes = children(div1);
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].l(div1_nodes);
       }
       div1_nodes.forEach(detach);
-      t2 = claim_space(nodes);
-      div6 = claim_element(nodes, "DIV", { class: true });
+      t3 = claim_space(div11_nodes);
+      div6 = claim_element(div11_nodes, "DIV", { class: true });
       var div6_nodes = children(div6);
-      div3 = claim_element(div6_nodes, "DIV", { class: true });
+      div3 = claim_element(div6_nodes, "DIV", { class: true, style: true });
       var div3_nodes = children(div3);
       div2 = claim_element(div3_nodes, "DIV", { class: true });
       var div2_nodes = children(div2);
-      t3 = claim_text(div2_nodes, "Delegated Floating ");
-      br0 = claim_element(div2_nodes, "BR", {});
-      t4 = claim_text(div2_nodes, "Label Components");
+      t4 = claim_text(div2_nodes, "Delegated Floating ");
+      br1 = claim_element(div2_nodes, "BR", {});
+      t5 = claim_text(div2_nodes, "Label Components");
+      br2 = claim_element(div2_nodes, "BR", {});
+      t6 = claim_text(div2_nodes, "\n							Connect then move me, then scroll!");
       div2_nodes.forEach(detach);
       div3_nodes.forEach(detach);
-      t5 = claim_space(div6_nodes);
+      t7 = claim_space(div6_nodes);
       div5 = claim_element(div6_nodes, "DIV", { class: true, id: true });
       var div5_nodes = children(div5);
       div4 = claim_element(div5_nodes, "DIV", { class: true });
       var div4_nodes = children(div4);
-      t6 = claim_text(div4_nodes, "...Starts out fixed, then switches to");
-      br1 = claim_element(div4_nodes, "BR", {});
-      t7 = claim_text(div4_nodes, " movable endpoint once connected.");
+      t8 = claim_text(div4_nodes, "...Starts out fixed, then switches to");
+      br3 = claim_element(div4_nodes, "BR", {});
+      t9 = claim_text(div4_nodes, " movable endpoint once connected.");
       div4_nodes.forEach(detach);
       div5_nodes.forEach(detach);
       div6_nodes.forEach(detach);
-      t8 = claim_space(nodes);
-      div10 = claim_element(nodes, "DIV", { class: true });
+      t10 = claim_space(div11_nodes);
+      div10 = claim_element(div11_nodes, "DIV", { class: true });
       var div10_nodes = children(div10);
       div7 = claim_element(div10_nodes, "DIV", { class: true });
       var div7_nodes = children(div7);
-      t9 = claim_text(div7_nodes, "Can we also have an external endpoint?\n				");
+      t11 = claim_text(div7_nodes, "Can we also have an external endpoint?\n						");
       claim_component(endpoint0.$$.fragment, div7_nodes);
-      t10 = claim_space(div7_nodes);
+      t12 = claim_space(div7_nodes);
       claim_component(endpoint1.$$.fragment, div7_nodes);
       div7_nodes.forEach(detach);
-      t11 = claim_space(div10_nodes);
+      t13 = claim_space(div10_nodes);
       div8 = claim_element(div10_nodes, "DIV", { class: true });
       var div8_nodes = children(div8);
-      t12 = claim_text(div8_nodes, "No, libraries cannot do that. Just kidding.\n				");
+      t14 = claim_text(div8_nodes, "No, libraries cannot do that. Just kidding.\n						");
       claim_component(endpoint2.$$.fragment, div8_nodes);
       div8_nodes.forEach(detach);
-      t13 = claim_space(div10_nodes);
+      t15 = claim_space(div10_nodes);
       div9 = claim_element(div10_nodes, "DIV", { class: true });
       var div9_nodes = children(div9);
-      t14 = claim_text(div9_nodes, "Yes, pass the connectable directive to the component. They can even be ");
+      t16 = claim_text(div9_nodes, "Yes, pass the connectable directive to the component. They can even be ");
       claim_component(skew.$$.fragment, div9_nodes);
-      t15 = claim_text(div9_nodes, ",\n				like this one.\n				");
+      t17 = claim_text(div9_nodes, ", like this one.\n						");
       claim_component(endpoint3.$$.fragment, div9_nodes);
       div9_nodes.forEach(detach);
       div10_nodes.forEach(detach);
-      t16 = claim_space(nodes);
+      div11_nodes.forEach(detach);
+      t18 = claim_space(nodes);
       if (if_block)
         if_block.l(nodes);
       if_block_anchor = empty();
       this.h();
     },
     h() {
+      var _a, _b;
       attr(div0, "class", "text-black font-bold m-4");
       attr(div1, "class", "flex flex-row justify-around ");
       attr(div2, "class", "block m-2 select-none w-fit");
       attr(div3, "class", "flex flex-col border rounded-lg m-4 p-4 items-center");
+      set_style(div3, "position", "absolute");
+      set_style(div3, "user-select", "none");
+      set_style(div3, "box-shadow", "10px 5px 5px black");
+      set_style(div3, "width", "250px");
+      set_style(div3, "height", "100px");
+      set_style(
+        div3,
+        "left",
+        /*data*/
+        (((_a = ctx[0].nodes.find(func_1)) == null ? void 0 : _a.x) || 0) + "px"
+      );
+      set_style(
+        div3,
+        "top",
+        /*data*/
+        (((_b = ctx[0].nodes.find(func_2)) == null ? void 0 : _b.y) || 0) + "px"
+      );
+      set_style(div3, "--tw-shadow", "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)");
+      set_style(div3, "--tw-ring-offset-shadow", "0 0 #0000");
+      set_style(div3, "--tw-ring-shadow", "0 0 #0000");
+      set_style(div3, "--tw-shadow-colored", "0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color)");
+      set_style(div3, "box-shadow", "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)");
       attr(div4, "class", "block m-2 cursor-pointer select-none w-fit");
       attr(div5, "class", "flex flex-col border rounded-lg m-4 p-4 items-center");
       attr(div5, "id", "To");
-      attr(div6, "class", "flex flex-row justify-around ");
+      attr(div6, "class", "relative flex flex-row justify-around ");
       attr(div7, "class", "inline-flex m-2 p-4 border rounded-lg w-1/3 bg-amber-100");
       attr(div8, "class", "relative inline-flex m-2 p-4 border rounded-lg w-1/3 bg-red-300");
       attr(div9, "class", "relative flex-0 m-2 ml-auto p-4 border rounded-lg w-1/3 bg-green-300");
-      attr(div10, "class", "flex flex-row flex-wrap border rounded-lg m-4 p-4 justify-between bg-neutral-50");
+      attr(div10, "class", "flex flex-row flex-wrap border rounded-lg mt-20 m-4 p-4 justify-between bg-neutral-50");
+      attr(div11, "class", "border border-red-500");
     },
     m(target, anchor) {
-      insert_hydration(target, div0, anchor);
+      insert_hydration(target, div11, anchor);
+      append_hydration(div11, div0);
       append_hydration(div0, t0);
-      insert_hydration(target, t1, anchor);
-      insert_hydration(target, div1, anchor);
+      append_hydration(div0, br0);
+      append_hydration(div0, t1);
+      append_hydration(div11, t2);
+      append_hydration(div11, div1);
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].m(div1, null);
       }
-      insert_hydration(target, t2, anchor);
-      insert_hydration(target, div6, anchor);
+      append_hydration(div11, t3);
+      append_hydration(div11, div6);
       append_hydration(div6, div3);
       append_hydration(div3, div2);
-      append_hydration(div2, t3);
-      append_hydration(div2, br0);
       append_hydration(div2, t4);
-      append_hydration(div6, t5);
+      append_hydration(div2, br1);
+      append_hydration(div2, t5);
+      append_hydration(div2, br2);
+      append_hydration(div2, t6);
+      append_hydration(div6, t7);
       append_hydration(div6, div5);
       append_hydration(div5, div4);
-      append_hydration(div4, t6);
-      append_hydration(div4, br1);
-      append_hydration(div4, t7);
-      insert_hydration(target, t8, anchor);
-      insert_hydration(target, div10, anchor);
+      append_hydration(div4, t8);
+      append_hydration(div4, br3);
+      append_hydration(div4, t9);
+      append_hydration(div11, t10);
+      append_hydration(div11, div10);
       append_hydration(div10, div7);
-      append_hydration(div7, t9);
+      append_hydration(div7, t11);
       mount_component(endpoint0, div7, null);
-      append_hydration(div7, t10);
+      append_hydration(div7, t12);
       mount_component(endpoint1, div7, null);
-      append_hydration(div10, t11);
-      append_hydration(div10, div8);
-      append_hydration(div8, t12);
-      mount_component(endpoint2, div8, null);
       append_hydration(div10, t13);
+      append_hydration(div10, div8);
+      append_hydration(div8, t14);
+      mount_component(endpoint2, div8, null);
+      append_hydration(div10, t15);
       append_hydration(div10, div9);
-      append_hydration(div9, t14);
+      append_hydration(div9, t16);
       mount_component(skew, div9, null);
-      append_hydration(div9, t15);
+      append_hydration(div9, t17);
       mount_component(endpoint3, div9, null);
-      insert_hydration(target, t16, anchor);
+      insert_hydration(target, t18, anchor);
       if (if_block)
         if_block.m(target, anchor);
       insert_hydration(target, if_block_anchor, anchor);
       current = true;
       if (!mounted) {
         dispose = [
-          action_destroyer(ctx[11].call(null, div3, {
-            startPoint: { component: DemoDelegated, show: true }
+          action_destroyer(
+            /*connectable*/
+            ctx[15].call(null, div3, {
+              startPoint: { component: DemoDelegated, show: true }
+            })
+          ),
+          action_destroyer(grabable_action = grabable.call(null, div3, {
+            nodeData: { id: "absolute1" },
+            scale: (
+              /*scale*/
+              ctx[3]
+            )
           })),
-          action_destroyer(ctx[11].call(null, div5))
+          listen(
+            div3,
+            "move",
+            /*move_handler*/
+            ctx[8]
+          ),
+          listen(
+            div3,
+            "end",
+            /*end_handler*/
+            ctx[9]
+          ),
+          action_destroyer(
+            /*connectable*/
+            ctx[15].call(null, div5)
+          )
         ];
         mounted = true;
       }
     },
     p(ctx2, dirty) {
-      if (dirty & 9) {
-        each_value = [...Object.entries(ctx2[3])];
+      var _a, _b;
+      if (dirty & /*data, Object, types*/
+      17) {
+        each_value = [...Object.entries(
+          /*types*/
+          ctx2[4]
+        )];
         let i;
         for (i = 0; i < each_value.length; i += 1) {
           const child_ctx = get_each_context(ctx2, each_value, i);
@@ -4841,34 +6736,75 @@ function create_default_slot(ctx) {
         }
         each_blocks.length = each_value.length;
       }
+      if (!current || dirty & /*data*/
+      1) {
+        set_style(
+          div3,
+          "left",
+          /*data*/
+          (((_a = ctx2[0].nodes.find(func_1)) == null ? void 0 : _a.x) || 0) + "px"
+        );
+      }
+      if (!current || dirty & /*data*/
+      1) {
+        set_style(
+          div3,
+          "top",
+          /*data*/
+          (((_b = ctx2[0].nodes.find(func_2)) == null ? void 0 : _b.y) || 0) + "px"
+        );
+      }
+      if (grabable_action && is_function(grabable_action.update) && dirty & /*scale*/
+      8)
+        grabable_action.update.call(null, {
+          nodeData: { id: "absolute1" },
+          scale: (
+            /*scale*/
+            ctx2[3]
+          )
+        });
       const endpoint0_changes = {};
-      if (dirty & 2048)
-        endpoint0_changes.connectable = ctx2[11];
+      if (dirty & /*connectable*/
+      32768)
+        endpoint0_changes.connectable = /*connectable*/
+        ctx2[15];
       endpoint0.$set(endpoint0_changes);
       const endpoint1_changes = {};
-      if (dirty & 2048)
-        endpoint1_changes.connectable = ctx2[11];
+      if (dirty & /*connectable*/
+      32768)
+        endpoint1_changes.connectable = /*connectable*/
+        ctx2[15];
       endpoint1.$set(endpoint1_changes);
       const endpoint2_changes = {};
-      if (dirty & 2048)
-        endpoint2_changes.connectable = ctx2[11];
+      if (dirty & /*connectable*/
+      32768)
+        endpoint2_changes.connectable = /*connectable*/
+        ctx2[15];
       endpoint2.$set(endpoint2_changes);
       const skew_changes = {};
-      if (dirty & 524288) {
+      if (dirty & /*$$scope*/
+      8388608) {
         skew_changes.$$scope = { dirty, ctx: ctx2 };
       }
       skew.$set(skew_changes);
       const endpoint3_changes = {};
-      if (dirty & 2048)
-        endpoint3_changes.connectable = ctx2[11];
-      if (dirty & 524288) {
+      if (dirty & /*connectable*/
+      32768)
+        endpoint3_changes.connectable = /*connectable*/
+        ctx2[15];
+      if (dirty & /*$$scope*/
+      8388608) {
         endpoint3_changes.$$scope = { dirty, ctx: ctx2 };
       }
       endpoint3.$set(endpoint3_changes);
-      if (ctx2[2]) {
+      if (
+        /*toast*/
+        ctx2[2]
+      ) {
         if (if_block) {
           if_block.p(ctx2, dirty);
-          if (dirty & 4) {
+          if (dirty & /*toast*/
+          4) {
             transition_in(if_block, 1);
           }
         } else {
@@ -4907,27 +6843,15 @@ function create_default_slot(ctx) {
     },
     d(detaching) {
       if (detaching)
-        detach(div0);
-      if (detaching)
-        detach(t1);
-      if (detaching)
-        detach(div1);
+        detach(div11);
       destroy_each(each_blocks, detaching);
-      if (detaching)
-        detach(t2);
-      if (detaching)
-        detach(div6);
-      if (detaching)
-        detach(t8);
-      if (detaching)
-        detach(div10);
       destroy_component(endpoint0);
       destroy_component(endpoint1);
       destroy_component(endpoint2);
       destroy_component(skew);
       destroy_component(endpoint3);
       if (detaching)
-        detach(t16);
+        detach(t18);
       if (if_block)
         if_block.d(detaching);
       if (detaching)
@@ -4956,7 +6880,7 @@ function create_marker_slot(ctx) {
     m(target, anchor) {
       insert_hydration(target, div, anchor);
     },
-    p: noop$1,
+    p: noop$2,
     d(detaching) {
       if (detaching)
         detach(div);
@@ -4975,64 +6899,92 @@ function create_fragment(ctx) {
   let t3;
   let t4;
   let t5;
+  let div4;
   let div3;
   let canvas;
   let updating_data;
   let t6;
-  let div8;
-  let div4;
+  let div9;
+  let div5;
   let t7;
   let t8;
-  let div5;
+  let div6;
   let label0;
   let span0;
   let t9;
   let t10;
   let input0;
   let t11;
-  let div6;
+  let div7;
   let label1;
   let span1;
   let t12;
   let t13;
   let input1;
   let t14;
-  let div7;
+  let div8;
   let label2;
   let span2;
   let t15;
-  let t16_value = ctx[1].links.textStartOffset + "";
+  let t16_value = (
+    /*opts*/
+    ctx[1].links.textStartOffset + ""
+  );
   let t16;
   let t17;
   let input2;
+  let t18;
+  let pre;
+  let t19;
+  let t20_value = JSON.stringify({ data: (
+    /*data*/
+    ctx[0]
+  ) }, null, 2) + "";
+  let t20;
+  let t21;
   let current;
   let mounted;
   let dispose;
   function canvas_data_binding(value) {
-    ctx[7](value);
+    ctx[11](value);
   }
   let canvas_props = {
-    opts: ctx[1],
+    opts: (
+      /*opts*/
+      ctx[1]
+    ),
+    scale: (
+      /*scale*/
+      ctx[3]
+    ),
     $$slots: {
       marker: [
         create_marker_slot,
-        ({ connectable }) => ({ 11: connectable }),
-        ({ connectable }) => connectable ? 2048 : 0
+        ({ connectable }) => ({ 15: connectable }),
+        ({ connectable }) => connectable ? 32768 : 0
       ],
       default: [
         create_default_slot,
-        ({ connectable }) => ({ 11: connectable }),
-        ({ connectable }) => connectable ? 2048 : 0
+        ({ connectable }) => ({ 15: connectable }),
+        ({ connectable }) => connectable ? 32768 : 0
       ]
     },
     $$scope: { ctx }
   };
-  if (ctx[0] !== void 0) {
-    canvas_props.data = ctx[0];
+  if (
+    /*data*/
+    ctx[0] !== void 0
+  ) {
+    canvas_props.data = /*data*/
+    ctx[0];
   }
   canvas = new Canvas({ props: canvas_props });
   binding_callbacks.push(() => bind(canvas, "data", canvas_data_binding));
-  canvas.$on("connected", ctx[4]);
+  canvas.$on(
+    "connected",
+    /*handleConnected*/
+    ctx[5]
+  );
   return {
     c() {
       div2 = element("div");
@@ -5046,34 +6998,40 @@ function create_fragment(ctx) {
       t3 = text("@DougAnderson444");
       t4 = text("\n\n	Match the picture to the words:");
       t5 = space();
+      div4 = element("div");
       div3 = element("div");
       create_component(canvas.$$.fragment);
       t6 = space();
-      div8 = element("div");
-      div4 = element("div");
+      div9 = element("div");
+      div5 = element("div");
       t7 = text("Control Panel");
       t8 = space();
-      div5 = element("div");
+      div6 = element("div");
       label0 = element("label");
       span0 = element("span");
       t9 = text("Stroke Width");
       t10 = space();
       input0 = element("input");
       t11 = space();
-      div6 = element("div");
+      div7 = element("div");
       label1 = element("label");
       span1 = element("span");
       t12 = text("Stroke Opacity");
       t13 = space();
       input1 = element("input");
       t14 = space();
-      div7 = element("div");
+      div8 = element("div");
       label2 = element("label");
       span2 = element("span");
       t15 = text("Start Distance ");
       t16 = text(t16_value);
       t17 = space();
       input2 = element("input");
+      t18 = space();
+      pre = element("pre");
+      t19 = text("	");
+      t20 = text(t20_value);
+      t21 = text("\n");
       this.h();
     },
     l(nodes) {
@@ -5098,21 +7056,24 @@ function create_fragment(ctx) {
       t4 = claim_text(div2_nodes, "\n\n	Match the picture to the words:");
       div2_nodes.forEach(detach);
       t5 = claim_space(nodes);
-      div3 = claim_element(nodes, "DIV", { class: true });
+      div4 = claim_element(nodes, "DIV", { class: true });
+      var div4_nodes = children(div4);
+      div3 = claim_element(div4_nodes, "DIV", {});
       var div3_nodes = children(div3);
       claim_component(canvas.$$.fragment, div3_nodes);
       div3_nodes.forEach(detach);
-      t6 = claim_space(nodes);
-      div8 = claim_element(nodes, "DIV", { class: true });
-      var div8_nodes = children(div8);
-      div4 = claim_element(div8_nodes, "DIV", { class: true });
-      var div4_nodes = children(div4);
-      t7 = claim_text(div4_nodes, "Control Panel");
       div4_nodes.forEach(detach);
-      t8 = claim_space(div8_nodes);
-      div5 = claim_element(div8_nodes, "DIV", { class: true });
+      t6 = claim_space(nodes);
+      div9 = claim_element(nodes, "DIV", { class: true });
+      var div9_nodes = children(div9);
+      div5 = claim_element(div9_nodes, "DIV", { class: true });
       var div5_nodes = children(div5);
-      label0 = claim_element(div5_nodes, "LABEL", { class: true });
+      t7 = claim_text(div5_nodes, "Control Panel");
+      div5_nodes.forEach(detach);
+      t8 = claim_space(div9_nodes);
+      div6 = claim_element(div9_nodes, "DIV", { class: true });
+      var div6_nodes = children(div6);
+      label0 = claim_element(div6_nodes, "LABEL", { class: true });
       var label0_nodes = children(label0);
       span0 = claim_element(label0_nodes, "SPAN", { class: true });
       var span0_nodes = children(span0);
@@ -5121,11 +7082,11 @@ function create_fragment(ctx) {
       t10 = claim_space(label0_nodes);
       input0 = claim_element(label0_nodes, "INPUT", { type: true, min: true, max: true });
       label0_nodes.forEach(detach);
-      div5_nodes.forEach(detach);
-      t11 = claim_space(div8_nodes);
-      div6 = claim_element(div8_nodes, "DIV", { class: true });
-      var div6_nodes = children(div6);
-      label1 = claim_element(div6_nodes, "LABEL", { class: true });
+      div6_nodes.forEach(detach);
+      t11 = claim_space(div9_nodes);
+      div7 = claim_element(div9_nodes, "DIV", { class: true });
+      var div7_nodes = children(div7);
+      label1 = claim_element(div7_nodes, "LABEL", { class: true });
       var label1_nodes = children(label1);
       span1 = claim_element(label1_nodes, "SPAN", { class: true });
       var span1_nodes = children(span1);
@@ -5139,11 +7100,11 @@ function create_fragment(ctx) {
         step: true
       });
       label1_nodes.forEach(detach);
-      div6_nodes.forEach(detach);
-      t14 = claim_space(div8_nodes);
-      div7 = claim_element(div8_nodes, "DIV", { class: true });
-      var div7_nodes = children(div7);
-      label2 = claim_element(div7_nodes, "LABEL", { class: true });
+      div7_nodes.forEach(detach);
+      t14 = claim_space(div9_nodes);
+      div8 = claim_element(div9_nodes, "DIV", { class: true });
+      var div8_nodes = children(div8);
+      label2 = claim_element(div8_nodes, "LABEL", { class: true });
       var label2_nodes = children(label2);
       span2 = claim_element(label2_nodes, "SPAN", { class: true });
       var span2_nodes = children(span2);
@@ -5158,8 +7119,15 @@ function create_fragment(ctx) {
         step: true
       });
       label2_nodes.forEach(detach);
-      div7_nodes.forEach(detach);
       div8_nodes.forEach(detach);
+      div9_nodes.forEach(detach);
+      t18 = claim_space(nodes);
+      pre = claim_element(nodes, "PRE", {});
+      var pre_nodes = children(pre);
+      t19 = claim_text(pre_nodes, "	");
+      t20 = claim_text(pre_nodes, t20_value);
+      t21 = claim_text(pre_nodes, "\n");
+      pre_nodes.forEach(detach);
       this.h();
     },
     h() {
@@ -5170,29 +7138,29 @@ function create_fragment(ctx) {
       attr(a1, "class", "font-bold underline");
       attr(div1, "class", "my-4 p-2 bg-blue-100 rounded-lg w-fit");
       attr(div2, "class", "mb-4 ml-4 p-2 w-fit");
-      attr(div3, "class", "border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4");
-      attr(div4, "class", "text-lg font-bold underline");
+      attr(div4, "class", "relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4 h-full");
+      attr(div5, "class", "text-lg font-bold underline");
       attr(span0, "class", "p-2");
       attr(input0, "type", "range");
       attr(input0, "min", "1");
       attr(input0, "max", "50");
       attr(label0, "class", "");
-      attr(div5, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
+      attr(div6, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
       attr(span1, "class", "p-2");
       attr(input1, "type", "range");
       attr(input1, "min", "0.1");
       attr(input1, "max", "1");
       attr(input1, "step", "0.1");
       attr(label1, "class", "");
-      attr(div6, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
+      attr(div7, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
       attr(span2, "class", "p-2");
       attr(input2, "type", "range");
       attr(input2, "min", "0%");
       attr(input2, "max", "90%");
       attr(input2, "step", "5%");
       attr(label2, "class", "");
-      attr(div7, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
-      attr(div8, "class", "m-4 p-4 bg-slate-100 rounded-lg shadow-lg border");
+      attr(div8, "class", "my-4 p-4 bg-blue-200/50 rounded-lg shadow");
+      attr(div9, "class", "m-4 p-4 bg-slate-100 rounded-lg shadow-lg border");
     },
     m(target, anchor) {
       insert_hydration(target, div2, anchor);
@@ -5206,74 +7174,161 @@ function create_fragment(ctx) {
       append_hydration(a1, t3);
       append_hydration(div2, t4);
       insert_hydration(target, t5, anchor);
-      insert_hydration(target, div3, anchor);
+      insert_hydration(target, div4, anchor);
+      append_hydration(div4, div3);
       mount_component(canvas, div3, null);
       insert_hydration(target, t6, anchor);
-      insert_hydration(target, div8, anchor);
-      append_hydration(div8, div4);
-      append_hydration(div4, t7);
-      append_hydration(div8, t8);
-      append_hydration(div8, div5);
-      append_hydration(div5, label0);
+      insert_hydration(target, div9, anchor);
+      append_hydration(div9, div5);
+      append_hydration(div5, t7);
+      append_hydration(div9, t8);
+      append_hydration(div9, div6);
+      append_hydration(div6, label0);
       append_hydration(label0, span0);
       append_hydration(span0, t9);
       append_hydration(label0, t10);
       append_hydration(label0, input0);
-      set_input_value(input0, ctx[1].links.strokeWidth);
-      append_hydration(div8, t11);
-      append_hydration(div8, div6);
-      append_hydration(div6, label1);
+      set_input_value(
+        input0,
+        /*opts*/
+        ctx[1].links.strokeWidth
+      );
+      append_hydration(div9, t11);
+      append_hydration(div9, div7);
+      append_hydration(div7, label1);
       append_hydration(label1, span1);
       append_hydration(span1, t12);
       append_hydration(label1, t13);
       append_hydration(label1, input1);
-      set_input_value(input1, ctx[1].links.strokeOpacity);
-      append_hydration(div8, t14);
-      append_hydration(div8, div7);
-      append_hydration(div7, label2);
+      set_input_value(
+        input1,
+        /*opts*/
+        ctx[1].links.strokeOpacity
+      );
+      append_hydration(div9, t14);
+      append_hydration(div9, div8);
+      append_hydration(div8, label2);
       append_hydration(label2, span2);
       append_hydration(span2, t15);
       append_hydration(span2, t16);
       append_hydration(label2, t17);
       append_hydration(label2, input2);
-      set_input_value(input2, ctx[1].links.textStartOffset);
+      set_input_value(
+        input2,
+        /*opts*/
+        ctx[1].links.textStartOffset
+      );
+      insert_hydration(target, t18, anchor);
+      insert_hydration(target, pre, anchor);
+      append_hydration(pre, t19);
+      append_hydration(pre, t20);
+      append_hydration(pre, t21);
       current = true;
       if (!mounted) {
         dispose = [
-          listen(input0, "change", ctx[8]),
-          listen(input0, "input", ctx[8]),
-          listen(input1, "change", ctx[9]),
-          listen(input1, "input", ctx[9]),
-          listen(input2, "change", ctx[10]),
-          listen(input2, "input", ctx[10])
+          action_destroyer(pzoom.call(null, div3, { panAnywhere: true })),
+          listen(
+            div3,
+            "scale",
+            /*handleScaleChg*/
+            ctx[6]
+          ),
+          listen(
+            input0,
+            "change",
+            /*input0_change_input_handler*/
+            ctx[12]
+          ),
+          listen(
+            input0,
+            "input",
+            /*input0_change_input_handler*/
+            ctx[12]
+          ),
+          listen(
+            input1,
+            "change",
+            /*input1_change_input_handler*/
+            ctx[13]
+          ),
+          listen(
+            input1,
+            "input",
+            /*input1_change_input_handler*/
+            ctx[13]
+          ),
+          listen(
+            input2,
+            "change",
+            /*input2_change_input_handler*/
+            ctx[14]
+          ),
+          listen(
+            input2,
+            "input",
+            /*input2_change_input_handler*/
+            ctx[14]
+          )
         ];
         mounted = true;
       }
     },
     p(ctx2, [dirty]) {
       const canvas_changes = {};
-      if (dirty & 2)
-        canvas_changes.opts = ctx2[1];
-      if (dirty & 526341) {
+      if (dirty & /*opts*/
+      2)
+        canvas_changes.opts = /*opts*/
+        ctx2[1];
+      if (dirty & /*scale*/
+      8)
+        canvas_changes.scale = /*scale*/
+        ctx2[3];
+      if (dirty & /*$$scope, toast, connectable, data, scale*/
+      8421389) {
         canvas_changes.$$scope = { dirty, ctx: ctx2 };
       }
-      if (!updating_data && dirty & 1) {
+      if (!updating_data && dirty & /*data*/
+      1) {
         updating_data = true;
-        canvas_changes.data = ctx2[0];
+        canvas_changes.data = /*data*/
+        ctx2[0];
         add_flush_callback(() => updating_data = false);
       }
       canvas.$set(canvas_changes);
-      if (dirty & 2) {
-        set_input_value(input0, ctx2[1].links.strokeWidth);
+      if (dirty & /*opts*/
+      2) {
+        set_input_value(
+          input0,
+          /*opts*/
+          ctx2[1].links.strokeWidth
+        );
       }
-      if (dirty & 2) {
-        set_input_value(input1, ctx2[1].links.strokeOpacity);
+      if (dirty & /*opts*/
+      2) {
+        set_input_value(
+          input1,
+          /*opts*/
+          ctx2[1].links.strokeOpacity
+        );
       }
-      if ((!current || dirty & 2) && t16_value !== (t16_value = ctx2[1].links.textStartOffset + ""))
+      if ((!current || dirty & /*opts*/
+      2) && t16_value !== (t16_value = /*opts*/
+      ctx2[1].links.textStartOffset + ""))
         set_data(t16, t16_value);
-      if (dirty & 2) {
-        set_input_value(input2, ctx2[1].links.textStartOffset);
+      if (dirty & /*opts*/
+      2) {
+        set_input_value(
+          input2,
+          /*opts*/
+          ctx2[1].links.textStartOffset
+        );
       }
+      if ((!current || dirty & /*data*/
+      1) && t20_value !== (t20_value = JSON.stringify({ data: (
+        /*data*/
+        ctx2[0]
+      ) }, null, 2) + ""))
+        set_data(t20, t20_value);
     },
     i(local) {
       if (current)
@@ -5291,17 +7346,23 @@ function create_fragment(ctx) {
       if (detaching)
         detach(t5);
       if (detaching)
-        detach(div3);
+        detach(div4);
       destroy_component(canvas);
       if (detaching)
         detach(t6);
       if (detaching)
-        detach(div8);
+        detach(div9);
+      if (detaching)
+        detach(t18);
+      if (detaching)
+        detach(pre);
       mounted = false;
       run_all(dispose);
     }
   };
 }
+const func_1 = (n) => n.id == "absolute1";
+const func_2 = (n) => n.id == "absolute1";
 function instance($$self, $$props, $$invalidate) {
   let types = {
     emojii: "emojii",
@@ -5309,9 +7370,9 @@ function instance($$self, $$props, $$invalidate) {
   };
   let data = {
     nodes: [
-      { id: 1, type: types.emojii, value: "\u{1F431}" },
-      { id: 2, type: types.emojii, value: "\u{1F984}" },
-      { id: 3, type: types.emojii, value: "\u{1F410}" },
+      { id: 1, type: types.emojii, value: "🐱" },
+      { id: 2, type: types.emojii, value: "🦄" },
+      { id: 3, type: types.emojii, value: "🐐" },
       {
         id: 4,
         type: types.description,
@@ -5326,7 +7387,8 @@ function instance($$self, $$props, $$invalidate) {
         id: 6,
         type: types.description,
         value: "A very nice Unicorn"
-      }
+      },
+      { id: "absolute1", x: 0, y: 100 }
     ],
     links: []
   };
@@ -5347,12 +7409,26 @@ function instance($$self, $$props, $$invalidate) {
     links: { strokeWidth: 1, textStartOffset: 20 }
   };
   let toast = false;
+  let scale = 1;
   function handleConnected(e) {
     var _a, _b, _c, _d;
     $$invalidate(2, toast = ((_b = (_a = e.detail.source) == null ? void 0 : _a.dataset) == null ? void 0 : _b.value) + " to " + ((_d = (_c = e.detail.target) == null ? void 0 : _c.dataset) == null ? void 0 : _d.value));
     console.log(toast);
   }
+  const handleScaleChg = (e) => {
+    $$invalidate(3, scale = e.detail.scale);
+  };
   const func = (type, t) => t.type == type;
+  const move_handler = (e) => {
+    data.nodes.find((n) => n.id == "absolute1").x = e.detail.x;
+    data.nodes.find((n) => n.id == "absolute1").y = e.detail.y;
+    $$invalidate(0, data);
+  };
+  const end_handler = (e) => {
+    data.nodes.find((n) => n.id == "absolute1").x = e.detail.x;
+    data.nodes.find((n) => n.id == "absolute1").y = e.detail.y;
+    $$invalidate(0, data);
+  };
   function toast_1_toast_binding(value) {
     toast = value;
     $$invalidate(2, toast);
@@ -5377,9 +7453,13 @@ function instance($$self, $$props, $$invalidate) {
     data,
     opts,
     toast,
+    scale,
     types,
     handleConnected,
+    handleScaleChg,
     func,
+    move_handler,
+    end_handler,
     toast_1_toast_binding,
     canvas_data_binding,
     input0_change_input_handler,
@@ -5387,13 +7467,13 @@ function instance($$self, $$props, $$invalidate) {
     input2_change_input_handler
   ];
 }
-class Routes extends SvelteComponent {
+class Page extends SvelteComponent {
   constructor(options) {
     super();
     init(this, options, instance, create_fragment, safe_not_equal, {});
   }
 }
 export {
-  Routes as default
+  Page as default
 };
-//# sourceMappingURL=index.svelte-f291f23c.js.map
+//# sourceMappingURL=_page.svelte-2ad1a052.js.map

@@ -5,38 +5,41 @@
 		<link rel="icon" href="/svelte-plumb/favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<meta http-equiv="content-security-policy" content="">
-	<link href="/svelte-plumb/_app/immutable/assets/__layout-53d4967d.css" rel="stylesheet">
-	<link href="/svelte-plumb/_app/immutable/assets/index-1588a27f.css" rel="stylesheet">
-	<link rel="modulepreload" href="/svelte-plumb/_app/immutable/start-335e9549.js">
-	<link rel="modulepreload" href="/svelte-plumb/_app/immutable/chunks/index-c4dc6e20.js">
-	<link rel="modulepreload" href="/svelte-plumb/_app/immutable/chunks/index-679a6cd0.js">
-	<link rel="modulepreload" href="/svelte-plumb/_app/immutable/pages/__layout.svelte-dd7523ff.js">
-	<link rel="modulepreload" href="/svelte-plumb/_app/immutable/pages/index.svelte-f291f23c.js">
+		<link href="/svelte-plumb/_app/immutable/assets/_layout-721dd908.css" rel="stylesheet">
+		<link href="/svelte-plumb/_app/immutable/assets/_page-21837a01.css" rel="stylesheet">
+		<link rel="modulepreload" href="/svelte-plumb/_app/immutable/start-2d53f005.js">
+		<link rel="modulepreload" href="/svelte-plumb/_app/immutable/chunks/index-04c364fb.js">
+		<link rel="modulepreload" href="/svelte-plumb/_app/immutable/chunks/singletons-b7678cee.js">
+		<link rel="modulepreload" href="/svelte-plumb/_app/immutable/chunks/index-a71b7706.js">
+		<link rel="modulepreload" href="/svelte-plumb/_app/immutable/components/pages/_layout.svelte-3d40c078.js">
+		<link rel="modulepreload" href="/svelte-plumb/_app/immutable/modules/pages/_layout.js-d568e1c4.js">
+		<link rel="modulepreload" href="/svelte-plumb/_app/immutable/chunks/_layout-760a2fa2.js">
+		<link rel="modulepreload" href="/svelte-plumb/_app/immutable/components/pages/_page.svelte-2ad1a052.js">
 	</head>
 	<body>
 		<div>
 
 
-<div class="mb-4 ml-4 p-2 w-fit"><div class="my-4 p-2 bg-blue-100 rounded-lg w-fit"><a href="https://github.com/DougAnderson444/svelte-plumb" class="font-bold m-2 underline">https://github.com/DougAnderson444/svelte-plumb</a></div>
+<main class="h-screen"><div class="mb-4 ml-4 p-2 w-fit"><div class="my-4 p-2 bg-blue-100 rounded-lg w-fit"><a href="https://github.com/DougAnderson444/svelte-plumb" class="font-bold m-2 underline">https://github.com/DougAnderson444/svelte-plumb</a></div>
 	<div class="my-4 p-2 bg-blue-100 rounded-lg w-fit">by <a href="https://twitter.com/DougAnderson444" class="font-bold underline">@DougAnderson444</a></div>
 
 	Match the picture to the words:
 </div>
 
-<div class="border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4">
+<div class="relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4 h-full"><div>
 
-<div class="relative" data-canvas>
+<div data-canvas style="position: relative;">
 
-	
-
-	
-	
-	
 	
 
 	
 	
-</div></div>
+	
+	
+
+	
+	
+</div></div></div>
 
 
 
@@ -48,29 +51,82 @@
 	<div class="my-4 p-4 bg-blue-200/50 rounded-lg shadow"><label class=""><span class="p-2">Start Distance 20</span>
 			<input type="range" min="0%" max="90%" step="5%" value="20"></label></div></div>
 
+<pre>	{
+  "data": {
+    "nodes": [
+      {
+        "id": 1,
+        "type": "emojii",
+        "value": "🐱"
+      },
+      {
+        "id": 2,
+        "type": "emojii",
+        "value": "🦄"
+      },
+      {
+        "id": 3,
+        "type": "emojii",
+        "value": "🐐"
+      },
+      {
+        "id": 4,
+        "type": "description",
+        "value": "GOAT"
+      },
+      {
+        "id": 5,
+        "type": "description",
+        "value": "Cat"
+      },
+      {
+        "id": 6,
+        "type": "description",
+        "value": "A very nice Unicorn"
+      },
+      {
+        "id": "absolute1",
+        "x": 0,
+        "y": 100
+      }
+    ],
+    "links": [
+      {
+        "id": "2-to-6",
+        "source": {
+          "id": "2"
+        },
+        "target": {
+          "id": "6"
+        },
+        "opts": {
+          "label": {
+            "enabled": true,
+            "value": "🦄 to A very nice Unicorn"
+          }
+        }
+      }
+    ]
+  }
+}
+</pre></main>
 
 
+		<script type="module" data-sveltekit-hydrate="m5ji23">
+			import { start } from "/svelte-plumb/_app/immutable/start-2d53f005.js";
 
-		<script type="module" data-sveltekit-hydrate="1gbgg2g">
-		import { set_public_env, start } from "/svelte-plumb/_app/immutable/start-335e9549.js";
-
-		set_public_env({});
-
-		start({
-			target: document.querySelector('[data-sveltekit-hydrate="1gbgg2g"]').parentNode,
-			paths: {"base":"/svelte-plumb","assets":"/svelte-plumb"},
-			session: {},
-			route: true,
-			spa: false,
-			trailing_slash: "never",
-			hydrate: {
-				status: 200,
-				error: null,
-				nodes: [0, 2],
-				params: {},
-				routeId: ""
-			}
-		});
-	</script></div>
+			start({
+				env: {},
+				paths: {"base":"/svelte-plumb","assets":"/svelte-plumb"},
+				target: document.querySelector('[data-sveltekit-hydrate="m5ji23"]').parentNode,
+				version: "1674923003695",
+				hydrate: {
+					node_ids: [0, 2],
+					data: [null,null],
+					form: null
+				}
+			});
+		</script>
+	</div>
 	</body>
 </html>

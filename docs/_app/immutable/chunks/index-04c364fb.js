@@ -31,6 +31,9 @@ function subscribe(store, ...callbacks) {
   const unsub = store.subscribe(...callbacks);
   return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
 }
+function component_subscribe(component, store, callback) {
+  component.$$.on_destroy.push(subscribe(store, callback));
+}
 function create_slot(definition, ctx, $$scope, fn) {
   if (definition) {
     const slot_ctx = get_slot_context(definition, ctx, $$scope, fn);
@@ -196,11 +199,12 @@ function append_empty_stylesheet(node) {
 }
 function append_stylesheet(node, style) {
   append(node.head || node, style);
+  return style.sheet;
 }
 function append_hydration(target, node) {
   if (is_hydrating) {
     init_hydrate(target);
-    if (target.actual_end_child === void 0 || target.actual_end_child !== null && target.actual_end_child.parentElement !== target) {
+    if (target.actual_end_child === void 0 || target.actual_end_child !== null && target.actual_end_child.parentNode !== target) {
       target.actual_end_child = target.firstChild;
     }
     while (target.actual_end_child !== null && target.actual_end_child.claim_order === void 0) {
@@ -225,7 +229,9 @@ function insert_hydration(target, node, anchor) {
   }
 }
 function detach(node) {
-  node.parentNode.removeChild(node);
+  if (node.parentNode) {
+    node.parentNode.removeChild(node);
+  }
 }
 function destroy_each(iterations, detaching) {
   for (let i = 0; i < iterations.length; i += 1) {
@@ -348,6 +354,7 @@ function claim_text(nodes, data) {
     },
     () => text(data),
     true
+    // Text nodes should not update last index since it is likely not worth it to eliminate an increasing subsequence of actual elements
   );
 }
 function claim_space(nodes) {
@@ -420,6 +427,9 @@ function custom_event(type, detail, { bubbles = false, cancelable = false } = {}
   e.initCustomEvent(type, bubbles, cancelable, detail);
   return e;
 }
+function construct_svelte_component(component, props) {
+  return new component(props);
+}
 const managed_styles = /* @__PURE__ */ new Map();
 let active = 0;
 function hash(str) {
@@ -460,6 +470,7 @@ function delete_rule(node, name) {
   const previous = (node.style.animation || "").split(", ");
   const next = previous.filter(
     name ? (anim) => anim.indexOf(name) < 0 : (anim) => anim.indexOf("__svelte") === -1
+    // remove all Svelte animations
   );
   const deleted = previous.length - next.length;
   if (deleted) {
@@ -474,11 +485,9 @@ function clear_rules() {
     if (active)
       return;
     managed_styles.forEach((info) => {
-      const { stylesheet } = info;
-      let i = stylesheet.cssRules.length;
-      while (i--)
-        stylesheet.deleteRule(i);
-      info.rules = {};
+      const { ownerNode } = info.stylesheet;
+      if (ownerNode)
+        detach(ownerNode);
     });
     managed_styles.clear();
   });
@@ -512,10 +521,6 @@ function createEventDispatcher() {
     return true;
   };
 }
-function setContext(key, context) {
-  get_current_component().$$.context.set(key, context);
-  return context;
-}
 function bubble(component, event) {
   const callbacks = component.$$.callbacks[event.type];
   if (callbacks) {
@@ -547,13 +552,22 @@ function add_flush_callback(fn) {
 const seen_callbacks = /* @__PURE__ */ new Set();
 let flushidx = 0;
 function flush() {
+  if (flushidx !== 0) {
+    return;
+  }
   const saved_component = current_component;
   do {
-    while (flushidx < dirty_components.length) {
-      const component = dirty_components[flushidx];
-      flushidx++;
-      set_current_component(component);
-      update(component.$$);
+    try {
+      while (flushidx < dirty_components.length) {
+        const component = dirty_components[flushidx];
+        flushidx++;
+        set_current_component(component);
+        update(component.$$);
+      }
+    } catch (e) {
+      dirty_components.length = 0;
+      flushidx = 0;
+      throw e;
     }
     set_current_component(null);
     dirty_components.length = 0;
@@ -606,6 +620,7 @@ function group_outros() {
     r: 0,
     c: [],
     p: outros
+    // parent group
   };
 }
 function check_outros() {
@@ -640,7 +655,8 @@ function transition_out(block, local, detach2, callback) {
 }
 const null_transition = { duration: 0 };
 function create_bidirectional_transition(node, fn, params, intro) {
-  let config = fn(node, params);
+  const options = { direction: "both" };
+  let config = fn(node, params, options);
   let t = intro ? 0 : 1;
   let running_program = null;
   let pending_program = null;
@@ -720,7 +736,7 @@ function create_bidirectional_transition(node, fn, params, intro) {
     run(b) {
       if (is_function(config)) {
         wait().then(() => {
-          config = config();
+          config = config(options);
           go(b);
         });
       } else {
@@ -859,13 +875,13 @@ function claim_component(block, parent_nodes) {
   block && block.l(parent_nodes);
 }
 function mount_component(component, target, anchor, customElement) {
-  const { fragment, on_mount, on_destroy, after_update } = component.$$;
+  const { fragment, after_update } = component.$$;
   fragment && fragment.m(target, anchor);
   if (!customElement) {
     add_render_callback(() => {
-      const new_on_destroy = on_mount.map(run).filter(is_function);
-      if (on_destroy) {
-        on_destroy.push(...new_on_destroy);
+      const new_on_destroy = component.$$.on_mount.map(run).filter(is_function);
+      if (component.$$.on_destroy) {
+        component.$$.on_destroy.push(...new_on_destroy);
       } else {
         run_all(new_on_destroy);
       }
@@ -896,17 +912,20 @@ function init(component, options, instance, create_fragment, not_equal, props, a
   set_current_component(component);
   const $$ = component.$$ = {
     fragment: null,
-    ctx: null,
+    ctx: [],
+    // state
     props,
     update: noop,
     not_equal,
     bound: blank_object(),
+    // lifecycle
     on_mount: [],
     on_destroy: [],
     on_disconnect: [],
     before_update: [],
     after_update: [],
     context: new Map(options.context || (parent_component ? parent_component.$$.context : [])),
+    // everything else
     callbacks: blank_object(),
     dirty,
     skip_bound: false,
@@ -951,6 +970,9 @@ class SvelteComponent {
     this.$destroy = noop;
   }
   $on(type, callback) {
+    if (!is_function(callback)) {
+      return noop;
+    }
     const callbacks = this.$$.callbacks[type] || (this.$$.callbacks[type] = []);
     callbacks.push(callback);
     return () => {
@@ -987,6 +1009,8 @@ export {
   claim_space,
   claim_svg_element,
   claim_text,
+  component_subscribe,
+  construct_svelte_component,
   createEventDispatcher,
   create_bidirectional_transition,
   create_component,
@@ -1017,7 +1041,6 @@ export {
   outro_and_destroy_block,
   run_all,
   safe_not_equal,
-  setContext,
   set_data,
   set_input_value,
   set_store_value,
@@ -1034,4 +1057,4 @@ export {
   update_slot_base,
   xlink_attr
 };
-//# sourceMappingURL=index-c4dc6e20.js.map
+//# sourceMappingURL=index-04c364fb.js.map

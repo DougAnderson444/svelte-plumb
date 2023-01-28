@@ -1,0 +1,1 @@
+{"version":3,"file":"_layout-760a2fa2.js","sources":["../../../../../../src/routes/+layout.js"],"sourcesContent":["export const prerender = true;\r\n"],"names":[],"mappings":"AAAY,MAAC,YAAY;;;;;"}
