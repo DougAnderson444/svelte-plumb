@@ -6,9 +6,10 @@
 	import { onMount, createEventDispatcher } from 'svelte';
 	import { getBoxToBoxArrow } from 'perfect-arrows';
 	import { tweened } from 'svelte/motion';
-	import { clickOutside } from '$lib/directives/clickOutside';
+	import { clickOutside } from '../directives/clickOutside';
 
 	export let link;
+	export let scale;
 
 	export let strokeColor = link?.strokeColor;
 	export let strokeWidth = 1;
@@ -44,14 +45,19 @@
 
 		if (!sourceEl || !targetEl) return;
 
-		x0 = getCoords(sourceEl).left - (canvasEl.offsetLeft || 0);
-		y0 = getCoords(sourceEl).top - (canvasEl.offsetTop || 0);
-		x1 = getCoords(targetEl).left - (canvasEl.offsetLeft || 0);
-		y1 = getCoords(targetEl).top - (canvasEl.offsetTop || 0);
-		w0 = sourceEl.offsetWidth;
-		h0 = sourceEl.offsetHeight;
-		w1 = targetEl.offsetWidth;
-		h1 = targetEl.offsetHeight;
+		let source = getCoords(sourceEl);
+		let target = getCoords(targetEl);
+		let canvas = getCoords(canvasEl);
+
+		x0 = (source.left - canvas.left) / scale;
+		y0 = (source.top - canvas.top) / scale;
+		x1 = (target.left - canvas.left) / scale;
+		y1 = (target.top - canvas.top) / scale;
+
+		w0 = (source.right - source.left) / scale;
+		h0 = (source.bottom - source.top) / scale;
+		w1 = (target.right - target.left) / scale;
+		h1 = (target.bottom - target.top) / scale;
 
 		const arrow = getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options);
 		[sx, sy, cx, cy, ex, ey, ae, as, ac] = arrow;
@@ -105,6 +111,7 @@
 			stroke-opacity={strokeOpacity}
 			stroke-dasharray="4"
 			on:click={() => (selected = !selected)}
+			on:keypress={() => (selected = !selected)}
 			on:mouseover={handleMouseOver}
 			on:mouseout={handleMouseOut}
 			on:focus={handleMouseOver}
@@ -146,14 +153,14 @@
 				width="50"
 				height="50"
 			>
-				<div
+				<button
 					on:click={() => dispatch('removeLink', link.id)}
 					class="w-fit h-fit font-mono text-red-500 text-2xl cursor-pointer select-none"
 					style="font-family: 'Luckiest Guy';"
 					style:transform="translate(180deg)"
 				>
 					X
-				</div>
+				</button>
 			</foreignObject>
 		{/if}
 	</g>
@@ -169,7 +176,7 @@
 
 	tspan {
 		font-family: 'Luckiest Guy', cursive;
-		font-size: 0.75em;
+		font-size: 0.5em;
 		/* font-family: Impact; */
 		dominant-baseline: ideographic;
 	}
