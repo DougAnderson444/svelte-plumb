@@ -9,7 +9,7 @@
 	 */
 	import { createEventDispatcher } from 'svelte';
 	import PointerTracker from '@douganderson444/pointer-tracker';
-	import { nanoid } from 'nanoid';
+	import { nanoid } from 'nanoid/non-secure';
 
 	import CursorMarker from './CursorMarker.svelte';
 	import Links from './Links.svelte';
