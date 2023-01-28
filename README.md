@@ -8,6 +8,7 @@ Connect HTML Elements with SVG paths. Aiming for a simple API.
 - [x] Touch/Mobile friendly
 - [x] Restrictive options for connectables (start only, drop only)
 - [x] Delegate connectable to a label, which follows the path arrow after connect
+- [x] Works with pan, zoom, and scroll (https://www.npmjs.com/package/@douganderson444/panzoom-node)
 
 ![Demo](static/thumb.png)
 
