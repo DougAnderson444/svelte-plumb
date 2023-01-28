@@ -3,7 +3,7 @@
 
 	// Data update Event options:
 	/**
-	 * 1. dispatch even to Parent
+	 * 1. dispatch event to Parent
 	 * 2. dispatch event to node via directive
 	 * 3. bind the data through a prop
 	 */
@@ -14,10 +14,11 @@
 	import CursorMarker from './CursorMarker.svelte';
 	import Links from './Links.svelte';
 	import Highlighter from './Highlighter.svelte';
-	import { generateLinkLabel } from '$lib/utils.js';
-	import { DELEGATOR, DROPZONE, MARKER } from '$lib/constants.js';
+	import { generateLinkLabel } from '../utils.js';
+	import { DROPZONE, MARKER } from '../constants.js';
 
 	export let data;
+	export let scale = 1;
 	export let opts = {};
 
 	const dispatch = createEventDispatcher();
@@ -32,34 +33,11 @@
 	let left = 0;
 	let top = 0;
 
-	function handler(p, e) {
-		e.stopPropagation(); // afftect this event target only, not the ones below it
-		e.preventDefault(); // prevents scrolling whilst dragging
-		left = p.pageX - canvas.offsetLeft;
-		top = p.pageY - canvas.offsetTop;
-	}
-
-	function calcOffsetFromCanvas(child) {
-		if (!child) return;
-		if (child == canvas) return { x: child.offsetLeft, y: child.offsetTop };
-		// need to get the offetTop from canvas, which may be different from the sourceEl offetTop
-		// get different between bounding rect top between sourceEl and canvas
-		let sourceOffsetTop = child.getBoundingClientRect().top;
-		let canvasOffsetTop = canvas.getBoundingClientRect().top;
-		let sourceOffsetTopDiff = sourceOffsetTop - canvasOffsetTop; // zero if same
-		let sourceOffsetTopDiffPx = sourceOffsetTopDiff * window.devicePixelRatio;
-
-		// same for left
-		let sourceOffsetLeft = child.getBoundingClientRect().left;
-		let canvasOffsetLeft = canvas.getBoundingClientRect().left;
-		let sourceOffsetLeftDiff = sourceOffsetLeft - canvasOffsetLeft; // zero if same
-		let sourceOffsetLeftDiffPx = sourceOffsetLeftDiff * window.devicePixelRatio;
-
-		return { x: sourceOffsetLeftDiff, y: sourceOffsetTopDiff };
-	}
-
 	function connectable(node, options) {
 		if (!node.id) node.id = nanoid();
+
+		// set `data-no-pan` to true to disable panning on this node using panzoom-node, https://www.npmjs.com/package/@douganderson444/panzoom-node
+		if (!node.dataset.noPan) node.dataset.noPan = true;
 
 		// source id can be either data-sourceid or node.id
 		let sourceid = node?.dataset?.sourceid ? node?.dataset?.sourceid : node.id;
@@ -81,9 +59,9 @@
 		// limit source count (single, multiples), target count, etc. # of connections per connectable
 		let pointerTracker;
 		let startPoint;
+
 		// if there is a startPoint, then add that to the nodeElement
 		if (options?.startPoint?.component) {
-			node.dataset[DELEGATOR] = true;
 			// startPoint is a svelte component which is mounted to the node as target
 			// and is used to start the connection
 			startPoint = new options.startPoint.component({
@@ -92,11 +70,11 @@
 					show: options.startPoint?.show || true
 				}
 			});
-			startPoint.$on('ready', (event) => createHandleTracker(node, event.detail.handle));
+			startPoint.$on('ready', (event) => createPointerTracker(node, event.detail.handle));
 			startPoint.$set({ mounted: true }); // trigger the event fire to the listener above
 		} else {
 			// if no startPoint, then add the whole node as the startPoint
-			createHandleTracker(node);
+			createPointerTracker(node);
 		}
 
 		// Add data-* attriutes to connectable node
@@ -104,23 +82,32 @@
 
 		if (!options?.restrictions?.startOnly) node.dataset[DROPZONE] = true;
 
-		function createHandleTracker(node, handle = false) {
+		function createPointerTracker(node, handle = false) {
 			if (!options?.restrictions?.dropOnly) {
 				pointerTracker = new PointerTracker(node, {
 					start(pointer, event) {
 						// track only 1 pointer at a time
-						if (pointerTracker.currentPointers.length === 1) return false;
+						if (pointerTracker.currentPointers.length >= 1) return false;
 
 						// if (options?.startPoint) constrain connectable to only this child element
 						if (options?.startPoint && event.target !== handle) return false;
 
 						connecting = true;
-						handler(pointer, event);
+						event.stopPropagation(); // affect this event target only, not the ones below it
+						event.preventDefault(); // prevents scrolling whilst dragging
+
+						left = (pointer.pageX - canvas.getBoundingClientRect().left - window.scrollX) / scale;
+						top = (pointer.pageY - canvas.getBoundingClientRect().top - window.scrollY) / scale;
 
 						return true;
 					},
 					move(previousPointers, changedPointers, event) {
-						handler(pointerTracker.currentPointers[0], event);
+						event.stopPropagation(); // afftect this event target only, not the ones below it
+						event.preventDefault(); // prevents scrolling whilst dragging
+						left =
+							left + (pointerTracker.currentPointers[0].pageX - previousPointers[0].pageX) / scale;
+						top =
+							top + (pointerTracker.currentPointers[0].pageY - previousPointers[0].pageY) / scale;
 
 						tempLink = {
 							id: sourceid + '-to-',
@@ -171,6 +158,9 @@
 
 						if (!zone || !zone?.id || !node || !node?.id) return;
 
+						// if data.links already contains this link.id, return
+						if (data.links.find((link) => link.id === sourceid + '-to-' + zone.id)) return;
+
 						// update links
 						const newLink = {
 							id: sourceid + '-to-' + zone.id,
@@ -198,7 +188,10 @@
 						}
 					},
 					avoidPointerEvents: true, // mkaes mobile work better
-					eventListenerOptions: { capture: true, passive: false } // passive: false if no need to evt.preventDefault
+					eventListenerOptions: {
+						capture: true, // capture the event and stop stopPropagation, so it doesn't bubble up to the parent
+						passive: false
+					} // passive: false if no need to evt.preventDefault
 				});
 			}
 		}
@@ -227,7 +220,7 @@
 	}}
 />
 
-<div bind:this={canvas} class="relative" data-canvas>
+<div bind:this={canvas} data-canvas style:position="relative">
 	{#if connecting}
 		<!-- Show where the mouse/touch pointer is -->
 		<CursorMarker bind:marker {left} {top} id={MARKER}>
@@ -247,11 +240,11 @@
 
 	<!-- TODO: Tempoary Link while connecting -->
 	{#if tempLink}
-		<Links links={[tempLink]} {...opts?.links} />
+		<Links links={[tempLink]} {...opts?.links} {scale} />
 	{/if}
 	<!-- All connected links ("permanent") -->
-	{#if data.links && data.links.length > 0}
-		<Links links={data.links} {...opts?.links} on:removeLink={removeLink} />
+	{#if data?.links && data.links.length > 0}
+		<Links links={data.links} {...opts?.links} {scale} on:removeLink={removeLink} />
 	{/if}
 
 	<!-- highlighters -->
