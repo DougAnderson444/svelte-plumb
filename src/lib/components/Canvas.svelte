@@ -90,7 +90,8 @@
 						if (pointerTracker.currentPointers.length >= 1) return false;
 
 						// if (options?.startPoint) constrain connectable to only this child element
-						if (options?.startPoint && event.target !== handle) return false;
+						if (options?.startPoint && event.target !== handle && !handle.contains(event.target))
+							return false;
 
 						connecting = true;
 						event.stopPropagation(); // affect this event target only, not the ones below it
@@ -159,7 +160,10 @@
 						if (!zone || !zone?.id || !node || !node?.id) return;
 
 						// if data.links already contains this link.id, return
-						if (data.links.find((link) => link.id === sourceid + '-to-' + zone.id)) return;
+						if (data?.links?.find((link) => link?.id === sourceid + '-to-' + zone.id)) return;
+
+						// ensure sourceid is not the same as targetid
+						if (sourceid === zone.id) return;
 
 						// update links
 						const newLink = {
@@ -220,7 +224,7 @@
 	}}
 />
 
-<div bind:this={canvas} data-canvas style:position="relative">
+<div bind:this={canvas} data-canvas style:position="relative" style:height={'100%'}>
 	{#if connecting}
 		<!-- Show where the mouse/touch pointer is -->
 		<CursorMarker bind:marker {left} {top} id={MARKER}>
@@ -233,7 +237,7 @@
 		</CursorMarker>
 	{/if}
 
-	{#if canvas}
+	{#if canvas && connectable}
 		<!-- The area where the connectable directive may be used (the "let: connectable" area) -->
 		<slot {connectable} />
 	{/if}
