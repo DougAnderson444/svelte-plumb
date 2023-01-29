@@ -173,19 +173,15 @@ let PointerTracker$1 = class PointerTracker {
     return true;
   }
 };
-let nanoid = (size = 21) => crypto.getRandomValues(new Uint8Array(size)).reduce((id, byte) => {
-  byte &= 63;
-  if (byte < 36) {
-    id += byte.toString(36);
-  } else if (byte < 62) {
-    id += (byte - 26).toString(36).toUpperCase();
-  } else if (byte > 62) {
-    id += "-";
-  } else {
-    id += "_";
+let urlAlphabet = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
+let nanoid = (size = 21) => {
+  let id = "";
+  let i = size;
+  while (i--) {
+    id += urlAlphabet[Math.random() * 64 | 0];
   }
   return id;
-}, "");
+};
 function fallback_block$5(ctx) {
   let div;
   return {
@@ -1643,8 +1639,8 @@ function create_if_block_1$2(ctx) {
         /*cy*/
         ctx[16]
       );
-      attr(foreignObject, "width", "50");
-      attr(foreignObject, "height", "50");
+      attr(foreignObject, "width", "1");
+      attr(foreignObject, "height", "1");
     },
     m(target, anchor) {
       insert_hydration(target, circle, anchor);
@@ -1815,7 +1811,7 @@ function instance$9($$self, $$props, $$invalidate) {
   function genArrow(link2) {
     let sourceEl = document.getElementById(link2.source.id);
     let targetEl = document.getElementById(link2.target.id);
-    let canvasEl = document.querySelector(`[data-canvas]`);
+    let canvasEl = sourceEl.closest("[data-canvas]");
     if (!sourceEl || !targetEl)
       return;
     let source = getCoords(sourceEl);
@@ -2267,8 +2263,8 @@ function create_if_block_4(ctx) {
       ctx[14]);
       attr(foreignObject, "y", foreignObject_y_value = /*sy*/
       ctx[15]);
-      attr(foreignObject, "width", "50");
-      attr(foreignObject, "height", "50");
+      attr(foreignObject, "width", "1");
+      attr(foreignObject, "height", "1");
       set_style(foreignObject, "overflow", `visible`);
       set_style(foreignObject, "position", `relative`);
       set_style(foreignObject, "pointer-events", `auto`);
@@ -2531,8 +2527,8 @@ function create_if_block_2$1(ctx) {
       ctx[14]);
       attr(foreignObject, "y", foreignObject_y_value = /*sy*/
       ctx[15]);
-      attr(foreignObject, "width", "50");
-      attr(foreignObject, "height", "50");
+      attr(foreignObject, "width", "1");
+      attr(foreignObject, "height", "1");
     },
     m(target, anchor) {
       insert_hydration(target, foreignObject, anchor);
@@ -3803,7 +3799,8 @@ function create_fragment$6(ctx) {
   );
   let if_block1 = (
     /*canvas*/
-    ctx[4] && create_if_block_2(ctx)
+    ctx[4] && /*connectable*/
+    ctx[10] && create_if_block_2(ctx)
   );
   let if_block2 = (
     /*tempLink*/
@@ -3869,6 +3866,7 @@ function create_fragment$6(ctx) {
     h() {
       attr(div, "data-canvas", "");
       set_style(div, "position", `relative`);
+      set_style(div, "height", "100%");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -3926,7 +3924,8 @@ function create_fragment$6(ctx) {
       }
       if (
         /*canvas*/
-        ctx2[4]
+        ctx2[4] && /*connectable*/
+        ctx2[10]
       ) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
@@ -4111,7 +4110,7 @@ function instance$6($$self, $$props, $$invalidate) {
             start(pointer, event) {
               if (pointerTracker.currentPointers.length >= 1)
                 return false;
-              if ((options == null ? void 0 : options.startPoint) && event.target !== handle)
+              if ((options == null ? void 0 : options.startPoint) && event.target !== handle && !handle.contains(event.target))
                 return false;
               $$invalidate(5, connecting = true);
               event.stopPropagation();
@@ -4148,7 +4147,7 @@ function instance$6($$self, $$props, $$invalidate) {
               }
             },
             end: (pointer, event, cancelled) => {
-              var _a3, _b2;
+              var _a3, _b2, _c2;
               $$invalidate(6, marker.style.display = "none", marker);
               $$invalidate(5, connecting = false);
               if (highlighters && overZone && overZone.id && highlighters[overZone.id].highlight) {
@@ -4160,7 +4159,9 @@ function instance$6($$self, $$props, $$invalidate) {
               $$invalidate(7, tempLink = null);
               if (!zone || !(zone == null ? void 0 : zone.id) || !node2 || !(node2 == null ? void 0 : node2.id))
                 return;
-              if (data.links.find((link) => link.id === sourceid + "-to-" + zone.id))
+              if ((_a3 = data == null ? void 0 : data.links) == null ? void 0 : _a3.find((link) => (link == null ? void 0 : link.id) === sourceid + "-to-" + zone.id))
+                return;
+              if (sourceid === zone.id)
                 return;
               const newLink = {
                 id: sourceid + "-to-" + zone.id,
@@ -4177,11 +4178,11 @@ function instance$6($$self, $$props, $$invalidate) {
                 }
               };
               $$invalidate(0, data.links = [...data.links, newLink], data);
-              if ((options == null ? void 0 : options.dataset) || ((_a3 = zone == null ? void 0 : zone.dataset) == null ? void 0 : _a3.dataset)) {
+              if ((options == null ? void 0 : options.dataset) || ((_b2 = zone == null ? void 0 : zone.dataset) == null ? void 0 : _b2.dataset)) {
                 const detail = {
                   source: { dataset: (options == null ? void 0 : options.dataset) || null },
                   target: {
-                    dataset: ((_b2 = zone == null ? void 0 : zone.dataset) == null ? void 0 : _b2.dataset) ? JSON.parse(zone.dataset.dataset) : null
+                    dataset: ((_c2 = zone == null ? void 0 : zone.dataset) == null ? void 0 : _c2.dataset) ? JSON.parse(zone.dataset.dataset) : null
                   }
                 };
                 dispatch("connected", detail);
@@ -4519,6 +4520,7 @@ class EndPoint extends SvelteComponent {
 }
 function create_if_block$2(ctx) {
   let div;
+  let div_resize_listener;
   let current;
   const default_slot_template = (
     /*#slots*/
@@ -4550,18 +4552,19 @@ function create_if_block$2(ctx) {
     h() {
       attr(div, "class", "cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50");
       set_style(div, "position", "absolute");
-      set_style(
-        div,
-        "left",
-        /*x*/
-        ctx[2] + "px"
-      );
+      set_style(div, "right", "0px");
       set_style(
         div,
         "top",
         /*y*/
         ctx[3] + "px"
       );
+      set_style(div, "user-select", "none");
+      set_style(div, "cursor", "pointer");
+      add_render_callback(() => (
+        /*div_elementresize_handler*/
+        ctx[11].call(div)
+      ));
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -4569,6 +4572,11 @@ function create_if_block$2(ctx) {
         default_slot_or_fallback.m(div, null);
       }
       ctx[10](div);
+      div_resize_listener = add_resize_listener(
+        div,
+        /*div_elementresize_handler*/
+        ctx[11].bind(div)
+      );
       current = true;
     },
     p(ctx2, dirty) {
@@ -4594,15 +4602,6 @@ function create_if_block$2(ctx) {
             null
           );
         }
-      }
-      if (!current || dirty & /*x*/
-      4) {
-        set_style(
-          div,
-          "left",
-          /*x*/
-          ctx2[2] + "px"
-        );
       }
       if (!current || dirty & /*y*/
       8) {
@@ -4630,6 +4629,7 @@ function create_if_block$2(ctx) {
       if (default_slot_or_fallback)
         default_slot_or_fallback.d(detaching);
       ctx[10](null);
+      div_resize_listener();
     }
   };
 }
@@ -4637,10 +4637,10 @@ function fallback_block(ctx) {
   let t;
   return {
     c() {
-      t = text("Connect");
+      t = text("Connect→");
     },
     l(nodes) {
-      t = claim_text(nodes, "Connect");
+      t = claim_text(nodes, "Connect→");
     },
     m(target, anchor) {
       insert_hydration(target, t, anchor);
@@ -4726,14 +4726,18 @@ function instance$4($$self, $$props, $$invalidate) {
   let { mounted = false } = $$props;
   let { show = true } = $$props;
   let handle;
+  let offsetWidth;
   const dispatch = createEventDispatcher();
-  let x = 0;
   let y = 0;
   function div_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](() => {
       handle = $$value;
-      $$invalidate(1, handle);
+      $$invalidate(1, handle), $$invalidate(6, as);
     });
+  }
+  function div_elementresize_handler() {
+    offsetWidth = this.offsetWidth;
+    $$invalidate(2, offsetWidth);
   }
   $$self.$$set = ($$props2) => {
     if ("sx" in $$props2)
@@ -4751,10 +4755,21 @@ function instance$4($$self, $$props, $$invalidate) {
   };
   $$self.$$.update = () => {
     var _a;
+    if ($$self.$$.dirty & /*handle, as*/
+    66) {
+      if (handle && handle.style && !!as) {
+        if (as < 0.6 && as > -0.6) {
+          $$invalidate(1, handle.style.transform = `translate(-100%, 0)`, handle);
+          $$invalidate(1, handle.style.right = null, handle);
+        } else {
+          $$invalidate(1, handle.style.transform = null, handle);
+        }
+      }
+    }
     if ($$self.$$.dirty & /*mounted, handle*/
     130) {
       if (mounted && handle && ((_a = handle == null ? void 0 : handle.parentNode) == null ? void 0 : _a.offsetWidth)) {
-        $$invalidate(2, x = handle == null ? void 0 : handle.parentNode.offsetWidth);
+        handle == null ? void 0 : handle.parentNode.offsetWidth;
         dispatch("ready", { handle });
       }
     }
@@ -4762,14 +4777,21 @@ function instance$4($$self, $$props, $$invalidate) {
     66) {
       $$invalidate(3, y = handle && as > 0 ? -(handle == null ? void 0 : handle.offsetHeight) : 0);
     }
-    if ($$self.$$.dirty & /*handle, as*/
-    66) {
-      if (handle && !!as) {
-        $$invalidate(2, x = as < 0.6 && as > -0.6 ? -(handle == null ? void 0 : handle.offsetWidth) : 0);
-      }
-    }
   };
-  return [show, handle, x, y, sx, sy, as, mounted, $$scope, slots, div_binding];
+  return [
+    show,
+    handle,
+    offsetWidth,
+    y,
+    sx,
+    sy,
+    as,
+    mounted,
+    $$scope,
+    slots,
+    div_binding,
+    div_elementresize_handler
+  ];
 }
 class Delegate extends SvelteComponent {
   constructor(options) {
@@ -7476,4 +7498,4 @@ class Page extends SvelteComponent {
 export {
   Page as default
 };
-//# sourceMappingURL=_page.svelte-2ad1a052.js.map
+//# sourceMappingURL=_page.svelte-9e811476.js.map
