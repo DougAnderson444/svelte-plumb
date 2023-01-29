@@ -41,7 +41,8 @@
 	function genArrow(link) {
 		let sourceEl = document.getElementById(link.source.id);
 		let targetEl = document.getElementById(link.target.id);
-		let canvasEl = document.querySelector(`[data-canvas]`);
+		// get closest data-canvas to source and target
+		let canvasEl = sourceEl.closest('[data-canvas]');
 
 		if (!sourceEl || !targetEl) return;
 
@@ -150,8 +151,8 @@
 				class="overflow-visible pointer-events-auto relative"
 				x={cx}
 				y={cy}
-				width="50"
-				height="50"
+				width="1"
+				height="1"
 			>
 				<button
 					on:click={() => dispatch('removeLink', link.id)}
