@@ -53,8 +53,8 @@
 								style:pointer-events="auto"
 								x={sx}
 								y={sy}
-								width="50"
-								height="50"
+								width="1"
+								height="1"
 							>
 								<svelte:component this={link.source.startPoint.component} {sx} {sy} {as} />
 							</foreignObject>
@@ -70,8 +70,8 @@
 								class="overflow-visible pointer-events-auto relative"
 								x={sx}
 								y={sy}
-								width="50"
-								height="50"
+								width="1"
+								height="1"
 							>
 								<svelte:component this={link.source.endPoint.component} {sx} {sy} {ex} {ey} {as} />
 							</foreignObject>
