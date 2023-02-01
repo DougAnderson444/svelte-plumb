@@ -19,7 +19,8 @@
 			{ id: 4, type: types.description, value: 'GOAT' },
 			{ id: 5, type: types.description, value: 'Cat' },
 			{ id: 6, type: types.description, value: 'A very nice Unicorn' },
-			{ id: 'absolute1', x: 0, y: 100 }
+			{ id: 'absolute1', x: 0, y: 100 },
+			{ id: 'absolute2', x: 100, y: 100 }
 		],
 		links: []
 	};
@@ -94,8 +95,9 @@
 					{/each}
 				</div>
 
-				<div class="relative flex flex-row justify-around ">
+				<div class="relative flex flex-row justify-around h-96">
 					<div
+						id="absolute1"
 						class="flex flex-col border rounded-lg m-4 p-4 items-center"
 						use:connectable={{ startPoint: { component: DemoDelegated, show: true } }}
 						use:grabable={{ nodeData: { id: 'absolute1' }, scale: scale }}
@@ -131,11 +133,25 @@
 						</div>
 					</div>
 					<div
-						class="flex flex-col border rounded-lg m-4 p-4 items-center"
-						use:connectable
-						id={'To'}
+						id="absolute2"
+						class="flex flex-col border rounded-lg m-4 p-4 items-center w-48"
+						style="left: {data.nodes.find((n) => n.id == 'absolute2')?.x || 0}px;
+			                top: {data.nodes.find((n) => n.id == 'absolute2')?.y || 0}px;"
+						use:connectable={{ startPoint: { component: DemoDelegated, show: true } }}
+						use:grabable={{ nodeData: { id: 'absolute2' }, scale: scale }}
+						on:move={(e) => {
+							// set data.nodes where node.id == e.detail.id
+							data.nodes.find((n) => n.id == 'absolute2').x = e.detail.x;
+							data.nodes.find((n) => n.id == 'absolute2').y = e.detail.y;
+							data = data;
+						}}
+						on:end={(e) => {
+							data.nodes.find((n) => n.id == 'absolute2').x = e.detail.x;
+							data.nodes.find((n) => n.id == 'absolute2').y = e.detail.y;
+							data = data;
+						}}
 					>
-						<div class="block m-2 cursor-pointer select-none w-fit">
+						<div class="absolute block m-2 cursor-pointer select-none w-fit">
 							...Starts out fixed, then switches to<br /> movable endpoint once connected.
 						</div>
 					</div>
