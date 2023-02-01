@@ -32,7 +32,16 @@
 	});
 
 	let d, pointer;
-	let options = {};
+	let options = {
+		bow: 0.05,
+		stretch: 0.5,
+		stretchMin: 10,
+		stretchMax: 200,
+		padStart: 0,
+		padEnd: 15,
+		flip: false,
+		straights: true
+	};
 	let x0, y0, w0, h0, x1, y1, w1, h1;
 	let sx, sy, cx, cy, ex, ey, ae, as, ac;
 
