@@ -6,8 +6,8 @@
 	// The delegated start point component is on the top right hand side of the parent element
 	import { createEventDispatcher } from 'svelte';
 
-	export let sx; // starting x
-	export let sy;
+	// export let sx; // starting x
+	// export let sy; // starting y
 	// export let ex = 0; // ending x
 	// export let ey = 0;
 	export let as; // angle start
@@ -43,8 +43,7 @@
 	<div
 		bind:this={handle}
 		bind:offsetWidth
-		class="cursor-pointer select-none font-mono p-1 text-neutral-400 text-sm bg-white/50 z-50"
-		style="position: absolute; right: 0px; top:{y}px; user-select: none; cursor: pointer;"
+		style="position: absolute; right: 0px; top:{y}px; user-select: none; cursor: pointer; font-family: monospace; padding: 0.25rem"
 	>
 		<slot
 			>Connect→
