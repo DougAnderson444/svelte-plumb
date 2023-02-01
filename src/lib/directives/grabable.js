@@ -142,7 +142,7 @@ export function grabable(
 	return {
 		update(params) {
 			// the value of `bar` has changed
-			({ nodeData, removeCurrentNode, scale } = params);
+			({ nodeData, removeCurrentNode = () => null, scale = 1 } = params);
 		},
 
 		destroy() {
