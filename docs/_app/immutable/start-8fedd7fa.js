@@ -846,13 +846,15 @@ const __vitePreload = function preload(baseModule, deps, importerUrl) {
 };
 const matchers = {};
 const nodes = [
-  () => __vitePreload(() => import("./chunks/0-aaa05fef.js"), true ? ["./chunks\\0-aaa05fef.js","./chunks\\_layout-760a2fa2.js","./components\\pages\\_layout.svelte-3d40c078.js","./chunks\\index-04c364fb.js","./assets\\_layout-721dd908.css"] : void 0, import.meta.url),
+  () => __vitePreload(() => import("./chunks/0-0f93cb27.js"), true ? ["./chunks\\0-0f93cb27.js","./chunks\\_layout-760a2fa2.js","./components\\pages\\_layout.svelte-b2f173fa.js","./chunks\\index-04c364fb.js","./assets\\_layout-a413cd05.css"] : void 0, import.meta.url),
   () => __vitePreload(() => import("./chunks/1-6cf5a21a.js"), true ? ["./chunks\\1-6cf5a21a.js","./components\\error.svelte-1866954e.js","./chunks\\index-04c364fb.js","./chunks\\singletons-b7678cee.js","./chunks\\index-a71b7706.js"] : void 0, import.meta.url),
-  () => __vitePreload(() => import("./chunks/2-62199f74.js"), true ? ["./chunks\\2-62199f74.js","./components\\pages\\_page.svelte-9e811476.js","./chunks\\index-04c364fb.js","./chunks\\index-a71b7706.js","./assets\\_page-21837a01.css"] : void 0, import.meta.url)
+  () => __vitePreload(() => import("./chunks/2-4a9ac21c.js"), true ? ["./chunks\\2-4a9ac21c.js","./components\\pages\\_page.svelte-2c75774d.js","./chunks\\index-04c364fb.js","./chunks\\grabable-c450c91e.js","./chunks\\index-a71b7706.js","./assets\\grabable-21837a01.css"] : void 0, import.meta.url),
+  () => __vitePreload(() => import("./chunks/3-7013fb11.js"), true ? ["./chunks\\3-7013fb11.js","./components\\pages\\glue\\_page.svelte-88655094.js","./chunks\\index-04c364fb.js","./chunks\\grabable-c450c91e.js","./chunks\\index-a71b7706.js","./assets\\grabable-21837a01.css","./assets\\_page-f253d6d2.css"] : void 0, import.meta.url)
 ];
 const server_loads = [];
 const dictionary = {
-  "/": [2]
+  "/": [2],
+  "/glue": [3]
 };
 const hooks = {
   handleError: ({ error }) => {
@@ -2213,4 +2215,4 @@ async function start({ env, hydrate, paths, target, version }) {
 export {
   start
 };
-//# sourceMappingURL=start-d040c108.js.map
+//# sourceMappingURL=start-8fedd7fa.js.map
