@@ -1,6 +1,6 @@
 {
 	"name": "@douganderson444/svelte-plumb",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"main": "index.js",
 	"module": "index.js",
 	"scripts": {
@@ -37,8 +37,7 @@
 		"@douganderson444/panzoom-node": "^1.2.2",
 		"@douganderson444/pointer-tracker": "^2.5.6",
 		"nanoid": "^4.0.0",
-		"perfect-arrows": "^0.3.7",
-		"pointer-tracker": "^2.5.3"
+		"perfect-arrows": "^0.3.7"
 	},
 	"peerDependencies": {
 		"svelte": "^3.44.0"
