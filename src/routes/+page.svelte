@@ -128,8 +128,7 @@
 				"
 					>
 						<div class="block m-2 select-none w-fit">
-							Delegated Floating <br />Label Components<br />
-							Connect then move me, then scroll!
+							Connect Me <br />Drag me<br />
 						</div>
 					</div>
 					<div
