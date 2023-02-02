@@ -157,20 +157,21 @@
 			<circle cx={ex} cy={ey} r={12} fill="none" stroke="blue" />
 			<!-- Draw a red delete "x" at cx, cy with stroke opacity 0.6-->
 			<foreignObject
-				class="overflow-visible pointer-events-auto relative"
+				style="overflow: visible; pointer-events: auto; position: relative;"
 				x={cx}
 				y={cy}
 				width="1"
 				height="1"
-			>
-				<button
-					on:click={() => dispatch('removeLink', link.id)}
-					class="w-fit h-fit font-mono text-red-500 text-2xl cursor-pointer select-none"
-					style="font-family: 'Luckiest Guy';"
-					style:transform="translate(180deg)"
-				>
-					X
-				</button>
+				><slot name="deleteButton">
+					<button
+						on:click={() => dispatch('removeLink', link.id)}
+						style="font-family: 'Luckiest Guy'; width: fit-content; height: fit-content;
+					color: rgb(239 68 68); font-size: 1.5em; user-select: none; outline: none;"
+						style:transform="translate(180deg)"
+					>
+						X
+					</button>
+				</slot>
 			</foreignObject>
 		{/if}
 	</g>
