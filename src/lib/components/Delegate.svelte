@@ -6,11 +6,11 @@
 	// The delegated start point component is on the top right hand side of the parent element
 	import { createEventDispatcher } from 'svelte';
 
-	// export let sx; // starting x
-	// export let sy; // starting y
-	// export let ex = 0; // ending x
-	// export let ey = 0;
-	export let as; // angle start
+	export let sx = null; // starting x
+	export let sy = null; // starting y
+	export let ex = null; // ending x
+	export let ey = null;
+	export let as = null; // angle start
 
 	export let mounted = false;
 	export let show = true; // boolean toggle whether to show the resizer handle or not
@@ -45,7 +45,7 @@
 		bind:offsetWidth
 		style="position: absolute; right: 0px; top:{y}px; user-select: none; cursor: pointer; font-family: monospace; padding: 0.25rem"
 	>
-		<slot
+		<slot {sx} {sy} {ex} {ey} {as} {x} {y}
 			>Connect→
 			<!-- {as.toFixed(1) || 0}° @ {x.toFixed(0)}, {y.toFixed(0)} -->
 		</slot>
