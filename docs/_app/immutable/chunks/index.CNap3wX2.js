@@ -1,4 +1,4 @@
-import { noop, safe_not_equal } from "./index-04c364fb.js";
+import { noop, safe_not_equal } from "./scheduler.CRCSXhcL.js";
 const subscriber_queue = [];
 function writable(value, start = noop) {
   let stop;
@@ -28,12 +28,12 @@ function writable(value, start = noop) {
     const subscriber = [run, invalidate];
     subscribers.add(subscriber);
     if (subscribers.size === 1) {
-      stop = start(set) || noop;
+      stop = start(set, update) || noop;
     }
     run(value);
     return () => {
       subscribers.delete(subscriber);
-      if (subscribers.size === 0) {
+      if (subscribers.size === 0 && stop) {
         stop();
         stop = null;
       }
@@ -44,4 +44,4 @@ function writable(value, start = noop) {
 export {
   writable
 };
-//# sourceMappingURL=index-a71b7706.js.map
+//# sourceMappingURL=index.CNap3wX2.js.map

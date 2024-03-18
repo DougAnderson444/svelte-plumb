@@ -1,5 +1,10 @@
-import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, insert_hydration, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out } from "../../chunks/index-04c364fb.js";
-const app = "";
+import { safe_not_equal, create_slot, element, claim_element, children, detach, attr, insert_hydration, update_slot_base, get_all_dirty_from_scope, get_slot_changes } from "../chunks/scheduler.CRCSXhcL.js";
+import { SvelteComponent, init, transition_in, transition_out } from "../chunks/index.Cfj7aiNl.js";
+const prerender = true;
+const _layout = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  prerender
+}, Symbol.toStringTag, { value: "Module" }));
 function create_fragment(ctx) {
   let main;
   let current;
@@ -75,8 +80,9 @@ function create_fragment(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(main);
+      }
       if (default_slot)
         default_slot.d(detaching);
     }
@@ -97,6 +103,7 @@ class Layout extends SvelteComponent {
   }
 }
 export {
-  Layout as default
+  Layout as component,
+  _layout as universal
 };
-//# sourceMappingURL=_layout.svelte-9cdd1fcb.js.map
+//# sourceMappingURL=0.BHMketLu.js.map

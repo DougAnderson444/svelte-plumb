@@ -4,8 +4,129 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { SvelteComponent, init, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, transition_in, transition_out, binding_callbacks, noop as noop$2, assign, now, loop, identity, empty, group_outros, check_outros, createEventDispatcher, onMount, svg_element, claim_svg_element, append_hydration, listen, action_destroyer, is_function, run_all, set_store_value, text, space, claim_text, claim_space, set_data, xlink_attr, subscribe, update_keyed_each, outro_and_destroy_block, bubble, create_component, claim_component, mount_component, destroy_component, construct_svelte_component, destroy_each, globals, bind, add_flush_callback, get_spread_update, get_spread_object, flush, create_bidirectional_transition, set_input_value, to_number, destroy_block } from "../../chunks/index-04c364fb.js";
-import { writable } from "../../chunks/index-a71b7706.js";
+import { run_all, safe_not_equal, create_slot, element, claim_element, children, detach, attr, set_style, add_render_callback, insert_hydration, add_iframe_resize_listener, update_slot_base, get_all_dirty_from_scope, get_slot_changes, binding_callbacks, noop as noop$2, assign, identity, empty, createEventDispatcher, onMount, svg_element, claim_svg_element, append_hydration, listen, action_destroyer, is_function, set_store_value, text, space, claim_text, claim_space, set_data, xlink_attr, get_svelte_dataset, subscribe, bubble, construct_svelte_component, destroy_each, add_flush_callback, flush, split_css_unit, set_input_value, to_number } from "../chunks/scheduler.CRCSXhcL.js";
+import { transition_in, transition_out, SvelteComponent, init, now, loop, group_outros, check_outros, create_component, claim_component, mount_component, destroy_component, bind, create_bidirectional_transition } from "../chunks/index.Cfj7aiNl.js";
+import { writable } from "../chunks/index.CNap3wX2.js";
+const globals = typeof window !== "undefined" ? window : typeof globalThis !== "undefined" ? globalThis : (
+  // @ts-ignore Node typings have this
+  global
+);
+function ensure_array_like(array_like_or_iterator) {
+  return (array_like_or_iterator == null ? void 0 : array_like_or_iterator.length) !== void 0 ? array_like_or_iterator : Array.from(array_like_or_iterator);
+}
+function destroy_block(block, lookup) {
+  block.d(1);
+  lookup.delete(block.key);
+}
+function outro_and_destroy_block(block, lookup) {
+  transition_out(block, 1, 1, () => {
+    lookup.delete(block.key);
+  });
+}
+function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, lookup, node, destroy, create_each_block2, next, get_context) {
+  let o = old_blocks.length;
+  let n = list.length;
+  let i = o;
+  const old_indexes = {};
+  while (i--)
+    old_indexes[old_blocks[i].key] = i;
+  const new_blocks = [];
+  const new_lookup = /* @__PURE__ */ new Map();
+  const deltas = /* @__PURE__ */ new Map();
+  const updates = [];
+  i = n;
+  while (i--) {
+    const child_ctx = get_context(ctx, list, i);
+    const key = get_key(child_ctx);
+    let block = lookup.get(key);
+    if (!block) {
+      block = create_each_block2(key, child_ctx);
+      block.c();
+    } else if (dynamic) {
+      updates.push(() => block.p(child_ctx, dirty));
+    }
+    new_lookup.set(key, new_blocks[i] = block);
+    if (key in old_indexes)
+      deltas.set(key, Math.abs(i - old_indexes[key]));
+  }
+  const will_move = /* @__PURE__ */ new Set();
+  const did_move = /* @__PURE__ */ new Set();
+  function insert(block) {
+    transition_in(block, 1);
+    block.m(node, next);
+    lookup.set(block.key, block);
+    next = block.first;
+    n--;
+  }
+  while (o && n) {
+    const new_block = new_blocks[n - 1];
+    const old_block = old_blocks[o - 1];
+    const new_key = new_block.key;
+    const old_key = old_block.key;
+    if (new_block === old_block) {
+      next = new_block.first;
+      o--;
+      n--;
+    } else if (!new_lookup.has(old_key)) {
+      destroy(old_block, lookup);
+      o--;
+    } else if (!lookup.has(new_key) || will_move.has(new_key)) {
+      insert(new_block);
+    } else if (did_move.has(old_key)) {
+      o--;
+    } else if (deltas.get(new_key) > deltas.get(old_key)) {
+      did_move.add(new_key);
+      insert(new_block);
+    } else {
+      will_move.add(old_key);
+      o--;
+    }
+  }
+  while (o--) {
+    const old_block = old_blocks[o];
+    if (!new_lookup.has(old_block.key))
+      destroy(old_block, lookup);
+  }
+  while (n)
+    insert(new_blocks[n - 1]);
+  run_all(updates);
+  return new_blocks;
+}
+function get_spread_update(levels, updates) {
+  const update = {};
+  const to_null_out = {};
+  const accounted_for = { $$scope: 1 };
+  let i = levels.length;
+  while (i--) {
+    const o = levels[i];
+    const n = updates[i];
+    if (n) {
+      for (const key in o) {
+        if (!(key in n))
+          to_null_out[key] = 1;
+      }
+      for (const key in n) {
+        if (!accounted_for[key]) {
+          update[key] = n[key];
+          accounted_for[key] = 1;
+        }
+      }
+      levels[i] = n;
+    } else {
+      for (const key in o) {
+        accounted_for[key] = 1;
+      }
+    }
+  }
+  for (const key in to_null_out) {
+    if (!(key in update))
+      update[key] = void 0;
+  }
+  return update;
+}
+function get_spread_object(spread_props) {
+  return typeof spread_props === "object" && spread_props !== null ? spread_props : {};
+}
 let Pointer$1 = class Pointer {
   constructor(nativePointer) {
     this.id = -1;
@@ -25,7 +146,7 @@ let Pointer$1 = class Pointer {
    */
   getCoalesced() {
     if ("getCoalescedEvents" in this.nativePointer) {
-      const events = this.nativePointer.getCoalescedEvents().map((p) => new Pointer$1(p));
+      const events = this.nativePointer.getCoalescedEvents().map((p) => new Pointer(p));
       if (events.length > 0)
         return events;
     }
@@ -202,8 +323,9 @@ function fallback_block$5(ctx) {
     },
     p: noop$2,
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
     }
   };
 }
@@ -269,7 +391,7 @@ function create_fragment$a(ctx) {
         default_slot_or_fallback.m(div, null);
       }
       ctx[10](div);
-      div_resize_listener = add_resize_listener(
+      div_resize_listener = add_iframe_resize_listener(
         div,
         /*div_elementresize_handler*/
         ctx[11].bind(div)
@@ -339,8 +461,9 @@ function create_fragment$a(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
       if (default_slot_or_fallback)
         default_slot_or_fallback.d(detaching);
       ctx[10](null);
@@ -661,15 +784,15 @@ function getBoxToBoxArrow(x0, y0, w0, h0, x1, y1, w1, h1, options) {
   var ae = getAngle(cix, ciy, ex, ey);
   return [sx, sy, cix, ciy, ex, ey, ae, as, getAngle(sx, sy, ex, ey)];
 }
+function is_date(obj) {
+  return Object.prototype.toString.call(obj) === "[object Date]";
+}
 function cubicOut(t) {
   const f = t - 1;
   return f * f * f + 1;
 }
 function quintOut(t) {
   return --t * t * t * t * t + 1;
-}
-function is_date(obj) {
-  return Object.prototype.toString.call(obj) === "[object Date]";
 }
 function get_interpolator(a, b) {
   if (a === b || a !== a)
@@ -724,7 +847,12 @@ function tweened(value, defaults = {}) {
     target_value = new_value;
     let previous_task = task;
     let started = false;
-    let { delay = 0, duration = 400, easing = identity, interpolate = get_interpolator } = assign(assign({}, defaults), opts);
+    let {
+      delay = 0,
+      duration = 400,
+      easing = identity,
+      interpolate = get_interpolator
+    } = assign(assign({}, defaults), opts);
     if (duration === 0) {
       if (previous_task) {
         previous_task.abort();
@@ -749,7 +877,8 @@ function tweened(value, defaults = {}) {
         previous_task = null;
       }
       const elapsed = now2 - start;
-      if (elapsed > duration) {
+      if (elapsed > /** @type {number} */
+      duration) {
         store.set(value = new_value);
         return false;
       }
@@ -785,7 +914,6 @@ function clickOutside(node, { enabled: initialEnabled, handleUnselect }) {
     }
   };
 }
-const Link_svelte_svelte_type_style_lang = "";
 const get_deleteButton_slot_changes = (dirty) => ({});
 const get_deleteButton_slot_context = (ctx) => ({});
 const get_endPoint_slot_changes = (dirty) => ({
@@ -1233,8 +1361,9 @@ function create_if_block$6(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(g);
+      }
       if_block0.d();
       if (startPoint_slot_or_fallback)
         startPoint_slot_or_fallback.d(detaching);
@@ -1331,8 +1460,9 @@ function create_else_block$1(ctx) {
       }
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(text_1);
+      }
     }
   };
 }
@@ -1412,8 +1542,9 @@ function create_if_block_3$2(ctx) {
       }
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(text_1);
+      }
     }
   };
 }
@@ -1468,8 +1599,9 @@ function fallback_block_2(ctx) {
       }
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(circle);
+      }
     }
   };
 }
@@ -1528,8 +1660,9 @@ function create_if_block_2$2(ctx) {
       }
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(polygon);
+      }
     }
   };
 }
@@ -1573,10 +1706,11 @@ function fallback_block_1(ctx) {
       }
     },
     d(detaching) {
+      if (detaching) {
+        detach(if_block_anchor);
+      }
       if (if_block)
         if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
     }
   };
 }
@@ -1745,10 +1879,10 @@ function create_if_block_1$2(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(circle);
-      if (detaching)
         detach(foreignObject);
+      }
       if (deleteButton_slot_or_fallback)
         deleteButton_slot_or_fallback.d(detaching);
     }
@@ -1756,20 +1890,19 @@ function create_if_block_1$2(ctx) {
 }
 function fallback_block$4(ctx) {
   let button;
-  let t;
+  let textContent = "X";
   let mounted;
   let dispose;
   return {
     c() {
       button = element("button");
-      t = text("X");
+      button.textContent = textContent;
       this.h();
     },
     l(nodes) {
-      button = claim_element(nodes, "BUTTON", { style: true });
-      var button_nodes = children(button);
-      t = claim_text(button_nodes, "X");
-      button_nodes.forEach(detach);
+      button = claim_element(nodes, "BUTTON", { style: true, ["data-svelte-h"]: true });
+      if (get_svelte_dataset(button) !== "svelte-q2js1a")
+        button.textContent = textContent;
       this.h();
     },
     h() {
@@ -1784,7 +1917,6 @@ function fallback_block$4(ctx) {
     },
     m(target, anchor) {
       insert_hydration(target, button, anchor);
-      append_hydration(button, t);
       if (!mounted) {
         dispose = listen(
           button,
@@ -1797,8 +1929,9 @@ function fallback_block$4(ctx) {
     },
     p: noop$2,
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(button);
+      }
       mounted = false;
       dispose();
     }
@@ -1866,10 +1999,11 @@ function create_fragment$9(ctx) {
       current = false;
     },
     d(detaching) {
+      if (detaching) {
+        detach(if_block_anchor);
+      }
       if (if_block)
         if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
     }
   };
 }
@@ -2047,7 +2181,6 @@ class Link extends SvelteComponent {
     );
   }
 }
-const Links_svelte_svelte_type_style_lang = "";
 function get_each_context$2(ctx, list, i) {
   const child_ctx = ctx.slice();
   child_ctx[11] = list[i];
@@ -2058,7 +2191,7 @@ function create_if_block$5(ctx) {
   let each_blocks = [];
   let each_1_lookup = /* @__PURE__ */ new Map();
   let current;
-  let each_value = (
+  let each_value = ensure_array_like(
     /*links*/
     ctx[0]
   );
@@ -2096,15 +2229,19 @@ function create_if_block$5(ctx) {
     m(target, anchor) {
       insert_hydration(target, svg, anchor);
       for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].m(svg, null);
+        if (each_blocks[i]) {
+          each_blocks[i].m(svg, null);
+        }
       }
       current = true;
     },
     p(ctx2, dirty) {
       if (dirty & /*links, strokeColor, strokeWidth, arrowColor, strokeOpacity, groupStrokeOpacity, groupStrokeColor, textStartOffset, scale, sx, sy, ex, ey, as, pointer, mounted*/
       1033215) {
-        each_value = /*links*/
-        ctx2[0];
+        each_value = ensure_array_like(
+          /*links*/
+          ctx2[0]
+        );
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, svg, outro_and_destroy_block, create_each_block$2, null, get_each_context$2);
         check_outros();
@@ -2125,8 +2262,9 @@ function create_if_block$5(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(svg);
+      }
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].d();
       }
@@ -2134,9 +2272,9 @@ function create_if_block$5(ctx) {
   };
 }
 function create_if_block_1$1(ctx) {
-  let link;
+  let link_1;
   let current;
-  link = new Link({
+  link_1 = new Link({
     props: {
       link: (
         /*link*/
@@ -2196,78 +2334,78 @@ function create_if_block_1$1(ctx) {
       $$scope: { ctx }
     }
   });
-  link.$on(
+  link_1.$on(
     "removeLink",
     /*removeLink_handler*/
     ctx[10]
   );
   return {
     c() {
-      create_component(link.$$.fragment);
+      create_component(link_1.$$.fragment);
     },
     l(nodes) {
-      claim_component(link.$$.fragment, nodes);
+      claim_component(link_1.$$.fragment, nodes);
     },
     m(target, anchor) {
-      mount_component(link, target, anchor);
+      mount_component(link_1, target, anchor);
       current = true;
     },
     p(ctx2, dirty) {
-      const link_changes = {};
+      const link_1_changes = {};
       if (dirty & /*links*/
       1)
-        link_changes.link = /*link*/
+        link_1_changes.link = /*link*/
         ctx2[11];
       if (dirty & /*strokeColor*/
       4)
-        link_changes.strokeColor = /*strokeColor*/
+        link_1_changes.strokeColor = /*strokeColor*/
         ctx2[2];
       if (dirty & /*strokeWidth*/
       8)
-        link_changes.strokeWidth = /*strokeWidth*/
+        link_1_changes.strokeWidth = /*strokeWidth*/
         ctx2[3];
       if (dirty & /*arrowColor*/
       16)
-        link_changes.arrowColor = /*arrowColor*/
+        link_1_changes.arrowColor = /*arrowColor*/
         ctx2[4];
       if (dirty & /*strokeOpacity*/
       32)
-        link_changes.strokeOpacity = /*strokeOpacity*/
+        link_1_changes.strokeOpacity = /*strokeOpacity*/
         ctx2[5];
       if (dirty & /*groupStrokeOpacity*/
       64)
-        link_changes.groupStrokeOpacity = /*groupStrokeOpacity*/
+        link_1_changes.groupStrokeOpacity = /*groupStrokeOpacity*/
         ctx2[6];
       if (dirty & /*groupStrokeColor*/
       128)
-        link_changes.groupStrokeColor = /*groupStrokeColor*/
+        link_1_changes.groupStrokeColor = /*groupStrokeColor*/
         ctx2[7];
       if (dirty & /*textStartOffset*/
       256)
-        link_changes.textStartOffset = /*textStartOffset*/
+        link_1_changes.textStartOffset = /*textStartOffset*/
         ctx2[8];
       if (dirty & /*scale*/
       2)
-        link_changes.scale = /*scale*/
+        link_1_changes.scale = /*scale*/
         ctx2[1];
       if (dirty & /*$$scope, sx, sy, links, ex, ey, as, pointer, arrowColor*/
       2080785) {
-        link_changes.$$scope = { dirty, ctx: ctx2 };
+        link_1_changes.$$scope = { dirty, ctx: ctx2 };
       }
-      link.$set(link_changes);
+      link_1.$set(link_1_changes);
     },
     i(local) {
       if (current)
         return;
-      transition_in(link.$$.fragment, local);
+      transition_in(link_1.$$.fragment, local);
       current = true;
     },
     o(local) {
-      transition_out(link.$$.fragment, local);
+      transition_out(link_1.$$.fragment, local);
       current = false;
     },
     d(detaching) {
-      destroy_component(link, detaching);
+      destroy_component(link_1, detaching);
     }
   };
 }
@@ -2310,8 +2448,9 @@ function create_else_block_1(ctx) {
     i: noop$2,
     o: noop$2,
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(circle);
+      }
     }
   };
 }
@@ -2325,7 +2464,7 @@ function create_if_block_4(ctx) {
     /*link*/
     ctx[11].source.startPoint.component
   );
-  function switch_props(ctx2) {
+  function switch_props(ctx2, dirty) {
     return {
       props: {
         sx: (
@@ -2384,20 +2523,8 @@ function create_if_block_4(ctx) {
       current = true;
     },
     p(ctx2, dirty) {
-      const switch_instance_changes = {};
-      if (dirty & /*sx*/
-      16384)
-        switch_instance_changes.sx = /*sx*/
-        ctx2[14];
-      if (dirty & /*sy*/
-      32768)
-        switch_instance_changes.sy = /*sy*/
-        ctx2[15];
-      if (dirty & /*as*/
-      262144)
-        switch_instance_changes.as = /*as*/
-        ctx2[18];
-      if (switch_value !== (switch_value = /*link*/
+      if (dirty & /*links*/
+      1 && switch_value !== (switch_value = /*link*/
       ctx2[11].source.startPoint.component)) {
         if (switch_instance) {
           group_outros();
@@ -2416,6 +2543,19 @@ function create_if_block_4(ctx) {
           switch_instance = null;
         }
       } else if (switch_value) {
+        const switch_instance_changes = {};
+        if (dirty & /*sx*/
+        16384)
+          switch_instance_changes.sx = /*sx*/
+          ctx2[14];
+        if (dirty & /*sy*/
+        32768)
+          switch_instance_changes.sy = /*sy*/
+          ctx2[15];
+        if (dirty & /*as*/
+        262144)
+          switch_instance_changes.as = /*as*/
+          ctx2[18];
         switch_instance.$set(switch_instance_changes);
       }
       if (!current || dirty & /*sx*/
@@ -2442,8 +2582,9 @@ function create_if_block_4(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(foreignObject);
+      }
       if (switch_instance)
         destroy_component(switch_instance);
     }
@@ -2514,9 +2655,10 @@ function create_startPoint_slot(ctx) {
       current = false;
     },
     d(detaching) {
-      if_blocks[current_block_type_index].d(detaching);
-      if (detaching)
+      if (detaching) {
         detach(t);
+      }
+      if_blocks[current_block_type_index].d(detaching);
     }
   };
 }
@@ -2562,10 +2704,11 @@ function create_else_block(ctx) {
     i: noop$2,
     o: noop$2,
     d(detaching) {
+      if (detaching) {
+        detach(if_block_anchor);
+      }
       if (if_block)
         if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
     }
   };
 }
@@ -2579,7 +2722,7 @@ function create_if_block_2$1(ctx) {
     /*link*/
     ctx[11].source.endPoint.component
   );
-  function switch_props(ctx2) {
+  function switch_props(ctx2, dirty) {
     return {
       props: {
         sx: (
@@ -2645,28 +2788,8 @@ function create_if_block_2$1(ctx) {
       current = true;
     },
     p(ctx2, dirty) {
-      const switch_instance_changes = {};
-      if (dirty & /*sx*/
-      16384)
-        switch_instance_changes.sx = /*sx*/
-        ctx2[14];
-      if (dirty & /*sy*/
-      32768)
-        switch_instance_changes.sy = /*sy*/
-        ctx2[15];
-      if (dirty & /*ex*/
-      65536)
-        switch_instance_changes.ex = /*ex*/
-        ctx2[16];
-      if (dirty & /*ey*/
-      131072)
-        switch_instance_changes.ey = /*ey*/
-        ctx2[17];
-      if (dirty & /*as*/
-      262144)
-        switch_instance_changes.as = /*as*/
-        ctx2[18];
-      if (switch_value !== (switch_value = /*link*/
+      if (dirty & /*links*/
+      1 && switch_value !== (switch_value = /*link*/
       ctx2[11].source.endPoint.component)) {
         if (switch_instance) {
           group_outros();
@@ -2685,6 +2808,27 @@ function create_if_block_2$1(ctx) {
           switch_instance = null;
         }
       } else if (switch_value) {
+        const switch_instance_changes = {};
+        if (dirty & /*sx*/
+        16384)
+          switch_instance_changes.sx = /*sx*/
+          ctx2[14];
+        if (dirty & /*sy*/
+        32768)
+          switch_instance_changes.sy = /*sy*/
+          ctx2[15];
+        if (dirty & /*ex*/
+        65536)
+          switch_instance_changes.ex = /*ex*/
+          ctx2[16];
+        if (dirty & /*ey*/
+        131072)
+          switch_instance_changes.ey = /*ey*/
+          ctx2[17];
+        if (dirty & /*as*/
+        262144)
+          switch_instance_changes.as = /*as*/
+          ctx2[18];
         switch_instance.$set(switch_instance_changes);
       }
       if (!current || dirty & /*sx*/
@@ -2711,8 +2855,9 @@ function create_if_block_2$1(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(foreignObject);
+      }
       if (switch_instance)
         destroy_component(switch_instance);
     }
@@ -2766,8 +2911,9 @@ function create_if_block_3$1(ctx) {
       }
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(polygon);
+      }
     }
   };
 }
@@ -2836,9 +2982,10 @@ function create_endPoint_slot(ctx) {
       current = false;
     },
     d(detaching) {
-      if_blocks[current_block_type_index].d(detaching);
-      if (detaching)
+      if (detaching) {
         detach(t);
+      }
+      if_blocks[current_block_type_index].d(detaching);
     }
   };
 }
@@ -2916,12 +3063,12 @@ function create_each_block$2(key_1, ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(first);
+        detach(if_block_anchor);
+      }
       if (if_block)
         if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
     }
   };
 }
@@ -2989,10 +3136,11 @@ function create_fragment$8(ctx) {
       current = false;
     },
     d(detaching) {
+      if (detaching) {
+        detach(if_block_anchor);
+      }
       if (if_block)
         if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
     }
   };
 }
@@ -3169,8 +3317,9 @@ function fallback_block$3(ctx) {
       }
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
     }
   };
 }
@@ -3332,8 +3481,9 @@ function create_fragment$7(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
       if (if_block)
         if_block.d();
       ctx[9](null);
@@ -3449,10 +3599,7 @@ const get_default_slot_context$1 = (ctx) => ({ connectable: (
   ctx[10]
 ) });
 const get_marker_slot_changes = (dirty) => ({});
-const get_marker_slot_context = (ctx) => ({ connectable: (
-  /*connectable*/
-  ctx[10]
-) });
+const get_marker_slot_context = (ctx) => ({});
 function create_if_block_3(ctx) {
   let cursormarker;
   let updating_marker;
@@ -3551,8 +3698,9 @@ function fallback_block$2(ctx) {
     },
     p: noop$2,
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
     }
   };
 }
@@ -3919,10 +4067,10 @@ function create_fragment$6(ctx) {
     ((_a = ctx[0]) == null ? void 0 : _a.links) && /*data*/
     ctx[0].links.length > 0 && create_if_block$3(ctx)
   );
-  let each_value = [...Object.entries(
+  let each_value = ensure_array_like([...Object.entries(
     /*highlighters*/
     ctx[3]
-  )];
+  )]);
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
     each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
@@ -3991,7 +4139,9 @@ function create_fragment$6(ctx) {
         if_block3.m(div, null);
       append_hydration(div, t3);
       for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].m(div, null);
+        if (each_blocks[i]) {
+          each_blocks[i].m(div, null);
+        }
       }
       ctx[15](div);
       current = true;
@@ -4103,10 +4253,10 @@ function create_fragment$6(ctx) {
       }
       if (dirty & /*Object, highlighters*/
       8) {
-        each_value = [...Object.entries(
+        each_value = ensure_array_like([...Object.entries(
           /*highlighters*/
           ctx2[3]
-        )];
+        )]);
         let i;
         for (i = 0; i < each_value.length; i += 1) {
           const child_ctx = get_each_context$1(ctx2, each_value, i);
@@ -4151,8 +4301,9 @@ function create_fragment$6(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
       if (if_block0)
         if_block0.d();
       if (if_block1)
@@ -4392,8 +4543,9 @@ function fallback_block$1(ctx) {
     },
     p: noop$2,
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
     }
   };
 }
@@ -4457,7 +4609,7 @@ function create_fragment$5(ctx) {
         default_slot_or_fallback.m(div0, null);
       }
       ctx[13](div1);
-      div1_resize_listener = add_resize_listener(
+      div1_resize_listener = add_iframe_resize_listener(
         div1,
         /*div1_elementresize_handler*/
         ctx[14].bind(div1)
@@ -4533,8 +4685,9 @@ function create_fragment$5(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div1);
+      }
       if (default_slot_or_fallback)
         default_slot_or_fallback.d(detaching);
       ctx[13](null);
@@ -4727,7 +4880,7 @@ function create_if_block$2(ctx) {
         default_slot_or_fallback.m(div, null);
       }
       ctx[13](div);
-      div_resize_listener = add_resize_listener(
+      div_resize_listener = add_iframe_resize_listener(
         div,
         /*div_elementresize_handler*/
         ctx[14].bind(div)
@@ -4779,8 +4932,9 @@ function create_if_block$2(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
       if (default_slot_or_fallback)
         default_slot_or_fallback.d(detaching);
       ctx[13](null);
@@ -4801,8 +4955,9 @@ function fallback_block(ctx) {
       insert_hydration(target, t, anchor);
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(t);
+      }
     }
   };
 }
@@ -4866,10 +5021,11 @@ function create_fragment$4(ctx) {
       current = false;
     },
     d(detaching) {
+      if (detaching) {
+        detach(if_block_anchor);
+      }
       if (if_block)
         if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
     }
   };
 }
@@ -5116,8 +5272,9 @@ function create_fragment$3(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(span1);
+      }
       if (default_slot)
         default_slot.d(detaching);
     }
@@ -5147,12 +5304,14 @@ function fly(node, { delay = 0, duration = 400, easing = cubicOut, x = 0, y = 0,
   const target_opacity = +style.opacity;
   const transform = style.transform === "none" ? "" : style.transform;
   const od = target_opacity * (1 - opacity);
+  const [xValue, xUnit] = split_css_unit(x);
+  const [yValue, yUnit] = split_css_unit(y);
   return {
     delay,
     duration,
     easing,
     css: (t, u) => `
-			transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
+			transform: ${transform} translate(${(1 - t) * xValue}${xUnit}, ${(1 - t) * yValue}${yUnit});
 			opacity: ${target_opacity - od * u}`
   };
 }
@@ -5260,24 +5419,23 @@ function create_if_block$1(ctx) {
       }
       current = true;
     },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
+    p(ctx2, dirty) {
       if (default_slot) {
         if (default_slot.p && (!current || dirty & /*$$scope*/
         16)) {
           update_slot_base(
             default_slot,
             default_slot_template,
-            ctx,
+            ctx2,
             /*$$scope*/
-            ctx[4],
+            ctx2[4],
             !current ? get_all_dirty_from_scope(
               /*$$scope*/
-              ctx[4]
+              ctx2[4]
             ) : get_slot_changes(
               default_slot_template,
               /*$$scope*/
-              ctx[4],
+              ctx2[4],
               dirty,
               null
             ),
@@ -5290,7 +5448,7 @@ function create_if_block$1(ctx) {
         set_data(
           t1,
           /*counter*/
-          ctx[1]
+          ctx2[1]
         );
       if (extra_slot) {
         if (extra_slot.p && (!current || dirty & /*$$scope*/
@@ -5298,16 +5456,16 @@ function create_if_block$1(ctx) {
           update_slot_base(
             extra_slot,
             extra_slot_template,
-            ctx,
+            ctx2,
             /*$$scope*/
-            ctx[4],
+            ctx2[4],
             !current ? get_all_dirty_from_scope(
               /*$$scope*/
-              ctx[4]
+              ctx2[4]
             ) : get_slot_changes(
               extra_slot_template,
               /*$$scope*/
-              ctx[4],
+              ctx2[4],
               dirty,
               get_extra_slot_changes
             ),
@@ -5321,7 +5479,33 @@ function create_if_block$1(ctx) {
         return;
       transition_in(default_slot, local);
       transition_in(extra_slot, local);
-      add_render_callback(() => {
+      if (local) {
+        add_render_callback(() => {
+          if (!current)
+            return;
+          if (!div2_transition)
+            div2_transition = create_bidirectional_transition(
+              div2,
+              fly,
+              {
+                delay: 100,
+                duration: 800,
+                x: 0,
+                y: -200,
+                opacity: 0.1,
+                easing: quintOut
+              },
+              true
+            );
+          div2_transition.run(1);
+        });
+      }
+      current = true;
+    },
+    o(local) {
+      transition_out(default_slot, local);
+      transition_out(extra_slot, local);
+      if (local) {
         if (!div2_transition)
           div2_transition = create_bidirectional_transition(
             div2,
@@ -5334,35 +5518,16 @@ function create_if_block$1(ctx) {
               opacity: 0.1,
               easing: quintOut
             },
-            true
+            false
           );
-        div2_transition.run(1);
-      });
-      current = true;
-    },
-    o(local) {
-      transition_out(default_slot, local);
-      transition_out(extra_slot, local);
-      if (!div2_transition)
-        div2_transition = create_bidirectional_transition(
-          div2,
-          fly,
-          {
-            delay: 100,
-            duration: 800,
-            x: 0,
-            y: -200,
-            opacity: 0.1,
-            easing: quintOut
-          },
-          false
-        );
-      div2_transition.run(0);
+        div2_transition.run(0);
+      }
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div2);
+      }
       if (default_slot)
         default_slot.d(detaching);
       if (extra_slot)
@@ -5432,10 +5597,11 @@ function create_fragment$2(ctx) {
       current = false;
     },
     d(detaching) {
+      if (detaching) {
+        detach(if_block_anchor);
+      }
       if (if_block)
         if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
     }
   };
 }
@@ -5488,8 +5654,9 @@ function create_default_slot$1(ctx) {
       insert_hydration(target, t, anchor);
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(t);
+      }
     }
   };
 }
@@ -5974,8 +6141,10 @@ class PinchZoom {
    * Update transform values without checking bounds. This is only called in setTransform.
    */
   _updateTransform(scale, x, y, allowChangeEvent) {
-    if (scale < this.minScale)
+    if (scale < this.minScale) {
+      scale = this.minScale;
       return;
+    }
     if (scale === this.scale && x === this.x && y === this.y)
       return;
     this._transform.e = x;
@@ -6301,8 +6470,9 @@ function create_each_block_1(key_1, ctx) {
         });
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
       mounted = false;
       dispose();
     }
@@ -6323,7 +6493,7 @@ function create_each_block(ctx) {
       )
     );
   }
-  let each_value_1 = (
+  let each_value_1 = ensure_array_like(
     /*data*/
     ctx[0].nodes.filter(func)
   );
@@ -6361,7 +6531,9 @@ function create_each_block(ctx) {
     m(target, anchor) {
       insert_hydration(target, div, anchor);
       for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].m(div, null);
+        if (each_blocks[i]) {
+          each_blocks[i].m(div, null);
+        }
       }
       append_hydration(div, t);
     },
@@ -6369,14 +6541,17 @@ function create_each_block(ctx) {
       ctx = new_ctx;
       if (dirty & /*data, Object, types*/
       17) {
-        each_value_1 = /*data*/
-        ctx[0].nodes.filter(func);
+        each_value_1 = ensure_array_like(
+          /*data*/
+          ctx[0].nodes.filter(func)
+        );
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value_1, each_1_lookup, div, destroy_block, create_each_block_1, t, get_each_context_1);
       }
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].d();
       }
@@ -6396,8 +6571,9 @@ function create_default_slot_3(ctx) {
       insert_hydration(target, t, anchor);
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(t);
+      }
     }
   };
 }
@@ -6421,8 +6597,9 @@ function create_default_slot_2(ctx) {
     },
     p: noop$2,
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
     }
   };
 }
@@ -6474,8 +6651,9 @@ function create_if_block(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(key_block_anchor);
+      }
       key_block.d(detaching);
     }
   };
@@ -6509,8 +6687,9 @@ function create_default_slot_1(ctx) {
         );
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(t);
+      }
     }
   };
 }
@@ -6578,26 +6757,20 @@ function create_key_block(ctx) {
 function create_default_slot(ctx) {
   let div11;
   let div0;
-  let t0;
-  let br0;
-  let t1;
+  let textContent = `Directive is available within the slot as a slot prop.<br/>
+					Try scroll to zoom, drag to pan, and still connect!`;
   let t2;
   let div1;
   let t3;
   let div6;
   let div3;
   let div2;
-  let t4;
-  let br1;
-  let t5;
-  let br2;
+  let textContent_1 = `Connect Me <br/>Drag me<br/>`;
   let grabable_action;
   let t6;
   let div5;
   let div4;
-  let t7;
-  let br3;
-  let t8;
+  let textContent_2 = `...Starts out fixed, then switches to<br/> movable endpoint once connected.`;
   let grabable_action_1;
   let t9;
   let div10;
@@ -6621,10 +6794,10 @@ function create_default_slot(ctx) {
   let current;
   let mounted;
   let dispose;
-  let each_value = [...Object.entries(
+  let each_value = ensure_array_like([...Object.entries(
     /*types*/
     ctx[4]
-  )];
+  )]);
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
     each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
@@ -6681,9 +6854,7 @@ function create_default_slot(ctx) {
     c() {
       div11 = element("div");
       div0 = element("div");
-      t0 = text("Directive is available within the slot as a slot prop.");
-      br0 = element("br");
-      t1 = text("\n					Try scroll to zoom, drag to pan, and still connect!");
+      div0.innerHTML = textContent;
       t2 = space();
       div1 = element("div");
       for (let i = 0; i < each_blocks.length; i += 1) {
@@ -6693,16 +6864,11 @@ function create_default_slot(ctx) {
       div6 = element("div");
       div3 = element("div");
       div2 = element("div");
-      t4 = text("Connect Me ");
-      br1 = element("br");
-      t5 = text("Drag me");
-      br2 = element("br");
+      div2.innerHTML = textContent_1;
       t6 = space();
       div5 = element("div");
       div4 = element("div");
-      t7 = text("...Starts out fixed, then switches to");
-      br3 = element("br");
-      t8 = text(" movable endpoint once connected.");
+      div4.innerHTML = textContent_2;
       t9 = space();
       div10 = element("div");
       div7 = element("div");
@@ -6729,12 +6895,9 @@ function create_default_slot(ctx) {
     l(nodes) {
       div11 = claim_element(nodes, "DIV", { class: true });
       var div11_nodes = children(div11);
-      div0 = claim_element(div11_nodes, "DIV", { class: true });
-      var div0_nodes = children(div0);
-      t0 = claim_text(div0_nodes, "Directive is available within the slot as a slot prop.");
-      br0 = claim_element(div0_nodes, "BR", {});
-      t1 = claim_text(div0_nodes, "\n					Try scroll to zoom, drag to pan, and still connect!");
-      div0_nodes.forEach(detach);
+      div0 = claim_element(div11_nodes, "DIV", { class: true, ["data-svelte-h"]: true });
+      if (get_svelte_dataset(div0) !== "svelte-m6c7by")
+        div0.innerHTML = textContent;
       t2 = claim_space(div11_nodes);
       div1 = claim_element(div11_nodes, "DIV", { class: true });
       var div1_nodes = children(div1);
@@ -6747,23 +6910,16 @@ function create_default_slot(ctx) {
       var div6_nodes = children(div6);
       div3 = claim_element(div6_nodes, "DIV", { id: true, class: true, style: true });
       var div3_nodes = children(div3);
-      div2 = claim_element(div3_nodes, "DIV", { class: true });
-      var div2_nodes = children(div2);
-      t4 = claim_text(div2_nodes, "Connect Me ");
-      br1 = claim_element(div2_nodes, "BR", {});
-      t5 = claim_text(div2_nodes, "Drag me");
-      br2 = claim_element(div2_nodes, "BR", {});
-      div2_nodes.forEach(detach);
+      div2 = claim_element(div3_nodes, "DIV", { class: true, ["data-svelte-h"]: true });
+      if (get_svelte_dataset(div2) !== "svelte-1trvx0d")
+        div2.innerHTML = textContent_1;
       div3_nodes.forEach(detach);
       t6 = claim_space(div6_nodes);
       div5 = claim_element(div6_nodes, "DIV", { id: true, class: true, style: true });
       var div5_nodes = children(div5);
-      div4 = claim_element(div5_nodes, "DIV", { class: true });
-      var div4_nodes = children(div4);
-      t7 = claim_text(div4_nodes, "...Starts out fixed, then switches to");
-      br3 = claim_element(div4_nodes, "BR", {});
-      t8 = claim_text(div4_nodes, " movable endpoint once connected.");
-      div4_nodes.forEach(detach);
+      div4 = claim_element(div5_nodes, "DIV", { class: true, ["data-svelte-h"]: true });
+      if (get_svelte_dataset(div4) !== "svelte-1y21tul")
+        div4.innerHTML = textContent_2;
       div5_nodes.forEach(detach);
       div6_nodes.forEach(detach);
       t9 = claim_space(div11_nodes);
@@ -6852,28 +7008,20 @@ function create_default_slot(ctx) {
     m(target, anchor) {
       insert_hydration(target, div11, anchor);
       append_hydration(div11, div0);
-      append_hydration(div0, t0);
-      append_hydration(div0, br0);
-      append_hydration(div0, t1);
       append_hydration(div11, t2);
       append_hydration(div11, div1);
       for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].m(div1, null);
+        if (each_blocks[i]) {
+          each_blocks[i].m(div1, null);
+        }
       }
       append_hydration(div11, t3);
       append_hydration(div11, div6);
       append_hydration(div6, div3);
       append_hydration(div3, div2);
-      append_hydration(div2, t4);
-      append_hydration(div2, br1);
-      append_hydration(div2, t5);
-      append_hydration(div2, br2);
       append_hydration(div6, t6);
       append_hydration(div6, div5);
       append_hydration(div5, div4);
-      append_hydration(div4, t7);
-      append_hydration(div4, br3);
-      append_hydration(div4, t8);
       append_hydration(div11, t9);
       append_hydration(div11, div10);
       append_hydration(div10, div7);
@@ -6956,10 +7104,10 @@ function create_default_slot(ctx) {
       var _a, _b, _c, _d;
       if (dirty & /*data, Object, types*/
       17) {
-        each_value = [...Object.entries(
+        each_value = ensure_array_like([...Object.entries(
           /*types*/
           ctx2[4]
-        )];
+        )]);
         let i;
         for (i = 0; i < each_value.length; i += 1) {
           const child_ctx = get_each_context(ctx2, each_value, i);
@@ -7109,20 +7257,19 @@ function create_default_slot(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div11);
+        detach(t17);
+        detach(if_block_anchor);
+      }
       destroy_each(each_blocks, detaching);
       destroy_component(endpoint0);
       destroy_component(endpoint1);
       destroy_component(endpoint2);
       destroy_component(skew);
       destroy_component(endpoint3);
-      if (detaching)
-        detach(t17);
       if (if_block)
         if_block.d(detaching);
-      if (detaching)
-        detach(if_block_anchor);
       mounted = false;
       run_all(dispose);
     }
@@ -7149,22 +7296,17 @@ function create_marker_slot(ctx) {
     },
     p: noop$2,
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div);
+      }
     }
   };
 }
 function create_fragment(ctx) {
   let div2;
-  let div0;
-  let a0;
-  let t0;
-  let t1;
-  let div1;
-  let t2;
-  let a1;
-  let t3;
-  let t4;
+  let textContent = `<div class="my-4 p-2 bg-blue-100 rounded-lg w-fit"><a href="https://github.com/DougAnderson444/svelte-plumb" class="font-bold m-2 underline">https://github.com/DougAnderson444/svelte-plumb</a></div> <div class="my-4 p-2 bg-blue-100 rounded-lg w-fit">by <a href="https://twitter.com/DougAnderson444" class="font-bold underline">@DougAnderson444</a></div>
+
+	Match the picture to the words:`;
   let t5;
   let div4;
   let div3;
@@ -7173,19 +7315,19 @@ function create_fragment(ctx) {
   let t6;
   let div9;
   let div5;
-  let t7;
+  let textContent_1 = "Control Panel";
   let t8;
   let div6;
   let label0;
   let span0;
-  let t9;
+  let textContent_2 = "Stroke Width";
   let t10;
   let input0;
   let t11;
   let div7;
   let label1;
   let span1;
-  let t12;
+  let textContent_3 = "Stroke Opacity";
   let t13;
   let input1;
   let t14;
@@ -7225,11 +7367,7 @@ function create_fragment(ctx) {
       ctx[3]
     ),
     $$slots: {
-      marker: [
-        create_marker_slot,
-        ({ connectable }) => ({ 17: connectable }),
-        ({ connectable }) => connectable ? 131072 : 0
-      ],
+      marker: [create_marker_slot],
       default: [
         create_default_slot,
         ({ connectable }) => ({ 17: connectable }),
@@ -7255,15 +7393,7 @@ function create_fragment(ctx) {
   return {
     c() {
       div2 = element("div");
-      div0 = element("div");
-      a0 = element("a");
-      t0 = text("https://github.com/DougAnderson444/svelte-plumb");
-      t1 = space();
-      div1 = element("div");
-      t2 = text("by ");
-      a1 = element("a");
-      t3 = text("@DougAnderson444");
-      t4 = text("\n\n	Match the picture to the words:");
+      div2.innerHTML = textContent;
       t5 = space();
       div4 = element("div");
       div3 = element("div");
@@ -7271,19 +7401,19 @@ function create_fragment(ctx) {
       t6 = space();
       div9 = element("div");
       div5 = element("div");
-      t7 = text("Control Panel");
+      div5.textContent = textContent_1;
       t8 = space();
       div6 = element("div");
       label0 = element("label");
       span0 = element("span");
-      t9 = text("Stroke Width");
+      span0.textContent = textContent_2;
       t10 = space();
       input0 = element("input");
       t11 = space();
       div7 = element("div");
       label1 = element("label");
       span1 = element("span");
-      t12 = text("Stroke Opacity");
+      span1.textContent = textContent_3;
       t13 = space();
       input1 = element("input");
       t14 = space();
@@ -7302,26 +7432,9 @@ function create_fragment(ctx) {
       this.h();
     },
     l(nodes) {
-      div2 = claim_element(nodes, "DIV", { class: true });
-      var div2_nodes = children(div2);
-      div0 = claim_element(div2_nodes, "DIV", { class: true });
-      var div0_nodes = children(div0);
-      a0 = claim_element(div0_nodes, "A", { href: true, class: true });
-      var a0_nodes = children(a0);
-      t0 = claim_text(a0_nodes, "https://github.com/DougAnderson444/svelte-plumb");
-      a0_nodes.forEach(detach);
-      div0_nodes.forEach(detach);
-      t1 = claim_space(div2_nodes);
-      div1 = claim_element(div2_nodes, "DIV", { class: true });
-      var div1_nodes = children(div1);
-      t2 = claim_text(div1_nodes, "by ");
-      a1 = claim_element(div1_nodes, "A", { href: true, class: true });
-      var a1_nodes = children(a1);
-      t3 = claim_text(a1_nodes, "@DougAnderson444");
-      a1_nodes.forEach(detach);
-      div1_nodes.forEach(detach);
-      t4 = claim_text(div2_nodes, "\n\n	Match the picture to the words:");
-      div2_nodes.forEach(detach);
+      div2 = claim_element(nodes, "DIV", { class: true, ["data-svelte-h"]: true });
+      if (get_svelte_dataset(div2) !== "svelte-4xqfyd")
+        div2.innerHTML = textContent;
       t5 = claim_space(nodes);
       div4 = claim_element(nodes, "DIV", { class: true });
       var div4_nodes = children(div4);
@@ -7333,19 +7446,17 @@ function create_fragment(ctx) {
       t6 = claim_space(nodes);
       div9 = claim_element(nodes, "DIV", { class: true });
       var div9_nodes = children(div9);
-      div5 = claim_element(div9_nodes, "DIV", { class: true });
-      var div5_nodes = children(div5);
-      t7 = claim_text(div5_nodes, "Control Panel");
-      div5_nodes.forEach(detach);
+      div5 = claim_element(div9_nodes, "DIV", { class: true, ["data-svelte-h"]: true });
+      if (get_svelte_dataset(div5) !== "svelte-1ci5my4")
+        div5.textContent = textContent_1;
       t8 = claim_space(div9_nodes);
       div6 = claim_element(div9_nodes, "DIV", { class: true });
       var div6_nodes = children(div6);
       label0 = claim_element(div6_nodes, "LABEL", { class: true });
       var label0_nodes = children(label0);
-      span0 = claim_element(label0_nodes, "SPAN", { class: true });
-      var span0_nodes = children(span0);
-      t9 = claim_text(span0_nodes, "Stroke Width");
-      span0_nodes.forEach(detach);
+      span0 = claim_element(label0_nodes, "SPAN", { class: true, ["data-svelte-h"]: true });
+      if (get_svelte_dataset(span0) !== "svelte-d5ohm")
+        span0.textContent = textContent_2;
       t10 = claim_space(label0_nodes);
       input0 = claim_element(label0_nodes, "INPUT", { type: true, min: true, max: true });
       label0_nodes.forEach(detach);
@@ -7355,10 +7466,9 @@ function create_fragment(ctx) {
       var div7_nodes = children(div7);
       label1 = claim_element(div7_nodes, "LABEL", { class: true });
       var label1_nodes = children(label1);
-      span1 = claim_element(label1_nodes, "SPAN", { class: true });
-      var span1_nodes = children(span1);
-      t12 = claim_text(span1_nodes, "Stroke Opacity");
-      span1_nodes.forEach(detach);
+      span1 = claim_element(label1_nodes, "SPAN", { class: true, ["data-svelte-h"]: true });
+      if (get_svelte_dataset(span1) !== "svelte-arp1zr")
+        span1.textContent = textContent_3;
       t13 = claim_space(label1_nodes);
       input1 = claim_element(label1_nodes, "INPUT", {
         type: true,
@@ -7398,12 +7508,6 @@ function create_fragment(ctx) {
       this.h();
     },
     h() {
-      attr(a0, "href", "https://github.com/DougAnderson444/svelte-plumb");
-      attr(a0, "class", "font-bold m-2 underline");
-      attr(div0, "class", "my-4 p-2 bg-blue-100 rounded-lg w-fit");
-      attr(a1, "href", "https://twitter.com/DougAnderson444");
-      attr(a1, "class", "font-bold underline");
-      attr(div1, "class", "my-4 p-2 bg-blue-100 rounded-lg w-fit");
       attr(div2, "class", "mb-4 ml-4 p-2 w-fit");
       attr(div4, "class", "relative border-dashed border-2 border-sky-500 rounded-lg bg-slate-100/10 m-4 h-full");
       attr(div5, "class", "text-lg font-bold underline");
@@ -7431,15 +7535,6 @@ function create_fragment(ctx) {
     },
     m(target, anchor) {
       insert_hydration(target, div2, anchor);
-      append_hydration(div2, div0);
-      append_hydration(div0, a0);
-      append_hydration(a0, t0);
-      append_hydration(div2, t1);
-      append_hydration(div2, div1);
-      append_hydration(div1, t2);
-      append_hydration(div1, a1);
-      append_hydration(a1, t3);
-      append_hydration(div2, t4);
       insert_hydration(target, t5, anchor);
       insert_hydration(target, div4, anchor);
       append_hydration(div4, div3);
@@ -7447,12 +7542,10 @@ function create_fragment(ctx) {
       insert_hydration(target, t6, anchor);
       insert_hydration(target, div9, anchor);
       append_hydration(div9, div5);
-      append_hydration(div5, t7);
       append_hydration(div9, t8);
       append_hydration(div9, div6);
       append_hydration(div6, label0);
       append_hydration(label0, span0);
-      append_hydration(span0, t9);
       append_hydration(label0, t10);
       append_hydration(label0, input0);
       set_input_value(
@@ -7464,7 +7557,6 @@ function create_fragment(ctx) {
       append_hydration(div9, div7);
       append_hydration(div7, label1);
       append_hydration(label1, span1);
-      append_hydration(span1, t12);
       append_hydration(label1, t13);
       append_hydration(label1, input1);
       set_input_value(
@@ -7608,21 +7700,16 @@ function create_fragment(ctx) {
       current = false;
     },
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(div2);
-      if (detaching)
         detach(t5);
-      if (detaching)
         detach(div4);
-      destroy_component(canvas);
-      if (detaching)
         detach(t6);
-      if (detaching)
         detach(div9);
-      if (detaching)
         detach(t18);
-      if (detaching)
         detach(pre);
+      }
+      destroy_component(canvas);
       mounted = false;
       run_all(dispose);
     }
@@ -7756,6 +7843,6 @@ class Page extends SvelteComponent {
   }
 }
 export {
-  Page as default
+  Page as component
 };
-//# sourceMappingURL=_page.svelte-e7ca26ad.js.map
+//# sourceMappingURL=2.Dc6JWbcw.js.map

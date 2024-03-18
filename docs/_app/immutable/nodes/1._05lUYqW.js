@@ -1,19 +1,22 @@
-import { SvelteComponent, init, safe_not_equal, element, text, space, claim_element, children, claim_text, detach, claim_space, insert_hydration, append_hydration, set_data, noop, component_subscribe } from "../chunks/index-04c364fb.js";
-import { stores } from "../chunks/singletons-b7678cee.js";
+import { safe_not_equal, element, text, space, claim_element, children, claim_text, detach, claim_space, insert_hydration, append_hydration, set_data, noop, component_subscribe } from "../chunks/scheduler.CRCSXhcL.js";
+import { SvelteComponent, init } from "../chunks/index.Cfj7aiNl.js";
+import { stores } from "../chunks/entry.BM-YIFPp.js";
 const getStores = () => {
   const stores$1 = stores;
   return {
+    /** @type {typeof page} */
     page: {
       subscribe: stores$1.page.subscribe
     },
+    /** @type {typeof navigating} */
     navigating: {
       subscribe: stores$1.navigating.subscribe
     },
+    /** @type {typeof updated} */
     updated: stores$1.updated
   };
 };
 const page = {
-  /** @param {(value: any) => void} fn */
   subscribe(fn) {
     const store = getStores().page;
     return store.subscribe(fn);
@@ -74,12 +77,11 @@ function create_fragment(ctx) {
     i: noop,
     o: noop,
     d(detaching) {
-      if (detaching)
+      if (detaching) {
         detach(h1);
-      if (detaching)
         detach(t1);
-      if (detaching)
         detach(p);
+      }
     }
   };
 }
@@ -95,6 +97,6 @@ let Error$1 = class Error extends SvelteComponent {
   }
 };
 export {
-  Error$1 as default
+  Error$1 as component
 };
-//# sourceMappingURL=error.svelte-1866954e.js.map
+//# sourceMappingURL=1._05lUYqW.js.map
