@@ -1,6 +1,6 @@
 {
 	"name": "@douganderson444/svelte-plumb",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"main": "index.js",
 	"module": "index.js",
 	"scripts": {
