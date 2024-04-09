@@ -1058,7 +1058,9 @@ function create_if_block$6(ctx) {
         fill: true,
         "stroke-linecap": true,
         "stroke-opacity": true,
-        "stroke-dasharray": true
+        "stroke-dasharray": true,
+        role: true,
+        tabindex: true
       });
       children(path).forEach(detach);
       if_block0.l(g_nodes);
@@ -1105,6 +1107,8 @@ function create_if_block$6(ctx) {
         ctx[4]
       );
       attr(path, "stroke-dasharray", "4");
+      attr(path, "role", "link");
+      attr(path, "tabindex", "0");
       attr(
         g,
         "stroke",
@@ -3346,7 +3350,8 @@ function create_fragment$7(ctx) {
         id: true,
         "data-highlighter": true,
         class: true,
-        style: true
+        style: true,
+        role: true
       });
       var div_nodes = children(div);
       if (if_block)
@@ -3373,6 +3378,7 @@ function create_fragment$7(ctx) {
         /*left*/
         ctx[4] + "px"
       );
+      attr(div, "role", "presentation");
     },
     m(target, anchor) {
       insert_hydration(target, div, anchor);
@@ -5330,24 +5336,24 @@ function create_if_block$1(ctx) {
   let current;
   const default_slot_template = (
     /*#slots*/
-    ctx[5].default
+    ctx[4].default
   );
   const default_slot = create_slot(
     default_slot_template,
     ctx,
     /*$$scope*/
-    ctx[4],
+    ctx[3],
     null
   );
   const extra_slot_template = (
     /*#slots*/
-    ctx[5].extra
+    ctx[4].extra
   );
   const extra_slot = create_slot(
     extra_slot_template,
     ctx,
     /*$$scope*/
-    ctx[4],
+    ctx[3],
     get_extra_slot_context
   );
   return {
@@ -5422,20 +5428,20 @@ function create_if_block$1(ctx) {
     p(ctx2, dirty) {
       if (default_slot) {
         if (default_slot.p && (!current || dirty & /*$$scope*/
-        16)) {
+        8)) {
           update_slot_base(
             default_slot,
             default_slot_template,
             ctx2,
             /*$$scope*/
-            ctx2[4],
+            ctx2[3],
             !current ? get_all_dirty_from_scope(
               /*$$scope*/
-              ctx2[4]
+              ctx2[3]
             ) : get_slot_changes(
               default_slot_template,
               /*$$scope*/
-              ctx2[4],
+              ctx2[3],
               dirty,
               null
             ),
@@ -5452,20 +5458,20 @@ function create_if_block$1(ctx) {
         );
       if (extra_slot) {
         if (extra_slot.p && (!current || dirty & /*$$scope*/
-        16)) {
+        8)) {
           update_slot_base(
             extra_slot,
             extra_slot_template,
             ctx2,
             /*$$scope*/
-            ctx2[4],
+            ctx2[3],
             !current ? get_all_dirty_from_scope(
               /*$$scope*/
-              ctx2[4]
+              ctx2[3]
             ) : get_slot_changes(
               extra_slot_template,
               /*$$scope*/
-              ctx2[4],
+              ctx2[3],
               dirty,
               get_extra_slot_changes
             ),
@@ -5607,7 +5613,6 @@ function create_fragment$2(ctx) {
 }
 function instance$2($$self, $$props, $$invalidate) {
   let { $$slots: slots = {}, $$scope } = $$props;
-  let { transition = "fade" } = $$props;
   let { toast = true } = $$props;
   let visible = true;
   let counter = 3;
@@ -5617,28 +5622,26 @@ function instance$2($$self, $$props, $$invalidate) {
     $$invalidate(0, visible = false);
   }
   $$self.$$set = ($$props2) => {
-    if ("transition" in $$props2)
-      $$invalidate(2, transition = $$props2.transition);
     if ("toast" in $$props2)
-      $$invalidate(3, toast = $$props2.toast);
+      $$invalidate(2, toast = $$props2.toast);
     if ("$$scope" in $$props2)
-      $$invalidate(4, $$scope = $$props2.$$scope);
+      $$invalidate(3, $$scope = $$props2.$$scope);
   };
   $$self.$$.update = () => {
     if ($$self.$$.dirty & /*toast*/
-    8) {
+    4) {
       if (toast) {
         $$invalidate(1, counter = 3);
         timeout();
       }
     }
   };
-  return [visible, counter, transition, toast, $$scope, slots];
+  return [visible, counter, toast, $$scope, slots];
 }
 class Toast extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$2, create_fragment$2, safe_not_equal, { transition: 2, toast: 3 });
+    init(this, options, instance$2, create_fragment$2, safe_not_equal, { toast: 2 });
   }
 }
 function create_default_slot$1(ctx) {
@@ -7845,4 +7848,4 @@ class Page extends SvelteComponent {
 export {
   Page as component
 };
-//# sourceMappingURL=2.Dc6JWbcw.js.map
+//# sourceMappingURL=2.DM5PiyUn.js.map

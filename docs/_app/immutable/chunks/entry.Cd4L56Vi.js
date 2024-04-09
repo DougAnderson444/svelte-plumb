@@ -310,9 +310,9 @@ function set(key, value, stringify = JSON.stringify) {
   } catch {
   }
 }
-const base = ((_a = globalThis.__sveltekit_rwuvmb) == null ? void 0 : _a.base) ?? "/svelte-plumb";
-const assets = ((_b = globalThis.__sveltekit_rwuvmb) == null ? void 0 : _b.assets) ?? base;
-const version = "1710766992664";
+const base = ((_a = globalThis.__sveltekit_1aivyxl) == null ? void 0 : _a.base) ?? "/svelte-plumb";
+const assets = ((_b = globalThis.__sveltekit_1aivyxl) == null ? void 0 : _b.assets) ?? base;
+const version = "1712672387789";
 const SNAPSHOT_KEY = "sveltekit:snapshot";
 const SCROLL_KEY = "sveltekit:scroll";
 const STATES_KEY = "sveltekit:states";
@@ -2110,4 +2110,4 @@ export {
   start,
   stores
 };
-//# sourceMappingURL=entry.BM-YIFPp.js.map
+//# sourceMappingURL=entry.Cd4L56Vi.js.map
