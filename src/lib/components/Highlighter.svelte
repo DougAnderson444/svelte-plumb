@@ -37,6 +37,7 @@
 	border-transparent rounded-full p-0 m-0 "
 	style="top: {top}px; left: {left}px;"
 	bind:this={dot}
+  role="presentation"
 	on:mouseover={(e) => {
 		highlight = true; // actually this is redundant because overHighlighter in Canvas.svelte, but it's here for clarity
 	}}

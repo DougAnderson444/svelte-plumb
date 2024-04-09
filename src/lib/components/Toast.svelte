@@ -4,7 +4,7 @@
 	import { quintOut } from 'svelte/easing';
 
 	// Export a prop through which you can set a desired transition
-	export let transition: TransitionTypes = 'fade';
+	let transition: TransitionTypes = 'fade';
 	// Pass in extra transition params
 	export let toast = true;
 

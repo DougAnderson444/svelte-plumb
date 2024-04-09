@@ -127,6 +127,8 @@
 			on:focus={handleMouseOver}
 			on:blur={handleMouseOut}
 			use:clickOutside={{ enabled: selected, handleUnselect }}
+      role="link"
+      tabindex="0"
 		/>
 		<!-- Always have text left to right (English) -->
 		{#if sx < ex}
